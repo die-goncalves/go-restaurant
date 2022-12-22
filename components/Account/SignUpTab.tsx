@@ -4,6 +4,9 @@ import zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TextInput } from '../TextInput'
 import { Loading } from '../Loading'
+import { useSupabaseClient } from '@supabase/auth-helpers-react'
+import { AuthApiError } from '@supabase/supabase-js'
+import toast from 'react-hot-toast'
 
 type FormInputs = {
   email: string
@@ -25,7 +28,12 @@ const schema = zod
     path: ['confirm']
   })
 
-export function SignUpTab() {
+type SignUpTabProps = {
+  onCloseDialog: () => void
+}
+
+export function SignUpTab({ onCloseDialog }: SignUpTabProps) {
+  const { auth } = useSupabaseClient()
   const {
     register,
     handleSubmit,
@@ -40,7 +48,23 @@ export function SignUpTab() {
   })
 
   const onSubmit = async (data: FormInputs): Promise<void> => {
-    console.log({ data })
+    const { error } = await auth.signUp({
+      email: data.email,
+      password: data.password
+    })
+
+    if (error) {
+      if (error instanceof AuthApiError) {
+        if (error.message === 'User already registered') {
+          toast.error('Usuário já cadastrado')
+        }
+      } else {
+        console.error(error)
+      }
+    } else {
+      toast.success('Cadastro realizado')
+      onCloseDialog()
+    }
   }
 
   return (
