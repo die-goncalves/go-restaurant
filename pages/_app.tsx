@@ -2,6 +2,7 @@ import '../styles/globals.css'
 import { useState } from 'react'
 import type { AppProps } from 'next/app'
 import { Barlow_Semi_Condensed } from '@next/font/google'
+import { Notification } from '../components/Notification'
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
 import { SessionContextProvider, Session } from '@supabase/auth-helpers-react'
 
@@ -42,6 +43,7 @@ export default function App({
         }
       `}</style>
       <Component {...pageProps} />
+      <Notification />
     </SessionContextProvider>
   )
 }

@@ -47,7 +47,9 @@ module.exports = {
       },
       animation: {
         overlayShow: 'overlayShow 150ms ease-in',
-        contentShow: 'contentShow 150ms ease-in'
+        contentShow: 'contentShow 150ms ease-in',
+        enter: 'enter 250ms ease-out',
+        leave: 'leave 250ms ease-in forwards'
       },
       keyframes: {
         overlayShow: {
@@ -57,6 +59,14 @@ module.exports = {
         contentShow: {
           '0%': { opacity: 0, transform: 'translate(-50%, -48%) scale(.96)' },
           '100%': { opacity: 1, transform: 'translate(-50%, -50%) scale(1)' }
+        },
+        enter: {
+          '0%': { transform: 'translate(50%, 0)', opacity: 0 },
+          '100%': { transform: 'translate(0, 0)', opacity: 1 }
+        },
+        leave: {
+          '0%': { transform: 'translate(0, 0)', opacity: 1 },
+          '100%': { transform: 'translate(100%, 0)', opacity: 0 }
         }
       }
     },
