@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import clsx from 'clsx'
 import { Dialog } from '../Dialog'
 import { SignInTab } from './SignInTab'
@@ -5,8 +6,14 @@ import { SignUpTab } from './SignUpTab'
 import * as TabPrimitive from '@radix-ui/react-tabs'
 
 export function Account() {
+  const [open, setOpen] = useState(false)
+
+  function handleCloseDialog() {
+    setOpen(false)
+  }
+
   return (
-    <Dialog.Root>
+    <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger>
         <button
           className={clsx(
@@ -54,7 +61,7 @@ export function Account() {
               'focus:outline-none focus:ring-2 focus:ring-inset'
             )}
           >
-            <SignInTab />
+            <SignInTab onCloseDialog={handleCloseDialog} />
           </TabPrimitive.Content>
           <TabPrimitive.Content
             value="signup"
@@ -63,7 +70,7 @@ export function Account() {
               'focus:outline-none focus:ring-2 focus:ring-inset'
             )}
           >
-            <SignUpTab />
+            <SignUpTab onCloseDialog={handleCloseDialog} />
           </TabPrimitive.Content>
         </TabPrimitive.Root>
       </Dialog.Content>
