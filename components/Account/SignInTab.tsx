@@ -4,6 +4,9 @@ import zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TextInput } from '../TextInput'
 import { Loading } from '../Loading'
+import { useSupabaseClient } from '@supabase/auth-helpers-react'
+import { AuthApiError } from '@supabase/supabase-js'
+import toast from 'react-hot-toast'
 
 type FormInputs = {
   email: string
@@ -18,7 +21,12 @@ const schema = zod.object({
   password: zod.string().min(1, { message: 'Campo obrigatório' })
 })
 
-export function SignInTab() {
+type SignInTabProps = {
+  onCloseDialog: () => void
+}
+
+export function SignInTab({ onCloseDialog }: SignInTabProps) {
+  const { auth } = useSupabaseClient()
   const {
     register,
     handleSubmit,
@@ -32,7 +40,23 @@ export function SignInTab() {
   })
 
   const onSubmit = async (data: FormInputs): Promise<void> => {
-    console.log({ data })
+    const { error } = await auth.signInWithPassword({
+      email: data.email,
+      password: data.password
+    })
+
+    if (error) {
+      if (error instanceof AuthApiError) {
+        if (error.message === 'Invalid login credentials') {
+          toast.error('Credenciais de login inválidas')
+        }
+      } else {
+        console.error(error)
+      }
+    } else {
+      toast.success('Login realizado')
+      onCloseDialog()
+    }
   }
 
   return (
