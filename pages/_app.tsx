@@ -1,6 +1,9 @@
 import '../styles/globals.css'
+import { useState } from 'react'
 import type { AppProps } from 'next/app'
 import { Barlow_Semi_Condensed } from '@next/font/google'
+import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
+import { SessionContextProvider, Session } from '@supabase/auth-helpers-react'
 
 const barlow_semi_condensed = Barlow_Semi_Condensed({
   weight: ['300', '400', '500', '600', '700'],
@@ -8,9 +11,30 @@ const barlow_semi_condensed = Barlow_Semi_Condensed({
   subsets: ['latin']
 })
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({
+  Component,
+  pageProps
+}: AppProps<{
+  initialSession: Session
+}>) {
+  const [supabaseClient] = useState(() =>
+    createBrowserSupabaseClient({
+      cookieOptions: {
+        name: '@gorestaurant-v0.1.0:auth-token',
+        domain: 'localhost',
+        path: '/',
+        sameSite: 'lax',
+        secure: false,
+        maxAge: 60 * 60 * 24 * 365
+      }
+    })
+  )
+
   return (
-    <>
+    <SessionContextProvider
+      supabaseClient={supabaseClient}
+      initialSession={pageProps.initialSession}
+    >
       <style jsx global>{`
         :root {
           --font-barlow-semi-condensed: ${barlow_semi_condensed.style
@@ -18,6 +42,6 @@ export default function App({ Component, pageProps }: AppProps) {
         }
       `}</style>
       <Component {...pageProps} />
-    </>
+    </SessionContextProvider>
   )
 }
