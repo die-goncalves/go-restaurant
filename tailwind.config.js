@@ -49,7 +49,8 @@ module.exports = {
         overlayShow: 'overlayShow 150ms ease-in',
         contentShow: 'contentShow 150ms ease-in',
         enter: 'enter 250ms ease-out',
-        leave: 'leave 250ms ease-in forwards'
+        leave: 'leave 250ms ease-in forwards',
+        fade: 'fade 150ms ease-in'
       },
       keyframes: {
         overlayShow: {
@@ -67,6 +68,10 @@ module.exports = {
         leave: {
           '0%': { transform: 'translate(0, 0)', opacity: 1 },
           '100%': { transform: 'translate(100%, 0)', opacity: 0 }
+        },
+        fade: {
+          '0%': { opacity: 0, transform: 'scale(0.9)' },
+          '100%': { opacity: 1, transform: 'scale(1)' }
         }
       }
     },
