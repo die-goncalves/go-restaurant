@@ -66,6 +66,22 @@ module.exports = {
           '0%': { opacity: 0, transform: 'translate(-50%, -48%) scale(.96)' },
           '100%': { opacity: 1, transform: 'translate(-50%, -50%) scale(1)' }
         },
+        slideLeft: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' }
+        },
+        slideRight: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(100%)' }
+        },
+        fadeIn: {
+          '0%': { opacity: 0 },
+          '100%': { opacity: 1 }
+        },
+        fadeOut: {
+          '0%': { opacity: 1 },
+          '100%': { opacity: 0 }
+        },
         enter: {
           '0%': { transform: 'translate(50%, 0)', opacity: 0 },
           '100%': { transform: 'translate(0, 0)', opacity: 1 }
