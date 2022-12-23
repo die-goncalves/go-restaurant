@@ -45,11 +45,16 @@ module.exports = {
           }
         }
       },
+      backgroundImage: {
+        skeleton:
+          'linear-gradient(90deg, #00000000 0%, #00000033 20%, #00000099 60%, #00000000 0%)'
+      },
       animation: {
         overlayShow: 'overlayShow 150ms ease-in',
         contentShow: 'contentShow 150ms ease-in',
         enter: 'enter 250ms ease-out',
         leave: 'leave 250ms ease-in forwards',
+        shimmer: 'shimmer 1.2s infinite linear',
         fade: 'fade 150ms ease-in'
       },
       keyframes: {
@@ -68,6 +73,10 @@ module.exports = {
         leave: {
           '0%': { transform: 'translate(0, 0)', opacity: 1 },
           '100%': { transform: 'translate(100%, 0)', opacity: 0 }
+        },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' }
         },
         fade: {
           '0%': { opacity: 0, transform: 'scale(0.9)' },
