@@ -17,6 +17,16 @@ const DrawerComponentTrigger = forwardRef<
 ))
 DrawerComponentTrigger.displayName = 'DrawerTrigger'
 
+const DrawerComponentClose = forwardRef<
+  HTMLButtonElement,
+  DialogPrimitive.DialogCloseProps
+>(({ children, ...props }, forwardedRef) => (
+  <DialogPrimitive.Close asChild {...props} ref={forwardedRef}>
+    {children}
+  </DialogPrimitive.Close>
+))
+DrawerComponentClose.displayName = 'DrawerClose'
+
 const DrawerComponentContent = forwardRef<
   HTMLDivElement,
   DialogPrimitive.DialogContentProps
@@ -47,5 +57,6 @@ DrawerComponentContent.displayName = 'DrawerContent'
 export const Drawer = {
   Root: DrawerComponentRoot,
   Trigger: DrawerComponentTrigger,
+  Close: DrawerComponentClose,
   Content: DrawerComponentContent
 }
