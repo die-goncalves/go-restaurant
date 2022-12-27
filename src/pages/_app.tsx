@@ -1,4 +1,4 @@
-import '../styles/globals.css'
+import '../../styles/globals.css'
 import { useState } from 'react'
 import type { AppProps } from 'next/app'
 import { Barlow_Semi_Condensed } from '@next/font/google'

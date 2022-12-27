@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import clsx from 'clsx'
 import { MapPin } from 'phosphor-react'
 import mapboxgl from 'mapbox-gl'
-import { municipalitiesCovered } from '../../municipalitiesCovered'
+import { municipalitiesCovered } from '../../../municipalitiesCovered'
 
 import 'mapbox-gl/dist/mapbox-gl.css'
 
