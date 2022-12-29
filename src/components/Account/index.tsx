@@ -26,7 +26,7 @@ export function Account() {
         </button>
       </Dialog.Trigger>
 
-      <Dialog.Content className="p-0">
+      <Dialog.Content className="p-0 w-96">
         <TabPrimitive.Root
           defaultValue="signin"
           className="flex flex-col w-full shadow-lg"
