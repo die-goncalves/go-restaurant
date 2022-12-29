@@ -5,6 +5,7 @@ import { Barlow_Semi_Condensed } from '@next/font/google'
 import { Notification } from '../components/Notification'
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
 import { SessionContextProvider, Session } from '@supabase/auth-helpers-react'
+import { PositionProvider } from '../contexts/PositionContext'
 
 const barlow_semi_condensed = Barlow_Semi_Condensed({
   weight: ['300', '400', '500', '600', '700'],
@@ -36,14 +37,16 @@ export default function App({
       supabaseClient={supabaseClient}
       initialSession={pageProps.initialSession}
     >
-      <style jsx global>{`
-        :root {
-          --font-barlow-semi-condensed: ${barlow_semi_condensed.style
-            .fontFamily};
-        }
-      `}</style>
-      <Component {...pageProps} />
-      <Notification />
+      <PositionProvider>
+        <style jsx global>{`
+          :root {
+            --font-barlow-semi-condensed: ${barlow_semi_condensed.style
+              .fontFamily};
+          }
+        `}</style>
+        <Component {...pageProps} />
+        <Notification />
+      </PositionProvider>
     </SessionContextProvider>
   )
 }
