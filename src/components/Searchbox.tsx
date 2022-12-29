@@ -1,74 +1,22 @@
 import clsx from 'clsx'
-import { useState, useEffect, ChangeEvent } from 'react'
-import NextLink from 'next/link'
+import { useState, useEffect, ChangeEvent, FormEvent } from 'react'
+import router from 'next/router'
 import { MapPin } from 'phosphor-react'
+import toast from 'react-hot-toast'
+import {
+  TFeaturesCollection,
+  TGeographicFeatureWithCoordinates
+} from '../types'
+import { usePosition } from '../contexts/PositionContext'
+import { geographicInformation } from '../utils/geographicInformation'
+import { encodeGeohash } from '../utils/geohash'
 import { TextInput } from './TextInput'
-import geohash from 'ngeohash'
 
-export type GeographicFeatureWithCoordinates = {
-  coordinates: {
-    latitude: number
-    longitude: number
-  }
-  geohash: string
-  place_name: string | undefined
-  granular: { id: string; text: string } | undefined
-  place: string | undefined
-}
-
-type Feature = {
-  place_name: string
-  geometry: {
-    coordinates: Array<number>
-  }
-  context: Array<{ id: string; text: string }>
-}
-
-type FeaturesCollection = {
-  features: Array<Feature>
-}
-
-function generateGeographicInformation(feature: any): {
-  place_name: string | undefined
-  granular: { id: string; text: string } | undefined
-  place: string | undefined
-} {
-  const typeFeatureContext = [
-    'address',
-    'neighborhood',
-    'locality',
-    'place',
-    'district',
-    'postcode',
-    'region',
-    'country'
-  ]
-
-  const dataTypesAvailable = typeFeatureContext.map(type => {
-    const separate_types = feature.context.find((ctx: any) =>
-      ctx.id.includes(type)
-    )
-    if (separate_types) {
-      return { id: type, text: separate_types.text }
-    } else return undefined
-  })
-
-  return {
-    place_name: feature.place_name,
-    granular: dataTypesAvailable.find(type => type),
-    place: dataTypesAvailable[3] ? dataTypesAvailable[3].text : undefined
-  }
-}
-
-function encodeGeohash(coord: { latitude: number; longitude: number }) {
-  return geohash.encode(coord.latitude, coord.longitude, 15)
-}
-
-const geographicFeatures = (data: FeaturesCollection) => {
-  let allFeatures: Array<GeographicFeatureWithCoordinates> = []
+const geographicFeatures = (data: TFeaturesCollection) => {
+  let allFeatures: Array<TGeographicFeatureWithCoordinates> = []
 
   for (const item of data.features) {
-    const { granular, place, place_name } = generateGeographicInformation(item)
+    const { granular, place, place_name } = geographicInformation(item)
     let eachFeature = {
       coordinates: {
         latitude: item.geometry.coordinates[1],
@@ -88,31 +36,77 @@ const geographicFeatures = (data: FeaturesCollection) => {
 }
 
 export default function Searchbox() {
+  const { state, handleAddPosition } = usePosition()
   const [userInput, setUserInput] = useState<string>('')
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const [filteredSuggestions, setFilteredSuggestions] = useState<Array<any>>([])
+  const [showOptions, setShowOptions] = useState(false)
+  const [filteredOptions, setFilteredOptions] = useState<Array<any>>([])
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setShowSuggestions(true)
+    setShowOptions(true)
     setUserInput(event.target.value)
   }
 
-  useEffect(() => {
-    if (userInput && userInput.length !== 0) {
-      fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${userInput}.json?bbox=-41.87537769666548,-21.311923538580672,-39.6882975718911,-17.875156159159033&access_token=${process.env.NEXT_PUBLIC_MAPBOX_GL_ACCESS_TOKEN}&limit=3`
-      )
-        .then(response => response.json())
-        .then(data => {
-          setFilteredSuggestions(geographicFeatures(data))
-        })
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+
+    if (state.currentPosition) {
+      if (state.currentPosition.place && state.currentPosition.geohash) {
+        router.push(
+          `/restaurants?place=${state.currentPosition.place}&geohash=${state.currentPosition.geohash}`
+        )
+      } else {
+        toast.error(
+          'Não conseguimos obter as coordenadas do endereço, por favor indique no mapa.'
+        )
+      }
     } else {
-      setFilteredSuggestions([])
+      toast.error(
+        'Não conseguimos obter as coordenadas do endereço, por favor indique no mapa.'
+      )
     }
+  }
+
+  const handleClickOption = (item: TGeographicFeatureWithCoordinates) => {
+    setShowOptions(false)
+
+    handleAddPosition({
+      coordinates: item.coordinates,
+      geohash: item.geohash,
+      granular: item.granular,
+      place: item.place,
+      place_name: item.place_name
+    })
+
+    setUserInput(item.place_name ?? '')
+  }
+
+  useEffect(() => {
+    async function getFilteredOptions() {
+      if (userInput && userInput.length !== 0) {
+        fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${userInput}.json?bbox=-41.87537769666548,-21.311923538580672,-39.6882975718911,-17.875156159159033&access_token=${process.env.NEXT_PUBLIC_MAPBOX_GL_ACCESS_TOKEN}&limit=3`
+        )
+          .then(response => response.json())
+          .then(data => {
+            setFilteredOptions(geographicFeatures(data))
+          })
+      } else {
+        setFilteredOptions([])
+      }
+    }
+
+    getFilteredOptions()
   }, [userInput])
 
+  useEffect(() => {
+    if (state.currentPosition) {
+      setShowOptions(false)
+      setUserInput(state.currentPosition.place_name ?? '')
+    } else setUserInput('')
+  }, [state.currentPosition])
+
   return (
-    <form className="flex-1 max-w-lg">
+    <form className="flex-1 max-w-lg" onSubmit={handleSubmit}>
       <div className="flex flex-1 gap-2">
         <div className="flex-1 relative">
           <TextInput
@@ -121,34 +115,34 @@ export default function Searchbox() {
             placeholder="Endereço de entrega"
           />
 
-          {showSuggestions && (
-            <div className="flex flex-col absolute top-full w-full mt-2 bg-light-gray-100 rounded gap-2">
-              {filteredSuggestions &&
-                filteredSuggestions.map(
-                  (item: GeographicFeatureWithCoordinates) => {
-                    return (
-                      <NextLink
-                        className={clsx(
-                          'flex items-center py-2 px-3 text-sm bg-light-gray-200 hover:bg-light-gray-300 rounded',
-                          'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-light-indigo-300'
-                        )}
-                        href="#"
-                        key={item.place_name}
-                      >
-                        <span className="mr-3">
-                          <MapPin className="w-4 h-4" />
-                        </span>
-                        {item.place_name}
-                      </NextLink>
-                    )
-                  }
-                )}
+          {showOptions && !!filteredOptions.length && (
+            <div className="flex flex-col absolute top-full w-full mt-2 bg-light-gray-200 rounded gap-2 p-2">
+              {filteredOptions.map(
+                (item: TGeographicFeatureWithCoordinates) => {
+                  return (
+                    <button
+                      onClick={() => handleClickOption(item)}
+                      className={clsx(
+                        'flex text-left items-center py-2 px-3 text-sm bg-light-gray-100 [&:not(:disabled):hover]:bg-light-gray-300 rounded border-2 border-light-gray-300',
+                        'transition-[background-color] ease-in duration-150',
+                        'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-light-indigo-300'
+                      )}
+                      key={item.place_name}
+                    >
+                      <span className="flex-none mr-3">
+                        <MapPin className="w-4 h-4 flex-none" />
+                      </span>
+                      {item.place_name}
+                    </button>
+                  )
+                }
+              )}
             </div>
           )}
         </div>
 
         <button
-          onClick={() => {}}
+          type="submit"
           className={clsx(
             'ml-auto py-2 px-4 rounded bg-light-orange-200 [&:not(:disabled):hover]:bg-light-orange-300',
             'transition-[background-color] ease-in duration-150',
