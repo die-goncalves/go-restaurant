@@ -28,8 +28,19 @@ const DialogComponentContent = forwardRef<
 ))
 DialogComponentContent.displayName = 'DialogContent'
 
+const DialogComponentClose = forwardRef<
+  HTMLButtonElement,
+  DialogPrimitive.DialogCloseProps
+>(({ children, ...props }, forwardedRef) => (
+  <DialogPrimitive.Close asChild {...props} ref={forwardedRef}>
+    {children}
+  </DialogPrimitive.Close>
+))
+DialogComponentClose.displayName = 'DialogClose'
+
 export const Dialog = {
   Root: DialogComponentRoot,
   Trigger: DialogComponentTrigger,
-  Content: DialogComponentContent
+  Content: DialogComponentContent,
+  Close: DialogComponentClose
 }
