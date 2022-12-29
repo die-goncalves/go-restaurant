@@ -31,8 +31,8 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.41.0",
     "react-hot-toast": "^2.4.0",
-    "react-simple-typewriter": "^5.0.1",
     "typescript": "4.9.4",
+    "typewriter-effect": "^2.19.0",
     "zod": "^3.20.2"
   },
   "devDependencies": {

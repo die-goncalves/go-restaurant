@@ -1,4 +1,4 @@
-import { Typewriter as RST } from 'react-simple-typewriter'
+import TypewriterEffect from 'typewriter-effect'
 
 const phrases = [
   'Trabalhou até tarde?',
@@ -11,14 +11,15 @@ const phrases = [
 export function Typewriter() {
   return (
     <strong className="text-4xl font-medium">
-      <RST
-        words={phrases}
-        loop={false}
-        cursor
-        cursorStyle="|"
-        typeSpeed={70}
-        deleteSpeed={35}
-        delaySpeed={1000}
+      <TypewriterEffect
+        options={{
+          strings: phrases,
+          autoStart: true,
+          loop: true,
+          deleteSpeed: 35,
+          delay: 70,
+          cursor: '_'
+        }}
       />
     </strong>
   )
