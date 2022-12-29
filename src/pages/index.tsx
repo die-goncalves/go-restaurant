@@ -1,13 +1,9 @@
-import clsx from 'clsx'
 import Head from 'next/head'
 import NextImage from 'next/image'
+import { useSessionContext } from '@supabase/auth-helpers-react'
 import { Account } from '../components/Account'
 import { SignedUser } from '../components/SignedUser'
-import { useSessionContext } from '@supabase/auth-helpers-react'
-import { GlobeHemisphereWest, X } from 'phosphor-react'
-import { Drawer } from '../components/Drawer'
-import { TextInput } from '../components/TextInput'
-import DrawerMap from '../components/Maps/DrawerMap'
+import { DrawerMap } from '../components/DrawerMap'
 import { Typewriter } from '../components/Typewriter'
 import Searchbox from '../components/Searchbox'
 import { Skeleton } from '../components/Skeleton'
@@ -47,52 +43,7 @@ export default function Home() {
             <div className="flex mt-8 mb-4 gap-2">
               <Searchbox />
 
-              <Drawer.Root>
-                <Drawer.Trigger>
-                  <button
-                    className={clsx(
-                      'flex p-2 rounded bg-light-gray-200 [&:not(:disabled):hover]:bg-light-gray-300',
-                      'transition-[background-color] ease-in duration-150',
-                      'focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                    )}
-                  >
-                    <GlobeHemisphereWest className="w-6 h-6" />
-                  </button>
-                </Drawer.Trigger>
-                <Drawer.Content className="flex flex-col w-2/5">
-                  <header className="flex p-4 items-center justify-between">
-                    <p className="text-xl font-medium">Onde você está?</p>
-                    <Drawer.Close>
-                      <button
-                        className={clsx(
-                          'p-2 rounded bg-light-gray-200 [&:not(:disabled):hover]:bg-light-gray-300',
-                          'transition-[background-color] ease-in duration-150',
-                          'focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                        )}
-                      >
-                        <X className="w-6 h-6" />
-                      </button>
-                    </Drawer.Close>
-                  </header>
-                  <DrawerMap />
-                  <footer className="flex justify-center p-4 gap-4">
-                    <TextInput
-                      placeholder="Clique no mapa e verá o endereço aqui"
-                      readOnly
-                    />
-
-                    <button
-                      className={clsx(
-                        'ml-auto py-2 px-4 rounded bg-light-green-200 [&:not(:disabled):hover]:bg-light-green-300',
-                        'transition-[background-color] ease-in duration-150',
-                        'focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                      )}
-                    >
-                      Confirmar
-                    </button>
-                  </footer>
-                </Drawer.Content>
-              </Drawer.Root>
+              <DrawerMap />
             </div>
           </div>
         </div>

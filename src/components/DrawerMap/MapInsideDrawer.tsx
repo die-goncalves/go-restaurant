@@ -1,24 +1,39 @@
-import { useEffect, useRef } from 'react'
 import clsx from 'clsx'
+import { useEffect, useRef } from 'react'
 import { MapPin } from 'phosphor-react'
 import mapboxgl from 'mapbox-gl'
 import { municipalitiesCovered } from '../../../municipalitiesCovered'
+import { decodeGeohash } from '../../utils/geohash'
+import { usePosition } from '../../contexts/PositionContext'
 
 import 'mapbox-gl/dist/mapbox-gl.css'
 
-export default function DrawerMap() {
+type MapInsideDrawerProps = {
+  onCoordinatesChange: (coord: { lat: number; lng: number }) => void
+}
+export default function MapInsideDrawer({
+  onCoordinatesChange
+}: MapInsideDrawerProps) {
+  const { state } = usePosition()
   const mapContainer = useRef<any>(null)
   const map = useRef<mapboxgl.Map | null>(null)
-  const position = useRef<any>(null)
 
   useEffect(() => {
     map.current = new mapboxgl.Map({
       accessToken: process.env.NEXT_PUBLIC_MAPBOX_GL_ACCESS_TOKEN ?? '',
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [-40.31, -19.03],
-      zoom: 8.9
+      center: [-40.25616187455981, -19.022474801531843],
+      zoom: 9
     })
+
+    if (state.currentPosition) {
+      const { latitude, longitude } = decodeGeohash(
+        state.currentPosition.geohash
+      )
+      map.current.setCenter([longitude, latitude])
+      map.current.setZoom(15)
+    }
 
     map.current.on('move', e => {
       if (!map.current) return
@@ -35,7 +50,7 @@ export default function DrawerMap() {
       const pinElement = document.getElementById('pin')
       if (pinElement && pinElement.classList.contains('inside')) {
         pinElement.classList.add('placed')
-        position.current = map.current.getCenter()
+        onCoordinatesChange(map.current.getCenter())
       }
     })
 
