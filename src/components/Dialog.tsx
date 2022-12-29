@@ -20,7 +20,7 @@ const DialogComponentContent = forwardRef<
     <DialogPrimitive.Content
       {...props}
       ref={forwardedRef}
-      className={`${props.className} bg-light-gray-100 rounded overflow-hidden fixed top-2/4 left-2/4 w-[90vw] max-w-[400px] max-h-[85vh] animate-overlayContent focus:outline-none -translate-x-2/4 -translate-y-2/4 shadow-xl`}
+      className={`${props.className} bg-light-gray-100 rounded overflow-hidden fixed top-2/4 left-2/4 max-w-[85vw] max-h-[85vh] animate-overlayContent focus:outline-none -translate-x-2/4 -translate-y-2/4 shadow-xl`}
     >
       {children}
     </DialogPrimitive.Content>
