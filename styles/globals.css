@@ -7,3 +7,9 @@
     @apply text-light-gray-800;
   }
 }
+
+@layer utilities {
+  .scrollbar-gutter-stable {
+    scrollbar-gutter: stable;
+  }
+}
