@@ -7,12 +7,16 @@ import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
 import { SessionContextProvider, Session } from '@supabase/auth-helpers-react'
 import { PositionProvider } from '../contexts/PositionContext'
 import { FilterProvider } from '../contexts/FilterContext'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const barlow_semi_condensed = Barlow_Semi_Condensed({
   weight: ['300', '400', '500', '600', '700'],
   style: ['normal', 'italic'],
   subsets: ['latin']
 })
+
+const queryClient = new QueryClient()
 
 export default function App({
   Component,
@@ -40,14 +44,17 @@ export default function App({
     >
       <PositionProvider>
         <FilterProvider>
-          <style jsx global>{`
-            :root {
-              --font-barlow-semi-condensed: ${barlow_semi_condensed.style
-                .fontFamily};
-            }
-          `}</style>
-          <Component {...pageProps} />
-          <Notification />
+          <QueryClientProvider client={queryClient}>
+            <style jsx global>{`
+              :root {
+                --font-barlow-semi-condensed: ${barlow_semi_condensed.style
+                  .fontFamily};
+              }
+            `}</style>
+            <Component {...pageProps} />
+            <Notification />
+            <ReactQueryDevtools initialIsOpen={false} />
+          </QueryClientProvider>
         </FilterProvider>
       </PositionProvider>
     </SessionContextProvider>
