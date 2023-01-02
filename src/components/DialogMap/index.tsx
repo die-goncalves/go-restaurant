@@ -94,7 +94,10 @@ export function DialogMap() {
           <span className="font-medium">Mudar</span>
         </button>
       </Dialog.Trigger>
-      <Dialog.Content className="flex flex-col h-3/4 w-1/3">
+      <Dialog.Content
+        onCloseInteractOverlay={() => setOpen(false)}
+        className="flex flex-col h-3/4 w-1/3"
+      >
         <header className="flex p-4 items-center justify-between">
           <p className="text-xl font-medium">
             Escolha seu novo endereço de entrega
