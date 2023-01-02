@@ -51,13 +51,20 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
     <NextLink
       href={`/restaurant/${restaurant.id}?geohash=${state.currentPosition?.geohash}`}
       className={clsx(
-        'flex flex-col items-center rounded overflow-hidden shadow-md',
+        'flex flex-col items-center rounded overflow-hidden shadow-md group',
         'focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300',
         'transition-[transform, box-shadow] ease-in duration-150',
         'hover:-translate-y-2 hover:shadow-xl'
       )}
     >
-      <div className="relative overflow-hidden flex w-full h-40">
+      <div
+        className={clsx(
+          'relative overflow-hidden flex w-full h-40',
+          "after:absolute after:content-[''] after:w-full after:h-full after:inset-0 after:rotate-[5deg] after:translate-x-2 after:-translate-y-full after:bg-transparent",
+          'after:transition-all after:duration-150 after:ease-in',
+          'group-hover:after:scale-125 group-hover:after:backdrop-brightness-150'
+        )}
+      >
         <NextImage
           src={restaurant.image}
           alt={restaurant.name}
