@@ -71,17 +71,14 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
           {arrayTags && (
             <div className="flex flex-wrap gap-1 items-center">
               {arrayTags.map((tag, index) => (
-                <>
-                  <span
-                    key={tag}
-                    className="w-max bg-light-gray-200 text-sm text-light-gray-800 rounded px-1"
-                  >
+                <div key={tag} className="flex items-center">
+                  <span className="w-max bg-light-gray-200 text-sm text-light-gray-800 rounded px-1">
                     {tag}
                   </span>
                   {index !== arrayTags.length - 1 && (
                     <span className="w-1 h-1 bg-light-gray-200 rounded-full mx-0.5" />
                   )}
-                </>
+                </div>
               ))}
             </div>
           )}
