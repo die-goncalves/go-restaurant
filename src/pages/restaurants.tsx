@@ -87,7 +87,7 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
 
   return (
     <div className="bg-light-gray-100">
-      <header className="flex sticky top-0 px-8 py-4 items-center justify-between bg-light-gray-100/80 backdrop-blur">
+      <header className="flex sticky top-0 px-8 py-4 items-center justify-between bg-light-gray-100/80 backdrop-blur z-10">
         <NextImage src="/logo.svg" alt="pizza" width="32" height="32" />
 
         <Account />
