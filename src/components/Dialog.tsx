@@ -18,14 +18,14 @@ const DialogComponentContent = forwardRef<
   <DialogPrimitive.Portal>
     <DialogPrimitive.Overlay
       onClick={onCloseInteractOverlay}
-      className="bg-light-gray-900 fixed inset-0 bg-opacity-75 animate-overlayShow"
+      className="bg-light-gray-900 fixed inset-0 bg-opacity-75 animate-overlayShow z-20"
     />
     <DialogPrimitive.Content
       {...props}
       ref={forwardedRef}
       onPointerDownOutside={e => e.preventDefault()}
       onInteractOutside={e => e.preventDefault()}
-      className={`${props.className} bg-light-gray-100 rounded overflow-hidden fixed top-2/4 left-2/4 max-w-[85vw] max-h-[85vh] animate-overlayContent focus:outline-none -translate-x-2/4 -translate-y-2/4 shadow-xl`}
+      className={`${props.className} bg-light-gray-100 rounded overflow-hidden fixed top-2/4 left-2/4 max-w-[85vw] max-h-[85vh] animate-overlayContent focus:outline-none -translate-x-2/4 -translate-y-2/4 shadow-xl z-30`}
     >
       {children}
     </DialogPrimitive.Content>
