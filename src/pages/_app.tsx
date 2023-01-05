@@ -9,6 +9,7 @@ import { PositionProvider } from '../contexts/PositionContext'
 import { FilterProvider } from '../contexts/FilterContext'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { CartProvider } from '../contexts/CartContext'
 
 const barlow_semi_condensed = Barlow_Semi_Condensed({
   weight: ['300', '400', '500', '600', '700'],
@@ -44,17 +45,19 @@ export default function App({
     >
       <PositionProvider>
         <FilterProvider>
-          <QueryClientProvider client={queryClient}>
-            <style jsx global>{`
-              :root {
-                --font-barlow-semi-condensed: ${barlow_semi_condensed.style
-                  .fontFamily};
-              }
-            `}</style>
-            <Component {...pageProps} />
-            <Notification />
-            <ReactQueryDevtools initialIsOpen={false} />
-          </QueryClientProvider>
+          <CartProvider>
+            <QueryClientProvider client={queryClient}>
+              <style jsx global>{`
+                :root {
+                  --font-barlow-semi-condensed: ${barlow_semi_condensed.style
+                    .fontFamily};
+                }
+              `}</style>
+              <Component {...pageProps} />
+              <Notification />
+              <ReactQueryDevtools initialIsOpen={false} />
+            </QueryClientProvider>
+          </CartProvider>
         </FilterProvider>
       </PositionProvider>
     </SessionContextProvider>
