@@ -24,7 +24,6 @@ export function tagListingForFiltering(
     ]
     return removeDuplicatesInRestaurant
   })
-  console.log({ tag_array, restaurants: JSON.stringify(restaurants, null, 2) })
 
   for (let item of tag_array) {
     if (!item.tag) continue
