@@ -13,6 +13,7 @@ import { Sidebar } from '../components/Sidebar'
 import { SelectedTags } from '../components/SelectedTags'
 import { RestaurantCard } from '../components/RestaurantCard'
 import { Skeleton } from '../components/Skeleton'
+import dynamic from 'next/dynamic'
 
 type RestaurantsProps = {
   geohash: string
@@ -21,6 +22,10 @@ type RestaurantsProps = {
     count: number
   }>
 }
+
+const DynamicCart = dynamic(() => import('../components/Cart'), {
+  ssr: false
+})
 
 export default function Restaurants({ geohash, tags }: RestaurantsProps) {
   const { state, handleAddPosition } = useFilter()
@@ -90,7 +95,11 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
       <header className="flex sticky top-0 px-8 py-4 items-center justify-between bg-light-gray-100/80 backdrop-blur z-10">
         <NextImage src="/logo.svg" alt="pizza" width="32" height="32" />
 
-        <Account />
+        <div className="flex gap-4">
+          <DynamicCart />
+
+          <Account />
+        </div>
       </header>
 
       <div className="flex relative mx-8">
