@@ -58,7 +58,8 @@ module.exports = {
         enter: 'enter 250ms ease-out',
         leave: 'leave 250ms ease-in forwards',
         shimmer: 'shimmer 1.2s infinite linear',
-        fade: 'fade 150ms ease-in'
+        fade: 'fade 150ms ease-in',
+        heartbeat: 'heartbeat 2s ease-in alternate'
       },
       keyframes: {
         overlayShow: {
@@ -108,6 +109,29 @@ module.exports = {
         slideUp: {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: 0 }
+        },
+        heartbeat: {
+          '0%': {
+            animationTimingFunction: 'ease-out',
+            transform: 'scale(1)',
+            transformOrigin: 'center center'
+          },
+          '10%': {
+            animationTimingFunction: 'ease-in',
+            transform: 'scale(1.09)'
+          },
+          '17%': {
+            animationTimingFunction: 'ease-out',
+            transform: 'scale(1.02)'
+          },
+          '33%': {
+            animationTimingFunction: 'ease-in',
+            transform: 'scale(1.13)'
+          },
+          '45%': {
+            animationTimingFunction: 'ease-out',
+            transform: 'scale(1)'
+          }
         }
       }
     },
