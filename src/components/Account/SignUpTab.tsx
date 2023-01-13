@@ -20,8 +20,12 @@ const schema = zod
       .string()
       .min(1, { message: 'Campo obrigatório' })
       .email('Deve ser um e-mail válido.'),
-    password: zod.string().min(1, { message: 'Campo obrigatório' }),
-    confirm: zod.string().min(1, { message: 'Campo obrigatório' })
+    password: zod
+      .string()
+      .min(6, { message: 'A senha deve ter no mínimo 6 caracteres' }),
+    confirm: zod
+      .string()
+      .min(6, { message: 'A senha deve ter no mínimo 6 caracteres' })
   })
   .refine(data => data.password === data.confirm, {
     message: 'As senhas não são iguais',
