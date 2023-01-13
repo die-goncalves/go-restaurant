@@ -1,11 +1,19 @@
 import clsx from 'clsx'
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import NextImage from 'next/image'
 import { Minus, Plus, ShoppingCartSimple, X } from 'phosphor-react'
 import { formatNumber } from '../utils/formatNumber'
 import { useCart } from '../contexts/CartContext'
 import { Dialog } from './Dialog'
+import { api } from '../services/api'
+import { loadStripe } from '@stripe/stripe-js'
 import { useAuth } from '../contexts/AuthContext'
+
+// Make sure to call `loadStripe` outside of a component’s render to avoid
+// recreating the `Stripe` object on every render.
+const stripePromise = loadStripe(
+  `${process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}`
+)
 
 export default function Cart() {
   const [open, setOpen] = useState(false)
@@ -18,8 +26,20 @@ export default function Cart() {
   } = useCart()
   const { session } = useAuth()
 
-  async function handleSubscribe() {
-    console.log('checkout stripe')
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+
+    try {
+      const response = await api.post('/api/checkout-sessions')
+
+      const { sessionId } = response.data
+
+      // Redirect to Checkout.
+      const stripe = await stripePromise
+      await stripe!.redirectToCheckout({ sessionId })
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   const qtyCart = qtyItemsInTheCart()
@@ -186,7 +206,7 @@ export default function Cart() {
                   'disabled:cursor-not-allowed disabled:opacity-80'
                 )}
                 disabled={!session?.user || !qtyCart}
-                onClick={handleSubscribe}
+                onClick={handleSubmit}
               >
                 {session?.user
                   ? !qtyCart

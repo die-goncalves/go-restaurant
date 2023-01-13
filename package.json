@@ -19,6 +19,7 @@
     "@radix-ui/react-radio-group": "^1.1.0",
     "@radix-ui/react-slider": "^1.1.0",
     "@radix-ui/react-tabs": "^1.0.1",
+    "@stripe/stripe-js": "^1.46.0",
     "@supabase/auth-helpers-nextjs": "^0.5.2",
     "@supabase/auth-helpers-react": "^0.3.1",
     "@supabase/supabase-js": "^2.2.1",
@@ -42,6 +43,7 @@
     "react-hook-form": "^7.41.0",
     "react-hot-toast": "^2.4.0",
     "scroll-into-view": "^1.16.2",
+    "stripe": "^11.6.0",
     "typescript": "4.9.4",
     "typewriter-effect": "^2.19.0",
     "zod": "^3.20.2"
