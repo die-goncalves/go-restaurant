@@ -48,7 +48,7 @@ export default function Cart() {
       </Dialog.Trigger>
 
       <Dialog.Content
-        className="w-96"
+        className="w-[30rem]"
         onCloseInteractOverlay={() => setOpen(false)}
       >
         <header className="flex p-4 items-center justify-between">
@@ -66,7 +66,7 @@ export default function Cart() {
           </Dialog.Close>
         </header>
 
-        <main className="relative flex flex-col p-4">
+        <main className="relative flex flex-col py-4 pl-4 max-h-96 overflow-auto scrollbar-gutter-stable">
           {!qtyCart && (
             <div className="relative flex w-full h-60">
               <NextImage
@@ -156,7 +156,7 @@ export default function Cart() {
         </main>
 
         <footer className="flex items-center p-4">
-          <div className="flex flex-1 flex-col gap-2">
+          <div className="flex flex-1 flex-col gap-4">
             <div className="flex justify-between">
               <span className="text-lg font-medium">Total</span>
               <span className="bg-light-gray-200 px-2">
@@ -183,7 +183,7 @@ export default function Cart() {
                   'py-2 px-4 rounded bg-light-green-200 [&:not(:disabled):hover]:bg-light-green-300',
                   'transition-[background-color, outline] ease-in duration-150',
                   'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300',
-                  'disabled:cursor-not-allowed opacity-80'
+                  'disabled:cursor-not-allowed disabled:opacity-80'
                 )}
                 disabled={!session?.user || !qtyCart}
                 onClick={handleSubscribe}
