@@ -26,12 +26,13 @@ AccordionComponentItem.displayName = 'AccordionItem'
 const AccordionComponentTrigger = forwardRef<
   HTMLButtonElement,
   AccordionPrimitive.AccordionTriggerProps
->(({ children, ...props }, forwardedRef) => (
+>(({ children, className, ...props }, forwardedRef) => (
   <AccordionPrimitive.Header className="flex">
     <AccordionPrimitive.Trigger
       className={clsx(
         'flex flex-1 group h-10 items-center justify-between py-2 px-4 bg-light-gray-100',
-        'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-light-indigo-300'
+        'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-light-indigo-300',
+        className
       )}
       {...props}
       ref={forwardedRef}
