@@ -4,9 +4,9 @@ import zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TextInput } from '../TextInput'
 import { Loading } from '../Loading'
-import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import { AuthApiError } from '@supabase/supabase-js'
 import toast from 'react-hot-toast'
+import { useAuth } from '../../contexts/AuthContext'
 
 type FormInputs = {
   email: string
@@ -26,7 +26,7 @@ type SignInTabProps = {
 }
 
 export function SignInTab({ onCloseDialog }: SignInTabProps) {
-  const { auth } = useSupabaseClient()
+  const { signIn } = useAuth()
   const {
     register,
     handleSubmit,
@@ -40,7 +40,7 @@ export function SignInTab({ onCloseDialog }: SignInTabProps) {
   })
 
   const onSubmit = async (data: FormInputs): Promise<void> => {
-    const { error } = await auth.signInWithPassword({
+    const { error } = await signIn({
       email: data.email,
       password: data.password
     })

@@ -1,11 +1,11 @@
 import clsx from 'clsx'
 import { useState } from 'react'
 import NextImage from 'next/image'
-import { useSessionContext } from '@supabase/auth-helpers-react'
 import { Minus, Plus, ShoppingCartSimple, X } from 'phosphor-react'
 import { formatNumber } from '../utils/formatNumber'
 import { useCart } from '../contexts/CartContext'
 import { Dialog } from './Dialog'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Cart() {
   const [open, setOpen] = useState(false)
@@ -16,7 +16,7 @@ export default function Cart() {
     separateFoodByRestaurant,
     totalPrice
   } = useCart()
-  const { session } = useSessionContext()
+  const { session } = useAuth()
 
   async function handleSubscribe() {
     console.log('checkout stripe')

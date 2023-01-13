@@ -1,15 +1,15 @@
 import Head from 'next/head'
 import NextImage from 'next/image'
-import { useSessionContext } from '@supabase/auth-helpers-react'
 import { Account } from '../components/Account'
 import { SignedUser } from '../components/SignedUser'
 import { DrawerMap } from '../components/DrawerMap'
 import { Typewriter } from '../components/Typewriter'
 import Searchbox from '../components/Searchbox'
 import { Skeleton } from '../components/Skeleton'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Home() {
-  const { isLoading, session } = useSessionContext()
+  const { isLoading, session } = useAuth()
 
   return (
     <div className="h-screen">
