@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo } from 'react'
 import { GetServerSideProps } from 'next'
+import NextRouter from 'next/router'
 import NextImage from 'next/image'
 import { useQuery } from '@tanstack/react-query'
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
@@ -14,6 +15,8 @@ import { SelectedTags } from '../components/SelectedTags'
 import { RestaurantCard } from '../components/RestaurantCard'
 import { Skeleton } from '../components/Skeleton'
 import dynamic from 'next/dynamic'
+import { SignedUser } from '../components/SignedUser'
+import { useAuth } from '../contexts/AuthContext'
 
 type RestaurantsProps = {
   geohash: string
@@ -28,6 +31,7 @@ const DynamicCart = dynamic(() => import('../components/Cart'), {
 })
 
 export default function Restaurants({ geohash, tags }: RestaurantsProps) {
+  const { isLoading: isLoadingSession, session } = useAuth()
   const { state, handleAddPosition } = useFilter()
 
   const { data, error, isLoading, isError, isSuccess } = useQuery(
@@ -87,7 +91,11 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
         coordinates: { latitude, longitude }
       })
     }
-    if (geohash) getPositionCoordinates()
+    if (geohash) {
+      getPositionCoordinates()
+    } else {
+      NextRouter.push('/')
+    }
   }, [geohash, handleAddPosition])
 
   return (
@@ -98,7 +106,13 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
         <div className="flex gap-4">
           <DynamicCart />
 
-          <Account />
+          {isLoadingSession ? (
+            <Skeleton className="h-10 w-48" />
+          ) : session ? (
+            <SignedUser />
+          ) : (
+            <Account />
+          )}
         </div>
       </header>
 
@@ -143,7 +157,16 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
 export const getServerSideProps: GetServerSideProps = async ctx => {
   const { place } = ctx.query
 
-  const supabase = createServerSupabaseClient(ctx)
+  const supabase = createServerSupabaseClient(ctx, {
+    cookieOptions: {
+      name: '@gorestaurant-v0.1.0:auth-token',
+      domain: 'localhost',
+      path: '/',
+      sameSite: 'lax',
+      secure: false,
+      maxAge: 60 * 60 * 24 * 365
+    }
+  })
 
   const { data } = await supabase
     .from('restaurants')

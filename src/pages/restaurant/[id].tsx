@@ -17,6 +17,9 @@ import { Rating } from '../../components/Rating'
 import { TextTag } from '../../components/Tag/TextTag'
 import { NonInteractiveDialogMap } from '../../components/NonInteractiveDialogMap'
 import { RestaurantOpeningHours } from '../../components/RestaurantOpeningHours'
+import { SignedUser } from '../../components/SignedUser'
+import { Skeleton } from '../../components/Skeleton'
+import { useAuth } from '../../contexts/AuthContext'
 
 const DynamicRestaurantSections = dynamic(
   () => import('../../components/RestaurantSections'),
@@ -44,6 +47,7 @@ type RestaurantProps = {
 }
 
 export default function Restaurant({ restaurant }: RestaurantProps) {
+  const { isLoading, session } = useAuth()
   const { state, handleAddPosition } = usePosition()
   const [priceDistanceAndTime, setPriceDistanceAndTime] = useState<{
     price: number | undefined
@@ -128,7 +132,13 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
           <div className="flex gap-4">
             <DynamicCart />
 
-            <Account />
+            {isLoading ? (
+              <Skeleton className="h-10 w-48" />
+            ) : session ? (
+              <SignedUser />
+            ) : (
+              <Account />
+            )}
           </div>
         </header>
 
