@@ -138,7 +138,9 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
               <Breadcrumb.Link isHomePage href="/">
                 Página inicial
               </Breadcrumb.Link>
-              <Breadcrumb.Link href={`/restaurants?place=${restaurant.place}`}>
+              <Breadcrumb.Link
+                href={`/restaurants?place=${restaurant.place}&geohash=${state.currentPosition?.geohash}`}
+              >
                 {restaurant.place}
               </Breadcrumb.Link>
               <Breadcrumb.Link href="#" isCurrentPage>
