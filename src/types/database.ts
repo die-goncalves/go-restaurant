@@ -42,19 +42,24 @@ export type TOperatingHours = {
 }
 
 export type TOrder = {
-  payment_intent_id: string
+  id: string
   customer_id: string
-  line_items: {
-    food_id: string
-    quantity: number
-  }[]
-  payment_intent_status: string
+  payment_intent_id: string | null
+  payment_status: string | null
+  status: string | null
+  line_items:
+    | {
+        food_id: string
+        quantity: number
+      }[]
+    | null
   shipping_options: {
     shipping_amount: number
     shipping_rate: string
     shipping_address: string
     shipping_geohash: string
-  }
+  } | null
   created_at: string
-  updated_at: string
+  expires_at: string
+  updated_at: string | null
 }
