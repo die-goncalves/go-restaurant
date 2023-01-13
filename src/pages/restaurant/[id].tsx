@@ -31,19 +31,10 @@ const DynamicRedirectWithDialogMap = dynamic(
 )
 
 type Restaurant = Omit<TRestaurant, 'created_at' | 'updated_at'> & {
-  operating_hours: Array<Omit<TOperatingHours, 'restaurant_id'>>
+  operating_hours: Array<TOperatingHours>
   foods: Array<
-    Omit<
-      TFoods,
-      | 'restaurant_id'
-      | 'stripe_food_id'
-      | 'stripe_price_id'
-      | 'created_at'
-      | 'updated_at'
-    > & {
-      food_rating: Array<
-        Omit<TFoodRating, 'food_id' | 'created_at' | 'updated_at'>
-      >
+    Omit<TFoods, 'created_at' | 'updated_at'> & {
+      food_rating: Array<Omit<TFoodRating, 'created_at' | 'updated_at'>>
     }
   >
 }
@@ -217,7 +208,7 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
           </div>
         </div>
 
-        <DynamicRestaurantSections tags={arrayTags} foods={restaurant.foods} />
+        <DynamicRestaurantSections tags={arrayTags} restaurant={restaurant} />
       </div>
     </div>
   )
@@ -259,12 +250,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
             *,
             food_rating ( * )
           ),
-          operating_hours (
-            id,
-            start_hour,
-            end_hour,
-            weekday
-          )
+          operating_hours ( * )
         `
       )
       .match({ id: id })
@@ -274,27 +260,31 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       const restaurant = {
         id: data.id,
         name: data.name,
-        image: data.image,
         phone_number: data.phone_number,
-        address: data.address,
         coordinates: data.coordinates,
+        address: data.address,
+        image: data.image,
+        place: data.place,
+        description: data.description,
         operating_hours: data.operating_hours,
         foods: data.foods.map((food: any) => {
           return {
             id: food.id,
+            restaurant_id: food.restaurant_id,
             name: food.name,
-            description: food.description,
-            image: food.image,
             price: food.price,
+            image: food.image,
+            description: food.description,
             tag: food.tag,
+            stripe_food_id: food.stripe_food_id,
+            stripe_price_id: food.stripe_price_id,
             food_rating: food.food_rating.map((food_rating: any) => ({
+              food_id: food_rating.food_id,
               customer_id: food_rating.customer_id,
               rating: food_rating.rating
             }))
           }
-        }),
-        place: data.place,
-        description: data.description
+        })
       }
 
       return {

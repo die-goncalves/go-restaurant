@@ -4,7 +4,7 @@ import scrollIntoView from 'scroll-into-view'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import debounce from 'lodash.debounce'
 import { ListPlus } from 'phosphor-react'
-import { TFoodRating, TFoods } from '../types'
+import { TFoodRating, TFoods, TRestaurant } from '../types'
 import { FoodCard } from './FoodCard'
 
 function scrollFunction(id: string) {
@@ -22,25 +22,18 @@ function scrollFunction(id: string) {
 }
 
 type RestaurantSectionsProps = {
-  foods: Array<
-    Omit<
-      TFoods,
-      | 'restaurant_id'
-      | 'stripe_food_id'
-      | 'stripe_price_id'
-      | 'created_at'
-      | 'updated_at'
-    > & {
-      food_rating: Array<
-        Omit<TFoodRating, 'food_id' | 'created_at' | 'updated_at'>
-      >
-    }
-  >
-  tags: string[]
+  tags: Array<string>
+  restaurant: Pick<TRestaurant, 'id' | 'name' | 'image'> & {
+    foods: Array<
+      Omit<TFoods, 'created_at' | 'updated_at'> & {
+        food_rating: Array<Omit<TFoodRating, 'created_at' | 'updated_at'>>
+      }
+    >
+  }
 }
 export default function RestaurantSections({
   tags,
-  foods
+  restaurant
 }: RestaurantSectionsProps) {
   const navRef = useRef<HTMLDivElement>(null)
   const [activeSectionId, setActiveSectionId] = useState('')
@@ -275,7 +268,7 @@ export default function RestaurantSections({
             >
               <p className="text-2xl pt-8 pb-4">{tag}</p>
               <div className="grid grid-cols-3 gap-6">
-                {foods
+                {restaurant.foods
                   .map((f: any) => {
                     if (tag === f.tag) {
                       const rating =
@@ -288,7 +281,17 @@ export default function RestaurantSections({
                             },
                             0) / f.food_rating.length
                           : undefined
-                      return <FoodCard key={f.id} food={f} />
+                      return (
+                        <FoodCard
+                          key={f.id}
+                          restaurant={{
+                            id: restaurant.id,
+                            name: restaurant.name,
+                            image: restaurant.image
+                          }}
+                          food={f}
+                        />
+                      )
                     }
                   })
                   .filter((item: any) => item)}
