@@ -10,6 +10,7 @@ import { FilterProvider } from '../contexts/FilterContext'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { CartProvider } from '../contexts/CartContext'
+import { AuthProvider } from '../contexts/AuthContext'
 
 const barlow_semi_condensed = Barlow_Semi_Condensed({
   weight: ['300', '400', '500', '600', '700'],
@@ -43,23 +44,25 @@ export default function App({
       supabaseClient={supabaseClient}
       initialSession={pageProps.initialSession}
     >
-      <PositionProvider>
-        <FilterProvider>
-          <CartProvider>
-            <QueryClientProvider client={queryClient}>
-              <style jsx global>{`
-                :root {
-                  --font-barlow-semi-condensed: ${barlow_semi_condensed.style
-                    .fontFamily};
-                }
-              `}</style>
-              <Component {...pageProps} />
-              <Notification />
-              <ReactQueryDevtools initialIsOpen={false} />
-            </QueryClientProvider>
-          </CartProvider>
-        </FilterProvider>
-      </PositionProvider>
+      <AuthProvider>
+        <PositionProvider>
+          <FilterProvider>
+            <CartProvider>
+              <QueryClientProvider client={queryClient}>
+                <style jsx global>{`
+                  :root {
+                    --font-barlow-semi-condensed: ${barlow_semi_condensed.style
+                      .fontFamily};
+                  }
+                `}</style>
+                <Component {...pageProps} />
+                <Notification />
+                <ReactQueryDevtools initialIsOpen={false} />
+              </QueryClientProvider>
+            </CartProvider>
+          </FilterProvider>
+        </PositionProvider>
+      </AuthProvider>
     </SessionContextProvider>
   )
 }
