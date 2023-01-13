@@ -18,14 +18,6 @@ export default function Cart() {
   } = useCart()
   const { session } = useSessionContext()
 
-  async function handleAddFood(id: string) {
-    await addFood(id)
-  }
-
-  function handleRemoveFood(id: string) {
-    removeFood(id)
-  }
-
   async function handleSubscribe() {
     console.log('checkout stripe')
   }
@@ -132,7 +124,7 @@ export default function Cart() {
                                 'transition-[background-color, outline] ease-in duration-150',
                                 'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
                               )}
-                              onClick={() => handleRemoveFood(food.id)}
+                              onClick={() => removeFood({ id: food.id })}
                             >
                               <Minus className="w-6 h-6 text-light-gray-800" />
                             </button>
@@ -143,7 +135,12 @@ export default function Cart() {
                                 'transition-[background-color, outline] ease-in duration-150',
                                 'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
                               )}
-                              onClick={() => handleAddFood(food.id)}
+                              onClick={() =>
+                                addFood({
+                                  restaurant: item[1][0].restaurant,
+                                  food
+                                })
+                              }
                             >
                               <Plus className="w-6 h-6 text-light-gray-800" />
                             </button>

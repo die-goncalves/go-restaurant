@@ -2,27 +2,19 @@ import clsx from 'clsx'
 import { useState } from 'react'
 import NextImage from 'next/image'
 import { Minus, Plus, ShoppingCartSimple, X } from 'phosphor-react'
-import { TFoodRating, TFoods } from '../types'
+import { TFoodRating, TFoods, TRestaurant } from '../types'
 import { useCart } from '../contexts/CartContext'
 import { formatNumber } from '../utils/formatNumber'
 import { Dialog } from './Dialog'
 
 type FoodProps = {
-  food: Omit<
-    TFoods,
-    | 'restaurant_id'
-    | 'stripe_food_id'
-    | 'stripe_price_id'
-    | 'created_at'
-    | 'updated_at'
-  > & {
-    food_rating: Array<
-      Omit<TFoodRating, 'food_id' | 'created_at' | 'updated_at'>
-    >
+  restaurant: Pick<TRestaurant, 'id' | 'name' | 'image'>
+  food: Omit<TFoods, 'created_at' | 'updated_at'> & {
+    food_rating: Array<Omit<TFoodRating, 'created_at' | 'updated_at'>>
   }
 }
 
-export function FoodCard({ food }: FoodProps) {
+export function FoodCard({ food, restaurant }: FoodProps) {
   const [open, setOpen] = useState(false)
   const {
     addFood,
@@ -31,14 +23,6 @@ export function FoodCard({ food }: FoodProps) {
     numberOfSpecificFoodInTheCart,
     priceOfSpecificFoodAccumulatedInTheCart
   } = useCart()
-
-  async function handleAddFood(id: string) {
-    await addFood(id)
-  }
-
-  function handleRemoveFood(id: string) {
-    removeFood(id)
-  }
 
   const hasFood = thereIsASpecificFoodInTheCart(food.id)
   const qtyFood = numberOfSpecificFoodInTheCart(food.id)
@@ -159,7 +143,7 @@ export function FoodCard({ food }: FoodProps) {
                 !hasFood && 'cursor-not-allowed opacity-25'
               )}
               disabled={!hasFood}
-              onClick={() => handleRemoveFood(food.id)}
+              onClick={() => removeFood({ id: food.id })}
             >
               <Minus className="w-6 h-6 text-light-gray-800" />
             </button>
@@ -169,7 +153,7 @@ export function FoodCard({ food }: FoodProps) {
                 'transition-[background-color, outline] ease-in duration-150',
                 'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
               )}
-              onClick={() => handleAddFood(food.id)}
+              onClick={() => addFood({ restaurant, food })}
             >
               <Plus className="w-6 h-6 text-light-gray-800" />
             </button>
