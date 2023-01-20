@@ -34,7 +34,7 @@ const DrawerComponentContent = forwardRef<
   <DialogPrimitive.Portal>
     <DialogPrimitive.Overlay
       className={clsx(
-        'bg-light-gray-900 fixed inset-0 bg-opacity-75',
+        'bg-light-gray-900 fixed inset-0 bg-opacity-75 z-20',
         'data-[state="open"]:animate-[fadeIn_250ms_ease-in] data-[state="closed"]:animate-[fadeOut_250ms_ease-in]'
       )}
     />
@@ -43,7 +43,7 @@ const DrawerComponentContent = forwardRef<
       ref={forwardedRef}
       className={clsx(
         className,
-        'bg-light-gray-100 overflow-hidden fixed right-0 top-0 bottom-0 h-screen shadow-xl',
+        'bg-light-gray-100 overflow-hidden fixed right-0 top-0 bottom-0 h-screen shadow-xl z-30',
         'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-light-indigo-300',
         'data-[state="open"]:animate-[slideLeft_250ms_ease-in] data-[state="closed"]:animate-[fadeOut_250ms_ease-in]'
       )}
