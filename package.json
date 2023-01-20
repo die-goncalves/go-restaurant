@@ -44,6 +44,7 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.41.0",
     "react-hot-toast": "^2.4.0",
+    "react-scroll-parallax": "^3.3.2",
     "scroll-into-view": "^1.16.2",
     "stripe": "^11.6.0",
     "typescript": "4.9.4",
