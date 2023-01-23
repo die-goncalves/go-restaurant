@@ -29,6 +29,7 @@ import { SignedUser } from '../../components/SignedUser'
 import { Skeleton } from '../../components/Skeleton'
 import RestaurantSections from '../../components/RestaurantSections'
 import { Logo } from '../../components/Logo'
+import Head from 'next/head'
 
 const DynamicCart = dynamic(() => import('../../components/Cart'), {
   ssr: false
@@ -144,6 +145,10 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
 
   return (
     <div className="min-h-screen bg-light-gray-100">
+      <Head>
+        <title>Restaurante {restaurant.name} | GoRestaurant</title>
+      </Head>
+
       <header className="flex px-8 py-4 items-center justify-between">
         <Logo />
 

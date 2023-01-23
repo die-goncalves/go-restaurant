@@ -18,6 +18,7 @@ import { Skeleton } from '../components/Skeleton'
 import dynamic from 'next/dynamic'
 import { SignedUser } from '../components/SignedUser'
 import { Logo } from '../components/Logo'
+import Head from 'next/head'
 
 type RestaurantsProps = {
   geohash: string
@@ -102,6 +103,12 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
 
   return (
     <div className="bg-light-gray-100">
+      <Head>
+        <title>
+          Restaurantes em {state.currentPosition?.place} | GoRestaurant
+        </title>
+      </Head>
+
       <header className="flex sticky top-0 px-8 py-4 items-center justify-between bg-light-gray-100/80 backdrop-blur z-10">
         <Logo />
 
