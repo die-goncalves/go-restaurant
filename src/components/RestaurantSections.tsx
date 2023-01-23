@@ -1,11 +1,56 @@
 import clsx from 'clsx'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useReducer, useRef } from 'react'
 import scrollIntoView from 'scroll-into-view'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import debounce from 'lodash.debounce'
 import { ListPlus } from 'phosphor-react'
 import { TFoodRating, TFoods, TRestaurant } from '../types'
 import { FoodCard } from './FoodCard'
+
+enum Actions {
+  'fill',
+  'active'
+}
+type TActions = {
+  type: keyof typeof Actions
+  payload?: any
+}
+type TElement = {
+  tag: string
+  intersectionRatio: number
+}
+type TData = {
+  elements: { [key: string]: TElement }
+  activeId: string
+}
+
+function reducer(state: TData, action: TActions) {
+  switch (action.type) {
+    case 'fill': {
+      return {
+        ...state,
+        elements: Object.entries<IntersectionObserverEntry>(
+          action.payload.entries
+        ).reduce((acc, current) => {
+          return {
+            ...acc,
+            ...{
+              [current[0]]: {
+                tag: current[1].target.innerHTML,
+                intersectionRatio: current[1].intersectionRatio
+              }
+            }
+          }
+        }, {} as { [key: string]: TElement })
+      }
+    }
+    case 'active': {
+      return { ...state, activeId: action.payload.value }
+    }
+    default:
+      throw Error('Ação desconhecida: ' + action.type)
+  }
+}
 
 function scrollFunction(id: string) {
   let e = document.getElementById(id)
@@ -35,143 +80,108 @@ export default function RestaurantSections({
   tags,
   restaurant
 }: RestaurantSectionsProps) {
+  const [state, dispatch] = useReducer(reducer, {
+    elements: {},
+    activeId: ''
+  })
   const navRef = useRef<HTMLDivElement>(null)
-  const [activeSectionId, setActiveSectionId] = useState('')
-  const [visibilityNavLinks, setVisibilityNavLinks] = useState<{
-    [key: string]: { isIntersecting: boolean; id: string; tag: string }
-  }>({})
-  const hidden = useRef<
-    [string, { isIntersecting: boolean; id: string; tag: string }][]
-  >([])
+  const navObserver = useRef<IntersectionObserver>()
+  const sectionObserver = useRef<IntersectionObserver>()
+  const sectionsRef = useRef<{ [key: string]: IntersectionObserverEntry }>({})
+  const tagsRef = useRef<{ [key: string]: IntersectionObserverEntry }>({})
+
+  useEffect(() => {
+    const callbackFunction = (entries: IntersectionObserverEntry[]) => {
+      tagsRef.current = entries.reduce((acc, entryElement) => {
+        return {
+          ...acc,
+          [entryElement.target.id]: entryElement
+        }
+      }, tagsRef.current)
+
+      dispatch({
+        type: 'fill',
+        payload: {
+          entries: tagsRef.current
+        }
+      })
+    }
+
+    if (navObserver.current) {
+      navObserver.current.disconnect()
+    }
+
+    navObserver.current = new IntersectionObserver(callbackFunction, {
+      root: navRef.current,
+      rootMargin: '0px',
+      threshold: 1
+    })
+
+    let entryElements: Element[] = []
+    if (navRef.current) entryElements = Array.from(navRef.current.children)
+    entryElements.forEach(element => navObserver.current?.observe(element))
+
+    return () => navObserver.current?.disconnect()
+  }, [])
 
   const throttledEventHandler = useRef(
-    debounce(value => setActiveSectionId(value), 50)
+    debounce(value => dispatch({ type: 'active', payload: { value } }), 50)
   )
 
-  const useHandleNavLinks = (
-    setVisibilityNavLinks: React.Dispatch<
-      React.SetStateAction<{
-        [key: string]: {
-          isIntersecting: boolean
-          id: string
-          tag: string
+  useEffect(() => {
+    const callbackFunction = (entries: IntersectionObserverEntry[]) => {
+      sectionsRef.current = entries.reduce((acc, entryElement) => {
+        return {
+          ...acc,
+          [entryElement.target.id]: entryElement
         }
-      }>
-    >
-  ) => {
-    const observer = useRef<IntersectionObserver>()
-    useEffect(() => {
-      const callbackFunction = (entries: IntersectionObserverEntry[]) => {
-        let updatedEntries: {
-          [key: string]: {
-            isIntersecting: boolean
-            id: string
-            tag: string
-          }
-        } = {}
-        entries.forEach(entryElement => {
-          if (entryElement.isIntersecting) {
-            updatedEntries[entryElement.target.id] = {
-              isIntersecting: true,
-              id: entryElement.target.id,
-              tag: entryElement.target.innerHTML
+      }, sectionsRef.current)
+
+      const visibleSections = Object.entries(sectionsRef.current).reduce(
+        (acc, currentSection) => {
+          if (currentSection[1].isIntersecting) {
+            return {
+              ...acc,
+              [currentSection[0]]: currentSection[1]
             }
-          } else {
-            updatedEntries[entryElement.target.id] = {
-              isIntersecting: false,
-              id: entryElement.target.id,
-              tag: entryElement.target.innerHTML
-            }
-          }
-        })
-        setVisibilityNavLinks(prev => ({
-          ...prev,
-          ...updatedEntries
-        }))
-      }
+          } else return acc
+        },
+        {} as { [key: string]: IntersectionObserverEntry }
+      )
 
-      if (observer.current) {
-        observer.current.disconnect()
-      }
-
-      observer.current = new IntersectionObserver(callbackFunction, {
-        root: navRef.current,
-        rootMargin: '0px',
-        threshold: 1
-      })
-
-      let entryElements: Element[] = []
-      if (navRef.current) entryElements = Array.from(navRef.current.children)
-      entryElements.forEach(element => observer.current?.observe(element))
-
-      return () => observer.current?.disconnect()
-    }, [setVisibilityNavLinks])
-  }
-  useHandleNavLinks(setVisibilityNavLinks)
-
-  const useGetActiveSection = (
-    setActiveSectionId: React.Dispatch<React.SetStateAction<string>>
-  ) => {
-    const entryElementsRef = useRef<{
-      [key: string]: IntersectionObserverEntry
-    }>({})
-
-    const observer = useRef<IntersectionObserver>()
-    useEffect(() => {
-      const callbackFunction = (entries: IntersectionObserverEntry[]) => {
-        entryElementsRef.current = entries.reduce((acc, entryElement) => {
-          return {
-            ...acc,
-            [entryElement.target.id]: entryElement
-          }
-        }, entryElementsRef.current)
-
-        const visibleEntries: IntersectionObserverEntry[] = []
-        Object.keys(entryElementsRef.current).forEach(key => {
-          const entryElement = entryElementsRef.current[key]
-          if (entryElement.isIntersecting) {
-            visibleEntries.push(entryElement)
-          }
-        })
-
-        if (visibleEntries.length === 1) {
-          if (visibleEntries[0]['intersectionRatio'] >= 0.5) {
-            throttledEventHandler.current(
-              visibleEntries[0].target.id.replace('section', 'button')
-            )
-          } else {
-            throttledEventHandler.current('')
-          }
-        } else if (visibleEntries.length > 1) {
+      const values = Object.values(visibleSections)
+      if (values.length === 1) {
+        if (values[0]['intersectionRatio'] >= 0.5) {
           throttledEventHandler.current(
-            visibleEntries[0].target.id.replace('section', 'button')
+            values[0].target.id.replace('section', 'button')
           )
         } else {
           throttledEventHandler.current('')
         }
+      } else if (values.length > 1) {
+        throttledEventHandler.current(
+          values[0].target.id.replace('section', 'button')
+        )
+      } else {
+        throttledEventHandler.current('')
       }
+    }
 
-      if (observer.current) {
-        observer.current.disconnect()
-      }
+    if (sectionObserver.current) {
+      sectionObserver.current.disconnect()
+    }
 
-      observer.current = new IntersectionObserver(callbackFunction, {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.5
-      })
+    sectionObserver.current = new IntersectionObserver(callbackFunction, {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.5
+    })
 
-      const entryElements = Array.from(document.querySelectorAll('section'))
-      entryElements.forEach(element => observer.current?.observe(element))
+    const entryElements = Array.from(document.querySelectorAll('section'))
+    entryElements.forEach(element => sectionObserver.current?.observe(element))
 
-      return () => observer.current?.disconnect()
-    }, [setActiveSectionId])
-  }
-  useGetActiveSection(setActiveSectionId)
-
-  hidden.current = Object.entries(visibilityNavLinks).filter(
-    entry => !entry[1].isIntersecting
-  )
+    return () => sectionObserver.current?.disconnect()
+  }, [])
 
   return (
     <div className="p-[1rem_2rem_0_2rem]">
@@ -188,12 +198,9 @@ export default function RestaurantSections({
                     'flex p-2 rounded',
                     'transition-[transform, box-shadow] ease-in duration-150',
                     'outline-none focus:ring-2 focus:ring-inset focus:ring-light-indigo-300',
-                    activeSectionId === `button-${tag}`
+                    state.activeId === `button-${tag}`
                       ? 'bg-light-orange-200 [&:not(:disabled):hover]:bg-light-orange-300'
-                      : 'text-light-gray-800 [&:not(:disabled):hover]:bg-light-gray-200',
-                    hidden.current.flatMap(y => y[0]).includes(`button-${tag}`)
-                      ? 'invisible'
-                      : 'visible'
+                      : 'text-light-gray-800 [&:not(:disabled):hover]:bg-light-gray-200'
                   )}
                   key={`button-key-${tag}`}
                   id={`button-${tag}`}
@@ -204,7 +211,9 @@ export default function RestaurantSections({
               ))}
             </div>
 
-            {!!hidden.current.length && (
+            {!!Object.values<TElement>(state.elements).filter(
+              el => el.intersectionRatio < 0.5
+            ).length && (
               <DropdownMenu.Root>
                 <DropdownMenu.Trigger asChild>
                   <button
@@ -223,31 +232,33 @@ export default function RestaurantSections({
                   <DropdownMenu.Content
                     sideOffset={5}
                     className={clsx(
-                      'flex flex-col gap-2 items-center w-40 min-w-max bg-light-gray-100 border-t-2 border-light-gray-200 shadow-md rounded p-2'
+                      'flex flex-col gap-2 items-center w-40 min-w-max bg-light-gray-100 border-t-2 border-light-gray-200 shadow-md rounded p-2 z-30'
                     )}
                   >
                     <DropdownMenu.Label className="text-light-gray-500">
                       + categorias
                     </DropdownMenu.Label>
 
-                    {hidden.current.map(h => (
-                      <DropdownMenu.Item key={h[1].tag} asChild>
-                        <button
-                          className={clsx(
-                            'flex items-center w-full p-2 rounded',
-                            'transition-[transform, box-shadow] ease-in duration-150',
-                            'outline-none focus:ring-2 focus:ring-inset focus:ring-light-indigo-300',
-                            activeSectionId === `button-${h[1].tag}`
-                              ? 'bg-light-orange-200 [&:not(:disabled):hover]:bg-light-orange-300'
-                              : 'text-light-gray-800 [&:not(:disabled):hover]:bg-light-gray-200'
-                          )}
-                          id={`button-${h[1].tag}`}
-                          onClick={() => scrollFunction(`section-${h[1].tag}`)}
-                        >
-                          {h[1].tag}
-                        </button>
-                      </DropdownMenu.Item>
-                    ))}
+                    {Object.values<TElement>(state.elements)
+                      .filter(el => el.intersectionRatio < 0.5)
+                      .map(h => (
+                        <DropdownMenu.Item key={h.tag} asChild>
+                          <button
+                            className={clsx(
+                              'flex items-center w-full p-2 rounded',
+                              'transition-[transform, box-shadow] ease-in duration-150',
+                              'outline-none focus:ring-2 focus:ring-inset focus:ring-light-indigo-300',
+                              state.activeId === `button-${h.tag}`
+                                ? 'bg-light-orange-200 [&:not(:disabled):hover]:bg-light-orange-300'
+                                : 'text-light-gray-800 [&:not(:disabled):hover]:bg-light-gray-200'
+                            )}
+                            id={`button-${h.tag}`}
+                            onClick={() => scrollFunction(`section-${h.tag}`)}
+                          >
+                            {h.tag}
+                          </button>
+                        </DropdownMenu.Item>
+                      ))}
 
                     <DropdownMenu.Arrow className="fill-light-gray-200" />
                   </DropdownMenu.Content>
@@ -271,16 +282,6 @@ export default function RestaurantSections({
                 {restaurant.foods
                   .map((f: any) => {
                     if (tag === f.tag) {
-                      const rating =
-                        f.food_rating.length > 0
-                          ? f.food_rating.reduce(function (
-                              acc: any,
-                              currentValue: { rating: any }
-                            ) {
-                              return acc + currentValue.rating
-                            },
-                            0) / f.food_rating.length
-                          : undefined
                       return (
                         <FoodCard
                           key={f.id}
