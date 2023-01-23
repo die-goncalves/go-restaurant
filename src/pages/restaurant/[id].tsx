@@ -146,7 +146,11 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
   return (
     <div className="min-h-screen bg-light-gray-100">
       <Head>
-        <title>Restaurante {restaurant.name} | GoRestaurant</title>
+        <title>
+          {restaurant
+            ? `Restaurante ${restaurant.name} | GoRestaurant`
+            : `Restaurante | GoRestaurant`}
+        </title>
       </Head>
 
       <header className="flex px-8 py-4 items-center justify-between">

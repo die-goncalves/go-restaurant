@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo } from 'react'
 import { GetServerSideProps } from 'next'
 import NextRouter from 'next/router'
-import NextImage from 'next/image'
 import { useQuery } from '@tanstack/react-query'
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
 import { api } from '../services/api'
@@ -105,7 +104,9 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
     <div className="bg-light-gray-100">
       <Head>
         <title>
-          Restaurantes em {state.currentPosition?.place} | GoRestaurant
+          {state.currentPosition
+            ? `Restaurantes em ${state.currentPosition?.place} | GoRestaurant`
+            : `Restaurantes | GoRestaurant`}
         </title>
       </Head>
 
