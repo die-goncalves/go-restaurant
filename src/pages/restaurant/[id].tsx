@@ -12,6 +12,7 @@ import {
   TTag
 } from '../../types'
 import { usePosition } from '../../contexts/PositionContext'
+import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../services/supabaseClient'
 import { whenOpen } from '../../utils/restaurantOperation'
 import { decodeGeohash } from '../../utils/geohash'
@@ -26,8 +27,8 @@ import { NonInteractiveDialogMap } from '../../components/NonInteractiveDialogMa
 import { RestaurantOpeningHours } from '../../components/RestaurantOpeningHours'
 import { SignedUser } from '../../components/SignedUser'
 import { Skeleton } from '../../components/Skeleton'
-import { useAuth } from '../../contexts/AuthContext'
 import RestaurantSections from '../../components/RestaurantSections'
+import { Logo } from '../../components/Logo'
 
 const DynamicCart = dynamic(() => import('../../components/Cart'), {
   ssr: false
@@ -144,7 +145,7 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
   return (
     <div className="min-h-screen bg-light-gray-100">
       <header className="flex px-8 py-4 items-center justify-between">
-        <NextImage src="/logo.svg" alt="pizza" width="32" height="32" />
+        <Logo />
 
         <div className="flex gap-4">
           <DynamicCart />

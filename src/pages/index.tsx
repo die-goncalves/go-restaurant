@@ -12,6 +12,7 @@ import { Partners } from '../components/Partner'
 import { Footer } from '../components/Footer'
 import { Help } from '../components/Help'
 import { Presentation } from '../components/Presentation'
+import { Logo } from '../components/Logo'
 
 export default function Home() {
   const { isLoading, session } = useAuth()
@@ -27,7 +28,7 @@ export default function Home() {
       <div className="flex h-screen">
         <div className="w-[60vw] h-full bg-light-gray-100">
           <header className="flex px-[3.75rem] py-4 items-center justify-between bg-light-gray-100">
-            <NextImage src="/logo.svg" alt="pizza" width="32" height="32" />
+            <Logo named />
 
             {isLoading ? (
               <Skeleton className="h-10 w-48" />

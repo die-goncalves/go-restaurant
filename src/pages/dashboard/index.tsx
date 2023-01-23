@@ -2,7 +2,6 @@ import clsx from 'clsx'
 import { useState } from 'react'
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
-import NextImage from 'next/image'
 import NextRouter from 'next/router'
 import { createServerSupabaseClient, User } from '@supabase/auth-helpers-nextjs'
 import { X } from 'phosphor-react'
@@ -12,6 +11,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { SignedUser } from '../../components/SignedUser'
 import { DashboardNavigation } from '../../components/DashboardNavigation'
 import { Dialog } from '../../components/Dialog'
+import { Logo } from '../../components/Logo'
 
 type ProfileProps = {
   user: User
@@ -43,8 +43,7 @@ export default function Profile({ user }: ProfileProps) {
       </Head>
       <div className="flex flex-col">
         <header className="flex px-[3.75rem] py-4 items-center justify-between bg-light-gray-100">
-          <NextImage src="/logo.svg" alt="pizza" width="32" height="32" />
-
+          <Logo />
           <SignedUser />
         </header>
         <div className="flex px-[3.75rem] h-[calc(100vh-4.5rem)]">

@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
 import { api } from '../services/api'
 import { useFilter } from '../contexts/FilterContext'
+import { useAuth } from '../contexts/AuthContext'
 import { tagListingForFiltering } from '../utils/tags'
 import { geographicInformation } from '../utils/geographicInformation'
 import { decodeGeohash } from '../utils/geohash'
@@ -16,7 +17,7 @@ import { RestaurantCard } from '../components/RestaurantCard'
 import { Skeleton } from '../components/Skeleton'
 import dynamic from 'next/dynamic'
 import { SignedUser } from '../components/SignedUser'
-import { useAuth } from '../contexts/AuthContext'
+import { Logo } from '../components/Logo'
 
 type RestaurantsProps = {
   geohash: string
@@ -102,7 +103,7 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
   return (
     <div className="bg-light-gray-100">
       <header className="flex sticky top-0 px-8 py-4 items-center justify-between bg-light-gray-100/80 backdrop-blur z-10">
-        <NextImage src="/logo.svg" alt="pizza" width="32" height="32" />
+        <Logo />
 
         <div className="flex gap-4">
           <DynamicCart />

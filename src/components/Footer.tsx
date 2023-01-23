@@ -1,6 +1,5 @@
 import clsx from 'clsx'
 import NextLink from 'next/link'
-import NextImage from 'next/image'
 import {
   AppleLogo,
   FacebookLogo,
@@ -9,16 +8,13 @@ import {
   PinterestLogo,
   TwitterLogo
 } from 'phosphor-react'
+import { Logo } from './Logo'
 
 export function Footer() {
   return (
     <footer className="flex flex-col flex-1 relative px-[3.75rem] z-[2] mt-40">
       <div className="flex items-center justify-between pb-4 border-b-2 border-b-light-gray-200">
-        <div className="flex items-center">
-          <NextImage src="/logo.svg" alt="pizza" width="32" height="32" />
-          &nbsp;
-          <span className="text-lg">GoRestaurant</span>
-        </div>
+        <Logo named />
 
         <div className="flex items-center gap-4">
           <NextLink

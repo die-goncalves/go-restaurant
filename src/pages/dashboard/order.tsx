@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { GetServerSideProps } from 'next'
-import NextImage from 'next/image'
 import Head from 'next/head'
 import { createServerSupabaseClient, User } from '@supabase/auth-helpers-nextjs'
 import { TOrder } from '../../types'
@@ -9,6 +8,7 @@ import { Skeleton } from '../../components/Skeleton'
 import { DashboardNavigation } from '../../components/DashboardNavigation'
 import { Payment } from '../../components/Payment'
 import { SignedUser } from '../../components/SignedUser'
+import { Logo } from '../../components/Logo'
 
 type TPayment = Omit<TOrder, 'line_items' | 'shipping_options'> & {
   line_items: Array<{
@@ -77,7 +77,7 @@ export default function Order({ user }: ProfileProps) {
       </Head>
       <div className="flex flex-col">
         <header className="flex px-[3.75rem] py-4 items-center justify-between bg-light-gray-100">
-          <NextImage src="/logo.svg" alt="pizza" width="32" height="32" />
+          <Logo />
 
           <SignedUser />
         </header>
