@@ -3,6 +3,7 @@ import { FormEvent, useState } from 'react'
 import NextImage from 'next/image'
 import { Minus, Plus, ShoppingCartSimple, X } from 'phosphor-react'
 import { formatNumber } from '../utils/formatNumber'
+import { shimmerBase64 } from '../utils/blurDataURL'
 import { useCart } from '../contexts/CartContext'
 import { Dialog } from './Dialog'
 import { api } from '../services/api'
@@ -94,6 +95,9 @@ export default function Cart() {
                 alt="Sem comida no carrinho"
                 fill
                 className="object-cover contrast-150"
+                placeholder="blur"
+                blurDataURL={shimmerBase64}
+                sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
               />
               <div className="absolute inset-0 overflow-hidden bg-gradient-to-r from-light-gray-100 via-transparent to-light-gray-100 opacity-100"></div>
               <div className="absolute inset-0 overflow-hidden bg-gradient-to-b from-light-gray-100 via-transparent to-light-gray-100 opacity-100"></div>
@@ -108,11 +112,13 @@ export default function Cart() {
                 <div className="relative flex">
                   <div className="relative flex w-full h-16">
                     <NextImage
-                      layout="fill"
                       src={item[1][0].restaurant.image}
                       alt={item[1][0].restaurant.name}
                       fill
                       className="rounded object-cover opacity-25"
+                      placeholder="blur"
+                      blurDataURL={shimmerBase64}
+                      sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
                     />
                   </div>
                   <div className="absolute flex inset-0 items-center justify-center">
@@ -128,11 +134,13 @@ export default function Cart() {
                       <div className="flex" key={food.id}>
                         <div className="relative flex w-16 h-16">
                           <NextImage
-                            layout="fill"
                             src={food.image}
                             alt={food.name}
                             fill
                             className="rounded object-cover"
+                            placeholder="blur"
+                            blurDataURL={shimmerBase64}
+                            sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
                           />
                         </div>
                         <div className="flex flex-1 items-center justify-between pl-2">

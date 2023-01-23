@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import NextImage from 'next/image'
+import { shimmerBase64 } from '../utils/blurDataURL'
 import { Account } from '../components/Account'
 import { SignedUser } from '../components/SignedUser'
 import { DrawerMap } from '../components/DrawerMap'
@@ -60,6 +61,9 @@ export default function Home() {
             src="https://images.unsplash.com/photo-1493770348161-369560ae357d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
             alt="Frutas"
             fill
+            placeholder="blur"
+            blurDataURL={shimmerBase64}
+            sizes="(max-width: 768px) 100vw, (min-width: 769px) 40vw"
           />
         </div>
       </div>

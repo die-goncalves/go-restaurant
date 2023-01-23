@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import { useState } from 'react'
 import NextImage from 'next/image'
 import { Minus, Plus, ShoppingCartSimple, X } from 'phosphor-react'
+import { shimmerBase64 } from '../utils/blurDataURL'
 import { TFoodRating, TFoods, TRestaurant, TTag } from '../types'
 import { useCart } from '../contexts/CartContext'
 import { formatNumber } from '../utils/formatNumber'
@@ -87,6 +88,9 @@ export function FoodCard({ food, restaurant }: FoodProps) {
                 alt={food.name}
                 fill
                 className="object-cover"
+                placeholder="blur"
+                blurDataURL={shimmerBase64}
+                sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
               />
             </div>
           </div>
@@ -128,6 +132,9 @@ export function FoodCard({ food, restaurant }: FoodProps) {
               alt={food.name}
               fill
               className="object-cover"
+              placeholder="blur"
+              blurDataURL={shimmerBase64}
+              sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
             />
           </div>
           <div className="flex w-full p-4 text-justify">

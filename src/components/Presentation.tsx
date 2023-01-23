@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import NextImage from 'next/image'
 import { X } from 'phosphor-react'
 import * as Dialog from '@radix-ui/react-dialog'
+import { shimmerBase64 } from '../utils/blurDataURL'
 
 const gmailSVG = (
   <svg
@@ -326,6 +327,9 @@ export function Presentation() {
                   alt=""
                   fill
                   className="object-cover contrast-125"
+                  placeholder="blur"
+                  blurDataURL={shimmerBase64}
+                  sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
                 />
                 <div className="flex absolute h-72 w-full overflow-hidden bg-gradient-to-b from-light-gray-100 opacity-100"></div>
               </div>

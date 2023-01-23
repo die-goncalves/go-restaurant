@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import { useEffect, useState } from 'react'
 import NextImage from 'next/image'
+import { shimmerBase64 } from '../../utils/blurDataURL'
 import { TFoods, TRestaurant } from '../../types'
 import { supabase } from '../../services/supabaseClient'
 import { useAuth } from '../../contexts/AuthContext'
@@ -107,6 +108,9 @@ export function RatingCard({ food }: FoodRatingCardProps) {
           alt={food.name}
           fill
           className="object-cover"
+          placeholder="blur"
+          blurDataURL={shimmerBase64}
+          sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
         />
       </div>
       <div className="flex flex-col flex-1 py-4 px-2 items-center justify-between ">

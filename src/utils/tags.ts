@@ -21,7 +21,6 @@ export function tagListingForFiltering(
         .reduce((acc, currentValue) => {
           if (currentValue) {
             if (acc[currentValue.tag.id]) {
-              console.log(acc[currentValue.tag.id])
               return {
                 ...acc,
                 [currentValue.tag.id]: {

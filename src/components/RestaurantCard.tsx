@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import NextImage from 'next/image'
 import NextLink from 'next/link'
 import { Bag, Car, Star } from 'phosphor-react'
+import { shimmerBase64 } from '../utils/blurDataURL'
 import { TFoodRating, TFoods, TRestaurant, TTag } from '../types'
 import { useFilter } from '../contexts/FilterContext'
 import { useMemo } from 'react'
@@ -87,6 +88,9 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
           alt={restaurant.name}
           fill
           className="object-cover"
+          placeholder="blur"
+          blurDataURL={shimmerBase64}
+          sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
         />
       </div>
       <div className="relative flex flex-col w-full rounded p-2 bg-light-gray-100 -mt-4">

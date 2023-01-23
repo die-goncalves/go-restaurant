@@ -17,6 +17,7 @@ import { whenOpen } from '../../utils/restaurantOperation'
 import { decodeGeohash } from '../../utils/geohash'
 import { geographicInformation } from '../../utils/geographicInformation'
 import { getRouteTimeAndDistance } from '../../utils/directionsMapBox'
+import { shimmerBase64 } from '../../utils/blurDataURL'
 import { Account } from '../../components/Account'
 import { Breadcrumb } from '../../components/Breadcrumb'
 import { Rating } from '../../components/Rating'
@@ -27,7 +28,6 @@ import { SignedUser } from '../../components/SignedUser'
 import { Skeleton } from '../../components/Skeleton'
 import { useAuth } from '../../contexts/AuthContext'
 import RestaurantSections from '../../components/RestaurantSections'
-import { string } from 'zod'
 
 const DynamicCart = dynamic(() => import('../../components/Cart'), {
   ssr: false
@@ -227,6 +227,9 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
               alt={restaurant.name}
               fill
               className="object-cover"
+              placeholder="blur"
+              blurDataURL={shimmerBase64}
+              sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
             />
           </div>
           <DynamicRedirectWithDialogMap
