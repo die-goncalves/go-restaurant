@@ -21,7 +21,8 @@ import { useAuth } from '../contexts/AuthContext'
 type RestaurantsProps = {
   geohash: string
   tags: Array<{
-    tag: string
+    id: string
+    name: string
     count: number
   }>
 }
@@ -170,7 +171,7 @@ export const getServerSideProps: GetServerSideProps = async ctx => {
 
   const { data } = await supabase
     .from('restaurants')
-    .select('foods ( tag )')
+    .select('foods ( tag ( * ) )')
     .filter('place', 'eq', place)
 
   const tags = data ? tagListingForFiltering(data) : []

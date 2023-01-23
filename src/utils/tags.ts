@@ -1,44 +1,53 @@
+import { TTag } from '../types'
+
 export function tagListingForFiltering(
-  restaurants: {
-    foods:
-      | {
-          tag: any
-        }
-      | {
-          tag: any
-        }[]
-      | null
-  }[]
+  data:
+    | {
+        foods:
+          | {
+              tag: Pick<TTag, 'id' | 'name'>
+            }
+          | {
+              tag: Pick<TTag, 'id' | 'name'>
+            }[]
+          | null
+      }[]
+    | null
 ) {
-  let result: Array<{
-    tag: string
-    count: number
-  }> = []
-  const tag_array = restaurants.flatMap(restaurant => {
-    const removeDuplicatesInRestaurant = [
-      ...new Map(
-        restaurant.foods.map<[string, { tag: string }]>(item => {
-          return [item.tag, item]
-        })
-      ).values()
-    ]
-    return removeDuplicatesInRestaurant
-  })
+  if (data)
+    return Object.values(
+      data
+        .flatMap(item => item.foods)
+        .reduce((acc, currentValue) => {
+          if (currentValue) {
+            if (acc[currentValue.tag.id]) {
+              console.log(acc[currentValue.tag.id])
+              return {
+                ...acc,
+                [currentValue.tag.id]: {
+                  ...acc[currentValue.tag.id],
+                  count: acc[currentValue.tag.id].count + 1
+                }
+              }
+            } else {
+              return {
+                ...acc,
+                ...{
+                  [currentValue.tag.id]: {
+                    id: currentValue.tag.id,
+                    name: currentValue.tag.name,
+                    count: 1
+                  }
+                }
+              }
+            }
+          } else return acc
+        }, {} as { [key: string]: { id: string; name: string; count: number } })
+    ).sort(function (a, b) {
+      if (a.name > b.name) return 1
+      if (a.name < b.name) return -1
+      return 0
+    })
 
-  for (let item of tag_array) {
-    if (!item.tag) continue
-    if (result.length === 0) {
-      result.push({ tag: item.tag, count: 1 })
-      continue
-    }
-    const index = result.findIndex(element => element['tag'] === item.tag)
-
-    if (index !== -1) {
-      result[index]['count'] += 1
-    } else {
-      result.push({ tag: item.tag, count: 1 })
-    }
-  }
-
-  return result
+  return []
 }

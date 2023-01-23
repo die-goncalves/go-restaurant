@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { TFoodRating, TFoods, TRestaurant } from '../../types'
+import { TFoodRating, TFoods, TRestaurant, TTag } from '../../types'
 import { supabase } from '../../services/supabaseClient'
 import { getRouteTimeAndDistance } from '../../utils/directionsMapBox'
 import { overallRatingRestaurant } from '../../utils/overallRatingRestaurant'
@@ -9,8 +9,10 @@ type TSupabaseResponseData = Omit<
   'phone_number' | 'address' | 'description' | 'updated_at'
 > & {
   foods: Array<
-    Pick<TFoods, 'tag'> & {
+    TFoods & {
       food_rating: Array<TFoodRating>
+    } & {
+      tag: TTag
     }
   >
 }
@@ -70,7 +72,7 @@ async function dataForPickUp(data: any[], filters: TQueryFilters) {
   if (filters.tag) {
     filterByTags = addRatingInfo.filter(restaurant => {
       const foodsWithTag = restaurant.foods.filter(food => {
-        return filters.tag?.includes(food.tag)
+        return filters.tag?.includes(food.tag.name)
       })
       return !!foodsWithTag.length
     })
@@ -159,7 +161,7 @@ async function dataForDelivery(data: any[], filters: TQueryFilters) {
   if (filters.tag) {
     filterByTags = addInfos.filter(restaurant => {
       const foodsWithTag = restaurant.foods.filter(food => {
-        return filters.tag?.includes(food.tag)
+        return filters.tag?.includes(food.tag.name)
       })
       return !!foodsWithTag.length
     })
@@ -244,7 +246,7 @@ export default async function handler(
         image,
         created_at,
         foods (
-          tag,
+          tag ( * ),
           food_rating ( * )
         ),
         place

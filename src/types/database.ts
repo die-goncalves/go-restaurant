@@ -14,11 +14,11 @@ export type TRestaurant = {
 export type TFoods = {
   id: string
   restaurant_id: string
+  tag_id: string
   name: string
   price: number
   image: string
   description: string
-  tag: string
   stripe_food_id: string
   stripe_price_id: string
   created_at: string
@@ -62,4 +62,11 @@ export type TOrder = {
   created_at: string
   expires_at: string
   updated_at: string | null
+}
+
+export type TTag = {
+  id: string
+  name: string
+  created_at: string
+  updated_at: string
 }

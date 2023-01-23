@@ -17,7 +17,7 @@ export function Partners() {
       const { data } = await supabase.from('restaurants').select(
         `
           *,
-          foods ( tag, food_rating ( * ) )
+          foods ( food_rating ( * ) )
         `
       )
 

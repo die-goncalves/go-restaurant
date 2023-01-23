@@ -2,12 +2,19 @@ import clsx from 'clsx'
 import NextImage from 'next/image'
 import NextLink from 'next/link'
 import { Bag, Car, Star } from 'phosphor-react'
-import { TFoods, TRestaurant } from '../types'
+import { TFoodRating, TFoods, TRestaurant, TTag } from '../types'
 import { useFilter } from '../contexts/FilterContext'
+import { useMemo } from 'react'
 
 type RestaurantCardProps = {
   restaurant: Pick<TRestaurant, 'id' | 'image' | 'name'> & {
-    foods: Array<Pick<TFoods, 'tag'>>
+    foods: Array<
+      TFoods & {
+        food_rating: Array<TFoodRating>
+      } & {
+        tag: TTag
+      }
+    >
     rating?: number
     reviews: number
     delivery_time?: number
@@ -36,11 +43,21 @@ const deliveryTime = (seconds: number | undefined) => {
 
 export function RestaurantCard({ restaurant }: RestaurantCardProps) {
   const { state } = useFilter()
-  const tags = restaurant.foods.map(food => {
-    return food.tag
-  })
-  const setTags = new Set(tags).values()
-  const arrayTags = Array.from(setTags)
+
+  const tags = useMemo(() => {
+    const removeDuplicateTags = restaurant.foods.reduce((acc, currentValue) => {
+      if (acc[currentValue.tag.id]) {
+        return acc
+      } else {
+        return { ...acc, ...{ [currentValue.tag.id]: currentValue.tag } }
+      }
+    }, {} as { [key: string]: TTag })
+    return Object.values(removeDuplicateTags).sort(function (a, b) {
+      if (a.name > b.name) return 1
+      if (a.name < b.name) return -1
+      return 0
+    })
+  }, [restaurant.foods])
 
   const time = deliveryTime(restaurant.delivery_time)
   const price = restaurant.delivery_price
@@ -75,14 +92,14 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
       <div className="relative flex flex-col w-full rounded p-2 bg-light-gray-100 -mt-4">
         <div className="flex flex-col gap-2 items-start">
           <h1 className="font-bold text-lg">{restaurant.name}</h1>
-          {arrayTags && (
+          {tags && (
             <div className="flex flex-wrap gap-1 items-center">
-              {arrayTags.map((tag, index) => (
-                <div key={tag} className="flex items-center">
+              {tags.map((tag, index) => (
+                <div key={tag.id} className="flex items-center">
                   <span className="w-max bg-light-gray-200 text-sm text-light-gray-800 rounded px-1">
-                    {tag}
+                    {tag.name}
                   </span>
-                  {index !== arrayTags.length - 1 && (
+                  {index !== tags.length - 1 && (
                     <span className="w-1 h-1 bg-light-gray-200 rounded-full mx-0.5" />
                   )}
                 </div>

@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { useState } from 'react'
 import NextImage from 'next/image'
 import { Minus, Plus, ShoppingCartSimple, X } from 'phosphor-react'
-import { TFoodRating, TFoods, TRestaurant } from '../types'
+import { TFoodRating, TFoods, TRestaurant, TTag } from '../types'
 import { useCart } from '../contexts/CartContext'
 import { formatNumber } from '../utils/formatNumber'
 import { Dialog } from './Dialog'
@@ -11,6 +11,8 @@ type FoodProps = {
   restaurant: Pick<TRestaurant, 'id' | 'name' | 'image'>
   food: Omit<TFoods, 'created_at' | 'updated_at'> & {
     food_rating: Array<Omit<TFoodRating, 'created_at' | 'updated_at'>>
+  } & {
+    tag: Omit<TTag, 'created_at' | 'updated_at'>
   }
 }
 

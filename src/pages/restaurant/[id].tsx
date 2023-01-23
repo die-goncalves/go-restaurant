@@ -4,7 +4,13 @@ import dynamic from 'next/dynamic'
 import NextImage from 'next/image'
 import { setCookie } from 'nookies'
 import { WhatsappLogo } from 'phosphor-react'
-import { TFoodRating, TFoods, TOperatingHours, TRestaurant } from '../../types'
+import {
+  TFoodRating,
+  TFoods,
+  TOperatingHours,
+  TRestaurant,
+  TTag
+} from '../../types'
 import { usePosition } from '../../contexts/PositionContext'
 import { supabase } from '../../services/supabaseClient'
 import { whenOpen } from '../../utils/restaurantOperation'
@@ -21,6 +27,7 @@ import { SignedUser } from '../../components/SignedUser'
 import { Skeleton } from '../../components/Skeleton'
 import { useAuth } from '../../contexts/AuthContext'
 import RestaurantSections from '../../components/RestaurantSections'
+import { string } from 'zod'
 
 const DynamicCart = dynamic(() => import('../../components/Cart'), {
   ssr: false
@@ -35,6 +42,8 @@ type Restaurant = Omit<TRestaurant, 'created_at' | 'updated_at'> & {
   foods: Array<
     Omit<TFoods, 'created_at' | 'updated_at'> & {
       food_rating: Array<Omit<TFoodRating, 'created_at' | 'updated_at'>>
+    } & {
+      tag: Omit<TTag, 'created_at' | 'updated_at'>
     }
   >
 }
@@ -110,8 +119,20 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
     if (geohash) getPositionCoordinates(geohash)
   }, [handleAddPosition])
 
-  const setTags = new Set(restaurant.foods.map(f => f.tag)).values()
-  const arrayTags = Array.from(setTags).sort()
+  const tags = useMemo(() => {
+    const removeDuplicateTags = restaurant.foods.reduce((acc, currentValue) => {
+      if (acc[currentValue.tag.id]) {
+        return acc
+      } else {
+        return { ...acc, ...{ [currentValue.tag.id]: currentValue.tag } }
+      }
+    }, {} as { [key: string]: { id: string; name: string } })
+    return Object.values(removeDuplicateTags).sort(function (a, b) {
+      if (a.name > b.name) return 1
+      if (a.name < b.name) return -1
+      return 0
+    })
+  }, [restaurant])
 
   const open = useMemo(() => {
     return whenOpen(restaurant.operating_hours, {
@@ -167,8 +188,8 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
           </div>
 
           <div className="flex flex-wrap pt-2 gap-2">
-            {arrayTags.map(t => (
-              <TextTag key={t}>{t}</TextTag>
+            {tags.map(t => (
+              <TextTag key={t.id}>{t.name}</TextTag>
             ))}
           </div>
 
@@ -216,7 +237,7 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
         </div>
       </div>
 
-      <RestaurantSections tags={arrayTags} restaurant={restaurant} />
+      <RestaurantSections tags={tags} restaurant={restaurant} />
     </div>
   )
 }
@@ -255,6 +276,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
           *,
           foods (
             *,
+            tag ( * ),
             food_rating ( * )
           ),
           operating_hours ( * )

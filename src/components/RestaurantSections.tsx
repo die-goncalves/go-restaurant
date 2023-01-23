@@ -4,7 +4,7 @@ import scrollIntoView from 'scroll-into-view'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import debounce from 'lodash.debounce'
 import { ListPlus } from 'phosphor-react'
-import { TFoodRating, TFoods, TRestaurant } from '../types'
+import { TFoodRating, TFoods, TRestaurant, TTag } from '../types'
 import { FoodCard } from './FoodCard'
 
 enum Actions {
@@ -67,11 +67,13 @@ function scrollFunction(id: string) {
 }
 
 type RestaurantSectionsProps = {
-  tags: Array<string>
+  tags: Array<{ id: string; name: string }>
   restaurant: Pick<TRestaurant, 'id' | 'name' | 'image'> & {
     foods: Array<
       Omit<TFoods, 'created_at' | 'updated_at'> & {
         food_rating: Array<Omit<TFoodRating, 'created_at' | 'updated_at'>>
+      } & {
+        tag: Omit<TTag, 'created_at' | 'updated_at'>
       }
     >
   }
@@ -153,14 +155,14 @@ export default function RestaurantSections({
       if (values.length === 1) {
         if (values[0]['intersectionRatio'] >= 0.5) {
           throttledEventHandler.current(
-            values[0].target.id.replace('section', 'button')
+            values[0].target.id.replace('sect', 'btn')
           )
         } else {
           throttledEventHandler.current('')
         }
       } else if (values.length > 1) {
         throttledEventHandler.current(
-          values[0].target.id.replace('section', 'button')
+          values[0].target.id.replace('sect', 'btn')
         )
       } else {
         throttledEventHandler.current('')
@@ -192,21 +194,21 @@ export default function RestaurantSections({
               className="flex flex-1 flex-wrap flex-row max-h-10 pr-4 overflow-clip gap-4"
               ref={navRef}
             >
-              {tags.map((tag, index) => (
+              {tags.map(tag => (
                 <button
                   className={clsx(
                     'flex p-2 rounded',
                     'transition-[transform, box-shadow] ease-in duration-150',
                     'outline-none focus:ring-2 focus:ring-inset focus:ring-light-indigo-300',
-                    state.activeId === `button-${tag}`
+                    state.activeId === `btn-${tag.id}`
                       ? 'bg-light-orange-200 [&:not(:disabled):hover]:bg-light-orange-300'
                       : 'text-light-gray-800 [&:not(:disabled):hover]:bg-light-gray-200'
                   )}
-                  key={`button-key-${tag}`}
-                  id={`button-${tag}`}
-                  onClick={() => scrollFunction(`section-${tag}`)}
+                  key={`key-btn-${tag.id}`}
+                  id={`btn-${tag.id}`}
+                  onClick={() => scrollFunction(`sect-${tag.id}`)}
                 >
-                  {tag}
+                  {tag.name}
                 </button>
               ))}
             </div>
@@ -239,23 +241,27 @@ export default function RestaurantSections({
                       + categorias
                     </DropdownMenu.Label>
 
-                    {Object.values<TElement>(state.elements)
-                      .filter(el => el.intersectionRatio < 0.5)
-                      .map(h => (
-                        <DropdownMenu.Item key={h.tag} asChild>
+                    {Object.entries<TElement>(state.elements)
+                      .filter(el => el[1].intersectionRatio < 0.5)
+                      .map(item => (
+                        <DropdownMenu.Item key={`key-${item[0]}`} asChild>
                           <button
                             className={clsx(
                               'flex items-center w-full p-2 rounded',
                               'transition-[transform, box-shadow] ease-in duration-150',
                               'outline-none focus:ring-2 focus:ring-inset focus:ring-light-indigo-300',
-                              state.activeId === `button-${h.tag}`
+                              state.activeId === item[0]
                                 ? 'bg-light-orange-200 [&:not(:disabled):hover]:bg-light-orange-300'
                                 : 'text-light-gray-800 [&:not(:disabled):hover]:bg-light-gray-200'
                             )}
-                            id={`button-${h.tag}`}
-                            onClick={() => scrollFunction(`section-${h.tag}`)}
+                            id={item[0]}
+                            onClick={() =>
+                              scrollFunction(
+                                `sect-${item[0].replace('btn-', '')}`
+                              )
+                            }
                           >
-                            {h.tag}
+                            {item[1].tag}
                           </button>
                         </DropdownMenu.Item>
                       ))}
@@ -274,14 +280,14 @@ export default function RestaurantSections({
           return (
             <section
               className="w-full"
-              key={`section-${tag}`}
-              id={`section-${tag}`}
+              key={`sect-${tag.id}`}
+              id={`sect-${tag.id}`}
             >
-              <p className="text-2xl pt-8 pb-4">{tag}</p>
+              <p className="text-2xl pt-8 pb-4">{tag.name}</p>
               <div className="grid grid-cols-3 gap-6">
                 {restaurant.foods
-                  .map((f: any) => {
-                    if (tag === f.tag) {
+                  .map(f => {
+                    if (tag.id === f.tag.id) {
                       return (
                         <FoodCard
                           key={f.id}
@@ -295,7 +301,7 @@ export default function RestaurantSections({
                       )
                     }
                   })
-                  .filter((item: any) => item)}
+                  .filter(item => item)}
               </div>
             </section>
           )

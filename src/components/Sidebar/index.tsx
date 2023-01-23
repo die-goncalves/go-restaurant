@@ -6,7 +6,11 @@ import { RadioGroup } from '../RadioGroup'
 import { Slider } from '../Slider'
 
 type SidebarProps = {
-  tags: Array<{ tag: string; count: number }>
+  tags: Array<{
+    id: string
+    name: string
+    count: number
+  }>
 }
 
 export function Sidebar({ tags }: SidebarProps) {
@@ -72,13 +76,13 @@ export function Sidebar({ tags }: SidebarProps) {
               {tags &&
                 tags.map(t => (
                   <Checkbox
-                    checked={isCheckedTag(t.tag)}
-                    onChangeChecked={() => handleTag(t.tag)}
-                    key={`sidebar-checkbox-key-${t.tag.toLowerCase()}`}
-                    value={t.tag.toLowerCase()}
+                    checked={isCheckedTag(t.name)}
+                    onChangeChecked={() => handleTag(t.name)}
+                    key={`sidebar-checkbox-key-${t.id}`}
+                    value={t.name.toLowerCase()}
                     qty={t.count}
                   >
-                    {t.tag}
+                    {t.name}
                   </Checkbox>
                 ))}
             </div>
