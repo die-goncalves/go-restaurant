@@ -28,7 +28,6 @@ import { NonInteractiveDialogMap } from '../../components/NonInteractiveDialogMa
 import { RestaurantOpeningHours } from '../../components/RestaurantOpeningHours'
 import { SignedUser } from '../../components/SignedUser'
 import { Skeleton } from '../../components/Skeleton'
-import RestaurantSections from '../../components/RestaurantSections'
 import { Logo } from '../../components/Logo'
 import Head from 'next/head'
 
@@ -56,7 +55,7 @@ type Restaurant = Omit<TRestaurant, 'created_at' | 'updated_at'> & {
 }
 
 type RestaurantProps = {
-  restaurant: Restaurant
+  restaurant: Restaurant | null
 }
 
 export default function Restaurant({ restaurant }: RestaurantProps) {
@@ -70,7 +69,7 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
 
   useEffect(() => {
     const deliveryInfo = async () => {
-      if (state && state.currentPosition) {
+      if (restaurant && state && state.currentPosition) {
         const result = await getRouteTimeAndDistance(
           {
             lng: state.currentPosition.coordinates.longitude,
@@ -100,7 +99,7 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
       }
     }
     deliveryInfo()
-  }, [restaurant.coordinates.lat, restaurant.coordinates.lng, state])
+  }, [restaurant, state])
 
   useEffect(() => {
     async function getPositionCoordinates(geohash: string) {
@@ -127,168 +126,178 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
   }, [handleAddPosition])
 
   const tags = useMemo(() => {
-    const removeDuplicateTags = restaurant.foods.reduce((acc, currentValue) => {
-      if (acc[currentValue.tag.id]) {
-        return acc
-      } else {
-        return { ...acc, ...{ [currentValue.tag.id]: currentValue.tag } }
-      }
-    }, {} as { [key: string]: { id: string; name: string } })
-    return Object.values(removeDuplicateTags).sort(function (a, b) {
-      if (a.name > b.name) return 1
-      if (a.name < b.name) return -1
-      return 0
-    })
+    if (restaurant) {
+      const removeDuplicateTags = restaurant.foods.reduce(
+        (acc, currentValue) => {
+          if (acc[currentValue.tag.id]) {
+            return acc
+          } else {
+            return { ...acc, ...{ [currentValue.tag.id]: currentValue.tag } }
+          }
+        },
+        {} as { [key: string]: { id: string; name: string } }
+      )
+
+      return Object.values(removeDuplicateTags).sort(function (a, b) {
+        if (a.name > b.name) return 1
+        if (a.name < b.name) return -1
+        return 0
+      })
+    } else return []
   }, [restaurant])
 
   const open = useMemo(() => {
-    return whenOpen(restaurant.operating_hours, {
-      day: new Date().getDay(),
-      timer: new Date().toLocaleTimeString()
-    })
-  }, [restaurant.operating_hours])
+    if (restaurant) {
+      return whenOpen(restaurant.operating_hours, {
+        day: new Date().getDay(),
+        timer: new Date().toLocaleTimeString()
+      })
+    }
+  }, [restaurant])
 
-  return (
-    <div className="min-h-screen bg-light-gray-100">
-      <Head>
-        <title>
-          {restaurant
-            ? `Restaurante ${restaurant.name} | GoRestaurant`
-            : `Restaurante | GoRestaurant`}
-        </title>
-      </Head>
+  if (restaurant)
+    return (
+      <div className="min-h-screen bg-light-gray-100">
+        <Head>
+          <title>
+            {restaurant
+              ? `Restaurante ${restaurant.name} | GoRestaurant`
+              : `Restaurante | GoRestaurant`}
+          </title>
+        </Head>
 
-      <header
-        className={clsx(
-          'flex items-center justify-between',
-          'lg:px-8',
-          'sm:px-6',
-          'p-4'
-        )}
-      >
-        <Logo />
-
-        <div className="flex gap-4">
-          <DynamicCart />
-
-          {isLoading ? (
-            <Skeleton className="h-10 w-48" />
-          ) : session ? (
-            <SignedUser />
-          ) : (
-            <Account />
+        <header
+          className={clsx(
+            'flex items-center justify-between',
+            'lg:px-8',
+            'sm:px-6',
+            'p-4'
           )}
-        </div>
-      </header>
+        >
+          <Logo />
 
-      <div
-        className={clsx(
-          'xl:gap-8',
-          'lg:px-8 lg:gap-0',
-          'sm:grid sm:grid-cols-[2fr_1fr] sm:px-6 sm:gap-1',
-          'flex flex-col px-4 gap-4 w-full h-min'
-        )}
-      >
-        <div>
-          <Breadcrumb.Root>
-            <Breadcrumb.Link isHomePage href="/">
-              Página inicial
-            </Breadcrumb.Link>
-            <Breadcrumb.Link
-              href={`/restaurants?place=${restaurant.place}&geohash=${state.currentPosition?.geohash}`}
-            >
-              {restaurant.place}
-            </Breadcrumb.Link>
-            <Breadcrumb.Link href="#" isCurrentPage>
-              {restaurant.name}
-            </Breadcrumb.Link>
-          </Breadcrumb.Root>
+          <div className="flex gap-4">
+            <DynamicCart />
 
-          <div className="flex mt-3 items-center gap-2">
-            <h1 className="text-3xl font-medium">{restaurant.name}</h1>
-            <RestaurantOpeningHours
-              operatingHours={restaurant.operating_hours}
-              isRestaurantOpen={open}
-            />
-          </div>
-
-          <div className="flex mt-2 items-center gap-1">
-            <Rating foods={restaurant.foods} />
-          </div>
-
-          <div className="flex flex-wrap pt-2 gap-2">
-            {tags.map(t => (
-              <TextTag key={t.id}>{t.name}</TextTag>
-            ))}
-          </div>
-
-          <div
-            className={clsx(
-              'lg:flex-row lg:items-center lg:flex-nowrap lg:gap-0.5',
-              'flex flex-col pt-2'
+            {isLoading ? (
+              <Skeleton className="h-10 w-48" />
+            ) : session ? (
+              <SignedUser />
+            ) : (
+              <Account />
             )}
-          >
-            <span>{`${priceDistanceAndTime?.distance.toFixed(
-              2
-            )} metros de distância de você`}</span>
-            <span
+          </div>
+        </header>
+
+        <div
+          className={clsx(
+            'xl:gap-8',
+            'lg:px-8 lg:gap-0',
+            'sm:grid sm:grid-cols-[2fr_1fr] sm:px-6 sm:gap-1',
+            'flex flex-col px-4 gap-4 w-full h-min'
+          )}
+        >
+          <div>
+            <Breadcrumb.Root>
+              <Breadcrumb.Link isHomePage href="/">
+                Página inicial
+              </Breadcrumb.Link>
+              <Breadcrumb.Link
+                href={`/restaurants?place=${restaurant.place}&geohash=${state.currentPosition?.geohash}`}
+              >
+                {restaurant.place}
+              </Breadcrumb.Link>
+              <Breadcrumb.Link href="#" isCurrentPage>
+                {restaurant.name}
+              </Breadcrumb.Link>
+            </Breadcrumb.Root>
+
+            <div className="flex mt-3 items-center gap-2">
+              <h1 className="text-3xl font-medium">{restaurant.name}</h1>
+              <RestaurantOpeningHours
+                operatingHours={restaurant.operating_hours}
+                isRestaurantOpen={open}
+              />
+            </div>
+
+            <div className="flex mt-2 items-center gap-1">
+              <Rating foods={restaurant.foods} />
+            </div>
+
+            <div className="flex flex-wrap pt-2 gap-2">
+              {tags.map(t => (
+                <TextTag key={t.id}>{t.name}</TextTag>
+              ))}
+            </div>
+
+            <div
               className={clsx(
-                'lg:block',
-                'hidden mx-2 w-1 h-1 rounded-full bg-light-gray-200'
+                'lg:flex-row lg:items-center lg:flex-nowrap lg:gap-0.5',
+                'flex flex-col pt-2'
               )}
+            >
+              <span>{`${priceDistanceAndTime?.distance.toFixed(
+                2
+              )} metros de distância de você`}</span>
+              <span
+                className={clsx(
+                  'lg:block',
+                  'hidden mx-2 w-1 h-1 rounded-full bg-light-gray-200'
+                )}
+              />
+              <span>{`R$${priceDistanceAndTime?.price?.toFixed(
+                2
+              )} para entrega`}</span>
+            </div>
+
+            <div className="pt-2">
+              <span>{restaurant.description}</span>
+            </div>
+
+            <div className="flex pt-2 items-center gap-2">
+              <NonInteractiveDialogMap
+                coordinates={restaurant.coordinates}
+                address={restaurant.address}
+              />
+              <span>{restaurant.address}</span>
+            </div>
+
+            <div className="flex pt-2">
+              <WhatsappLogo className="w-6 h-6 text-green-500" weight="light" />
+              <span className="ml-1">{restaurant.phone_number}</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col">
+            <div
+              className={clsx(
+                'flex relative overflow-hidden rounded-t',
+                'sm:h-full',
+                'h-64'
+              )}
+            >
+              <NextImage
+                src={restaurant.image}
+                alt={restaurant.name}
+                fill
+                className="object-cover"
+                placeholder="blur"
+                blurDataURL={shimmerBase64}
+                sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
+              />
+            </div>
+            <DynamicRedirectWithDialogMap
+              restaurantId={restaurant.id}
+              restaurantPlace={restaurant.place}
+              deliveryTime={priceDistanceAndTime?.time}
             />
-            <span>{`R$${priceDistanceAndTime?.price?.toFixed(
-              2
-            )} para entrega`}</span>
-          </div>
-
-          <div className="pt-2">
-            <span>{restaurant.description}</span>
-          </div>
-
-          <div className="flex pt-2 items-center gap-2">
-            <NonInteractiveDialogMap
-              coordinates={restaurant.coordinates}
-              address={restaurant.address}
-            />
-            <span>{restaurant.address}</span>
-          </div>
-
-          <div className="flex pt-2">
-            <WhatsappLogo className="w-6 h-6 text-green-500" weight="light" />
-            <span className="ml-1">{restaurant.phone_number}</span>
           </div>
         </div>
 
-        <div className="flex flex-col">
-          <div
-            className={clsx(
-              'flex relative overflow-hidden rounded-t',
-              'sm:h-full',
-              'h-64'
-            )}
-          >
-            <NextImage
-              src={restaurant.image}
-              alt={restaurant.name}
-              fill
-              className="object-cover"
-              placeholder="blur"
-              blurDataURL={shimmerBase64}
-              sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
-            />
-          </div>
-          <DynamicRedirectWithDialogMap
-            restaurantId={restaurant.id}
-            restaurantPlace={restaurant.place}
-            deliveryTime={priceDistanceAndTime?.time}
-          />
-        </div>
+        <DynamicRestaurantSections tags={tags} restaurant={restaurant} />
       </div>
-
-      <DynamicRestaurantSections tags={tags} restaurant={restaurant} />
-    </div>
-  )
+    )
+  return null
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -371,6 +380,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     }
   }
   return {
-    props: {}
+    props: { restaurant: null }
   }
 }
