@@ -9,6 +9,7 @@ import { DashboardNavigation } from '../../components/DashboardNavigation'
 import { Payment } from '../../components/Payment'
 import { SignedUser } from '../../components/SignedUser'
 import { Logo } from '../../components/Logo'
+import clsx from 'clsx'
 
 type TPayment = Omit<TOrder, 'line_items' | 'shipping_options'> & {
   line_items: Array<{
@@ -76,20 +77,36 @@ export default function Order({ user }: ProfileProps) {
         <title>Pedidos | GoRestaurant</title>
       </Head>
       <div className="flex flex-col">
-        <header className="flex px-[3.75rem] py-4 items-center justify-between bg-light-gray-100">
+        <header
+          className={clsx(
+            'lg:px-8',
+            'sm:px-6',
+            'flex p-4 items-center justify-between bg-light-gray-100'
+          )}
+        >
           <Logo />
 
           <SignedUser />
         </header>
-        <div className="flex px-[3.75rem] min-h-[calc(100vh-4.5rem)]">
-          <div className="flex sticky top-0 h-max">
+
+        <div
+          className={clsx(
+            'lg:px-8',
+            'sm:flex-row sm:px-6',
+            'flex flex-col px-4 min-h-[calc(100vh-4.5rem)]'
+          )}
+        >
+          <div className={clsx('sm:top-0', 'flex sticky -top-4 h-max z-[1]')}>
             <DashboardNavigation />
           </div>
 
           {loadData ? (
             <div className="flex flex-1 flex-col gap-4 py-4">
               {Array.from({ length: 4 }).map((item, index) => (
-                <Skeleton key={index} className="rounded w-full h-[72px]" />
+                <Skeleton
+                  key={index}
+                  className={clsx('md:h-[68px]', 'rounded w-full h-[92px]')}
+                />
               ))}
             </div>
           ) : (

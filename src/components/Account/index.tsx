@@ -28,7 +28,7 @@ export function Account() {
 
       <Dialog.Content
         onCloseInteractOverlay={handleCloseDialog}
-        className="p-0 w-96"
+        className={clsx('sm:w-96', 'p-0 w-[calc(100vw-2rem)]')}
       >
         <TabPrimitive.Root
           defaultValue="signin"

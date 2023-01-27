@@ -1,5 +1,7 @@
+import clsx from 'clsx'
 import React, { useEffect, useMemo } from 'react'
 import { GetServerSideProps } from 'next'
+import Head from 'next/head'
 import NextRouter from 'next/router'
 import { useQuery } from '@tanstack/react-query'
 import { createServerSupabaseClient } from '@supabase/auth-helpers-nextjs'
@@ -17,7 +19,6 @@ import { Skeleton } from '../components/Skeleton'
 import dynamic from 'next/dynamic'
 import { SignedUser } from '../components/SignedUser'
 import { Logo } from '../components/Logo'
-import Head from 'next/head'
 
 type RestaurantsProps = {
   geohash: string
@@ -110,7 +111,14 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
         </title>
       </Head>
 
-      <header className="flex sticky top-0 px-8 py-4 items-center justify-between bg-light-gray-100/80 backdrop-blur z-10">
+      <header
+        className={clsx(
+          'flex sticky top-0 items-center justify-between bg-light-gray-100/80 backdrop-blur z-10',
+          'lg:px-8',
+          'sm:px-6',
+          'p-4'
+        )}
+      >
         <Logo />
 
         <div className="flex gap-4">
@@ -126,26 +134,59 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
         </div>
       </header>
 
-      <div className="flex relative mx-8">
+      <div
+        className={clsx(
+          'lg:mx-8',
+          'sm:flex-row sm:mx-6',
+          'flex relative flex-col'
+        )}
+      >
         <Sidebar tags={tags} />
 
-        <main className="min-h-[calc(100vh-4.5rem)] flex flex-1 ml-80 pl-4 flex-col bg-light-gray-100">
+        <main
+          className={clsx(
+            'lg:ml-80 lg:pl-4',
+            'sm:ml-60 sm:pl-6 sm:pr-0',
+            'min-h-[calc(100vh-4.5rem)] flex flex-1 flex-col bg-light-gray-100 px-4'
+          )}
+        >
           <SelectedTags />
 
           <div className="w-full">
             {(() => {
               if (isLoading) {
                 return (
-                  <div className="grid grid-cols-4 gap-8 my-8">
+                  <div
+                    className={clsx(
+                      '3xl:grid-cols-4 3xl:gap-4',
+                      'xl:grid-cols-3 xl:gap-8',
+                      'lg:grid-cols-2 lg:my-8',
+                      'sm:grid-cols-1 sm:gap-4 sm:my-6',
+                      'grid grid-cols-1 gap-4 my-4'
+                    )}
+                  >
                     {Array.from({ length: 6 }, (item, i) => {
-                      return <Skeleton key={i} className="w-full h-52" />
+                      return (
+                        <Skeleton
+                          key={i}
+                          className={clsx('xl:h-80', 'w-full h-72')}
+                        />
+                      )
                     })}
                   </div>
                 )
               }
               if (isSuccess && filteredData) {
                 return (
-                  <div className="grid grid-cols-4 gap-8 my-8">
+                  <div
+                    className={clsx(
+                      '3xl:grid-cols-4 3xl:gap-4',
+                      'xl:grid-cols-3 xl:gap-8',
+                      'lg:grid-cols-2 lg:my-8',
+                      'sm:grid-cols-1 sm:gap-4 sm:my-6',
+                      'grid grid-cols-1 gap-4 my-4'
+                    )}
+                  >
                     {filteredData.length > 0 &&
                       filteredData.map((restaurant: any) => (
                         <RestaurantCard

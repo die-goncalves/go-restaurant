@@ -42,84 +42,94 @@ export default function Profile({ user }: ProfileProps) {
         <title>Dashboard | GoRestaurant</title>
       </Head>
       <div className="flex flex-col">
-        <header className="flex px-[3.75rem] py-4 items-center justify-between bg-light-gray-100">
+        <header
+          className={clsx(
+            'lg:px-8',
+            'sm:px-6',
+            'flex p-4 items-center justify-between bg-light-gray-100'
+          )}
+        >
           <Logo />
           <SignedUser />
         </header>
-        <div className="flex px-[3.75rem] h-[calc(100vh-4.5rem)]">
+
+        <div
+          className={clsx(
+            'lg:px-8',
+            'sm:flex-row sm:px-6',
+            'flex flex-col px-4 h-[calc(100vh-4.5rem)]'
+          )}
+        >
           <DashboardNavigation />
 
           <div className="flex flex-1 py-4">
-            <div className="flex flex-1 h-max justify-between items-center py-2 px-4 shadow-md bg-light-gray-200">
-              <div className="flex flex-col gap-1">
-                <p className="text-lg">Deletar conta</p>
-                <p className="bg-light-red-200/50">
-                  Tenha cuidado, esta ação é irreversível
-                </p>
-              </div>
-              <Dialog.Root open={open} onOpenChange={setOpen}>
-                <Dialog.Trigger>
-                  <button
-                    className={clsx(
-                      'ml-auto py-2 px-4 rounded bg-light-gray-300 [&:not(:disabled):hover]:bg-light-gray-400',
-                      'transition-[background-color, outline] ease-in duration-150',
-                      'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                    )}
-                  >
-                    Deletar
-                  </button>
-                </Dialog.Trigger>
-                <Dialog.Content
-                  className="w-96"
-                  onCloseInteractOverlay={() => setOpen(false)}
+            <Dialog.Root open={open} onOpenChange={setOpen}>
+              <Dialog.Trigger>
+                <button
+                  className={clsx(
+                    'flex flex-1 h-max py-2 px-4 rounded shadow-md bg-light-gray-200 [&:not(:disabled):hover]:bg-light-gray-300',
+                    'transition-[background-color, outline] ease-in duration-150',
+                    'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
+                  )}
                 >
-                  <header className="flex p-4 items-center justify-between">
-                    <p className="text-xl font-medium">
-                      Confirmação de exclusão
-                    </p>
-                    <Dialog.Close>
-                      <button
-                        className={clsx(
-                          'p-2 rounded bg-light-gray-200 [&:not(:disabled):hover]:bg-light-gray-300',
-                          'transition-[background-color, outline] ease-in duration-150',
-                          'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                        )}
-                      >
-                        <X className="w-6 h-6" />
-                      </button>
-                    </Dialog.Close>
-                  </header>
-                  <main className="relative flex flex-col p-4">
-                    <p>Tem a certeza de que quer deletar a sua conta?</p>
-                  </main>
-                  <footer className="flex items-center p-4">
-                    <div className="flex ml-auto justify-end gap-2">
-                      <button
-                        className={clsx(
-                          'py-2 px-4 rounded bg-light-gray-100 [&:not(:disabled):hover]:bg-light-gray-200',
-                          'transition-[background-color, outline] ease-in duration-150',
-                          'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                        )}
-                        onClick={() => setOpen(false)}
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        className={clsx(
-                          'py-2 px-4 rounded bg-light-red-200 [&:not(:disabled):hover]:bg-light-red-300',
-                          'transition-[background-color, outline] ease-in duration-150',
-                          'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300',
-                          'disabled:cursor-not-allowed disabled:opacity-80'
-                        )}
-                        onClick={deleteAccount}
-                      >
-                        Quero excluir
-                      </button>
+                  <div className="flex w-full flex-col gap-1">
+                    <p className="text-lg text-left">Excluir conta</p>
+                    <div className="text-left">
+                      <span className="bg-no-repeat bg-bottom bg-[length:auto_2px] bg-gradient-to-r from-light-red-500 to-light-red-200">
+                        Tenha cuidado, esta ação é irreversível
+                      </span>
                     </div>
-                  </footer>
-                </Dialog.Content>
-              </Dialog.Root>
-            </div>
+                  </div>
+                </button>
+              </Dialog.Trigger>
+              <Dialog.Content
+                className={clsx('xs:w-96', 'w-[calc(100vw-2rem)]')}
+                onCloseInteractOverlay={() => setOpen(false)}
+              >
+                <header className="flex p-4 items-center justify-between">
+                  <p className="text-xl font-medium">Confirmação de exclusão</p>
+                  <Dialog.Close>
+                    <button
+                      className={clsx(
+                        'p-2 rounded bg-light-gray-200 [&:not(:disabled):hover]:bg-light-gray-300',
+                        'transition-[background-color, outline] ease-in duration-150',
+                        'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
+                      )}
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </Dialog.Close>
+                </header>
+                <main className="relative flex flex-col p-4">
+                  <p>Tem a certeza de que quer excluir a sua conta?</p>
+                </main>
+                <footer className="flex items-center p-4">
+                  <div className="flex ml-auto justify-end gap-2">
+                    <button
+                      className={clsx(
+                        'py-2 px-4 rounded bg-light-gray-100 [&:not(:disabled):hover]:bg-light-gray-200',
+                        'transition-[background-color, outline] ease-in duration-150',
+                        'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
+                      )}
+                      onClick={() => setOpen(false)}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      className={clsx(
+                        'py-2 px-4 rounded bg-light-red-200 [&:not(:disabled):hover]:bg-light-red-300',
+                        'transition-[background-color, outline] ease-in duration-150',
+                        'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300',
+                        'disabled:cursor-not-allowed disabled:opacity-80'
+                      )}
+                      onClick={deleteAccount}
+                    >
+                      Quero excluir
+                    </button>
+                  </div>
+                </footer>
+              </Dialog.Content>
+            </Dialog.Root>
           </div>
         </div>
       </div>

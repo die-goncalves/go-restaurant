@@ -59,7 +59,7 @@ export function DrawerMap() {
       <Drawer.Trigger>
         <button
           className={clsx(
-            'flex p-2 rounded bg-light-gray-200 [&:not(:disabled):hover]:bg-light-gray-300',
+            'flex p-2 w-fit rounded bg-light-gray-200 [&:not(:disabled):hover]:bg-light-gray-300',
             'transition-[background-color] ease-in duration-150',
             'focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
           )}
@@ -67,7 +67,9 @@ export function DrawerMap() {
           <GlobeHemisphereWest className="w-6 h-6" />
         </button>
       </Drawer.Trigger>
-      <Drawer.Content className="flex flex-col w-2/5">
+      <Drawer.Content
+        className={clsx('lg:w-[calc(40%+12px)]', 'flex flex-col w-full')}
+      >
         <header className="flex p-4 items-center justify-between">
           <p className="text-xl font-medium">Onde você está?</p>
           <Drawer.Close>

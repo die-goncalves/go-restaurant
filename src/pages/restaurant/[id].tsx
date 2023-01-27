@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { useEffect, useMemo, useState } from 'react'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import dynamic from 'next/dynamic'
@@ -36,6 +37,10 @@ const DynamicCart = dynamic(() => import('../../components/Cart'), {
 })
 const DynamicRedirectWithDialogMap = dynamic(
   () => import('../../components/RedirectWithDialogMap'),
+  { ssr: false }
+)
+const DynamicRestaurantSections = dynamic(
+  () => import('../../components/RestaurantSections'),
   { ssr: false }
 )
 
@@ -153,7 +158,14 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
         </title>
       </Head>
 
-      <header className="flex px-8 py-4 items-center justify-between">
+      <header
+        className={clsx(
+          'flex items-center justify-between',
+          'lg:px-8',
+          'sm:px-6',
+          'p-4'
+        )}
+      >
         <Logo />
 
         <div className="flex gap-4">
@@ -169,7 +181,14 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
         </div>
       </header>
 
-      <div className="grid grid-cols-[2fr_1fr] px-8 w-full h-min gap-0">
+      <div
+        className={clsx(
+          'xl:gap-8',
+          'lg:px-8 lg:gap-0',
+          'sm:grid sm:grid-cols-[2fr_1fr] sm:px-6 sm:gap-1',
+          'flex flex-col px-4 gap-4 w-full h-min'
+        )}
+      >
         <div>
           <Breadcrumb.Root>
             <Breadcrumb.Link isHomePage href="/">
@@ -203,11 +222,21 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
             ))}
           </div>
 
-          <div className="flex items-center flex-nowrap gap-0.5 pt-2">
+          <div
+            className={clsx(
+              'lg:flex-row lg:items-center lg:flex-nowrap lg:gap-0.5',
+              'flex flex-col pt-2'
+            )}
+          >
             <span>{`${priceDistanceAndTime?.distance.toFixed(
               2
             )} metros de distância de você`}</span>
-            <span className="mx-2 w-1 h-1 rounded-full bg-light-gray-200" />
+            <span
+              className={clsx(
+                'lg:block',
+                'hidden mx-2 w-1 h-1 rounded-full bg-light-gray-200'
+              )}
+            />
             <span>{`R$${priceDistanceAndTime?.price?.toFixed(
               2
             )} para entrega`}</span>
@@ -225,13 +254,20 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
             <span>{restaurant.address}</span>
           </div>
 
-          <div className="flex pt-4">
+          <div className="flex pt-2">
             <WhatsappLogo className="w-6 h-6 text-green-500" weight="light" />
             <span className="ml-1">{restaurant.phone_number}</span>
           </div>
         </div>
+
         <div className="flex flex-col">
-          <div className="flex relative h-64 overflow-hidden rounded-t">
+          <div
+            className={clsx(
+              'flex relative overflow-hidden rounded-t',
+              'sm:h-full',
+              'h-64'
+            )}
+          >
             <NextImage
               src={restaurant.image}
               alt={restaurant.name}
@@ -250,7 +286,7 @@ export default function Restaurant({ restaurant }: RestaurantProps) {
         </div>
       </div>
 
-      <RestaurantSections tags={tags} restaurant={restaurant} />
+      <DynamicRestaurantSections tags={tags} restaurant={restaurant} />
     </div>
   )
 }

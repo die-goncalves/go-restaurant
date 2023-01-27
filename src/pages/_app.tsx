@@ -1,6 +1,7 @@
 import '../../styles/globals.css'
 import { useState } from 'react'
 import type { AppProps } from 'next/app'
+import Head from 'next/head'
 import { Barlow_Semi_Condensed } from '@next/font/google'
 import { Notification } from '../components/Notification'
 import { createBrowserSupabaseClient } from '@supabase/auth-helpers-nextjs'
@@ -49,6 +50,12 @@ export default function App({
           <FilterProvider>
             <CartProvider>
               <QueryClientProvider client={queryClient}>
+                <Head>
+                  <meta
+                    name="viewport"
+                    content="width=device-width, initial-scale=1.0"
+                  ></meta>
+                </Head>
                 <style jsx global>{`
                   :root {
                     --font-barlow-semi-condensed: ${barlow_semi_condensed.style

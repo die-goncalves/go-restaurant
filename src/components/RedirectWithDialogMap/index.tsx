@@ -122,9 +122,21 @@ export default function RedirectWithDialogMap({
       </Dialog.Trigger>
       <Dialog.Content
         onCloseInteractOverlay={() => setOpen(false)}
-        className="flex flex-col h-3/4 w-1/3"
+        className={clsx(
+          'flex flex-col h-3/4',
+          'xl:w-2/5',
+          'lg:w-1/2',
+          'sm:w-2/3',
+          'w-[calc(100vw-2rem)]'
+        )}
       >
-        <header className="flex p-4 items-center justify-between">
+        <header
+          className={clsx(
+            'flex gap-4 p-4 justify-between',
+            'sm:items-center',
+            'items-start'
+          )}
+        >
           <p className="text-xl font-medium">
             Escolha seu novo endereço de entrega
           </p>
@@ -142,7 +154,13 @@ export default function RedirectWithDialogMap({
         </header>
 
         <RedirectMap onCoordinatesChange={handleCoordinatesChange} />
-        <footer className="flex justify-center p-4 gap-4">
+        <footer
+          className={clsx(
+            'flex justify-center p-4 gap-4',
+            'sm:flex-row',
+            'flex-col'
+          )}
+        >
           <TextInput
             placeholder="Clique no mapa e verá o endereço aqui"
             readOnly
@@ -151,9 +169,10 @@ export default function RedirectWithDialogMap({
 
           <button
             className={clsx(
-              'ml-auto py-2 px-4 rounded bg-light-green-200 [&:not(:disabled):hover]:bg-light-green-300',
+              'py-2 px-4 rounded bg-light-green-200 [&:not(:disabled):hover]:bg-light-green-300',
               'transition-[background-color] ease-in duration-150',
-              'focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
+              'focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300',
+              'sm:ml-auto'
             )}
             onClick={handleSubmit}
           >

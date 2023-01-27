@@ -33,7 +33,7 @@ export default function NonInteractiveMap({
   }, [])
 
   return (
-    <div className="relative mx-4 overflow-hidden rounded h-full">
+    <div className={clsx('relative overflow-hidden rounded h-full', 'xs:mx-4')}>
       <div
         className={clsx(
           'flex absolute overflow-visible top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-10 h-10'

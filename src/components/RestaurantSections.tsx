@@ -186,9 +186,21 @@ export default function RestaurantSections({
   }, [])
 
   return (
-    <div className="p-[1rem_2rem_0_2rem]">
-      <div className="w-full sticky top-0 bg-light-gray-100 shadow-sm items-center z-[3]">
-        <div className="grid grid-cols-[2fr_1fr] w-full h-min">
+    <div className="pt-4">
+      <div
+        className={clsx(
+          'w-full sticky top-0 bg-light-gray-100 shadow-sm items-center z-[3]',
+          'lg:px-8',
+          'sm:px-6',
+          'px-4'
+        )}
+      >
+        <div
+          className={clsx(
+            'lg:grid lg:grid-cols-[2fr_1fr] lg:w-full lg:h-min',
+            'flex'
+          )}
+        >
           <div className="flex justify-between">
             <div
               className="flex flex-1 flex-wrap flex-row max-h-10 pr-4 overflow-clip gap-4"
@@ -275,7 +287,14 @@ export default function RestaurantSections({
         </div>
       </div>
 
-      <div className="flex flex-col gap-0 items-start z-0 pb-8">
+      <div
+        className={clsx(
+          'flex flex-col gap-0 items-start z-0 pb-8',
+          'lg:px-8',
+          'sm:px-6',
+          'px-4'
+        )}
+      >
         {tags.map(tag => {
           return (
             <section
@@ -284,7 +303,13 @@ export default function RestaurantSections({
               id={`sect-${tag.id}`}
             >
               <p className="text-2xl pt-8 pb-4">{tag.name}</p>
-              <div className="grid grid-cols-3 gap-6">
+              <div
+                className={clsx(
+                  'lg:grid-cols-3 lg:gap-6',
+                  'sm:grid-cols-2',
+                  'grid grid-cols-1 gap-4'
+                )}
+              >
                 {restaurant.foods
                   .map(f => {
                     if (tag.id === f.tag.id) {

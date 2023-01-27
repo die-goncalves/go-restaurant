@@ -31,9 +31,20 @@ export function NonInteractiveDialogMap({
 
       <Dialog.Content
         onCloseInteractOverlay={() => setOpen(false)}
-        className="flex flex-col h-3/4 w-1/3"
+        className={clsx(
+          'xl:w-2/5',
+          'lg:w-1/2',
+          'sm:w-2/3',
+          'flex flex-col h-3/4 w-[calc(100vw-2rem)]'
+        )}
       >
-        <header className="flex p-4 items-center justify-between">
+        <header
+          className={clsx(
+            'flex gap-4 p-4 justify-between',
+            '2xs:items-center',
+            'items-start'
+          )}
+        >
           <p className="text-xl font-medium">Localização do restaurante</p>
           <Dialog.Close>
             <button

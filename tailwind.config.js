@@ -8,13 +8,18 @@ module.exports = {
   ],
   plugins: [require('@tailwindcss/line-clamp'), require('tailwind-clip-path')],
   theme: {
+    screens: {
+      '3xs': '320px',
+      '2xs': '360px',
+      xs: '412px',
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1366px',
+      '3xl': '1440px'
+    },
     extend: {
-      screens: {
-        'sm--': '360',
-        'sm-': '412',
-        'xl+': '1366',
-        'xl++': '1440'
-      },
       fontFamily: {
         sans: ['var(--font-barlow-semi-condensed)', ...fontFamily.sans]
       },

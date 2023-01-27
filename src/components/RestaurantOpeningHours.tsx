@@ -103,10 +103,21 @@ export function RestaurantOpeningHours({
         </button>
       </Dialog.Trigger>
       <Dialog.Content
-        className="w-2/5"
+        className={clsx(
+          'xl:w-2/5',
+          'lg:w-1/2',
+          'sm:w-2/3',
+          'flex flex-col w-[calc(100vw-2rem)]'
+        )}
         onCloseInteractOverlay={() => setOpen(false)}
       >
-        <header className="flex p-4 items-center justify-between">
+        <header
+          className={clsx(
+            'flex gap-4 p-4 justify-between',
+            'sm:items-center',
+            'items-start'
+          )}
+        >
           <p className="text-xl font-medium">
             Horário de funcionamento do restaurante
           </p>
@@ -123,18 +134,18 @@ export function RestaurantOpeningHours({
           </Dialog.Close>
         </header>
 
-        <main className="flex flex-col p-4 gap-4">
+        <main className={clsx('flex flex-col gap-4', 'xs:p-4')}>
           <div className="flex flex-col bg-light-gray-200 rounded p-2">
             <div className="flex items-center">
-              <div className="w-4 h-4 bg-light-green-200 mr-2" />
+              <div className="flex-none w-4 h-4 bg-light-green-200 mr-2" />
               Restaurante aberto
             </div>
             <div className="flex items-center">
-              <div className="w-4 h-4 bg-light-orange-200 mr-2" />
+              <div className="flex-none w-4 h-4 bg-light-orange-200 mr-2" />
               Próximo horário de funcionamento do restaurante
             </div>
           </div>
-          <div className="flex w-full overflow-auto">
+          <div className={clsx('flex w-full overflow-auto pb-4')}>
             <table>
               <thead>
                 <tr className="bg-light-gray-200 rounded">

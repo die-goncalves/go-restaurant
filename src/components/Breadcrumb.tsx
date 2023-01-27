@@ -29,7 +29,11 @@ const BreadcrumbComponentLink = forwardRef<
     <Item>
       {!isHomePage ? <span>&nbsp;/&nbsp;</span> : null}
       {isCurrentPage ? (
-        <span ref={forwardedRef} {...props} className="text-lg" />
+        <span
+          ref={forwardedRef}
+          {...props}
+          className={clsx('sm:text-lg sm:not-italic', 'text-base italic')}
+        />
       ) : (
         <NextLink
           ref={forwardedRef}

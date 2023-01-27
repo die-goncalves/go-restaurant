@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { useFilter } from '../../contexts/FilterContext'
 import { Accordion } from '../Accordion'
 import { Checkbox } from '../Checkbox'
@@ -24,7 +25,13 @@ export function Sidebar({ tags }: SidebarProps) {
   } = useFilter()
 
   return (
-    <div className="flex flex-col fixed bg-light-gray-100 w-80 h-full max-h-[calc(100vh-4.5rem)] overflow-auto scrollbar-gutter-stable">
+    <div
+      className={clsx(
+        'lg:w-80',
+        'sm:fixed sm:w-60 sm:shadow-none sm:mb-0',
+        'flex flex-col relative bg-light-gray-100 w-full h-full max-h-[calc(100vh-4.5rem)] overflow-auto scrollbar-gutter-stable shadow-lg mb-8'
+      )}
+    >
       <div>
         <DialogMap />
 

@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react'
 import router from 'next/router'
-import { MapPin } from 'phosphor-react'
+import { MagnifyingGlass, MapPin } from 'phosphor-react'
 import toast from 'react-hot-toast'
 import {
   TFeaturesCollection,
@@ -11,6 +11,8 @@ import { usePosition } from '../contexts/PositionContext'
 import { geographicInformation } from '../utils/geographicInformation'
 import { encodeGeohash } from '../utils/geohash'
 import { TextInput } from './TextInput'
+import scrollIntoView from 'scroll-into-view'
+import { useMediaQuery } from 'react-responsive'
 
 const geographicFeatures = (data: TFeaturesCollection) => {
   let allFeatures: Array<TGeographicFeatureWithCoordinates> = []
@@ -41,7 +43,18 @@ export default function Searchbox() {
   const [showOptions, setShowOptions] = useState(false)
   const [filteredOptions, setFilteredOptions] = useState<Array<any>>([])
 
+  const isAtLeast640 = useMediaQuery({ minWidth: 640 })
+
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (!isAtLeast640)
+      scrollIntoView(event.currentTarget, {
+        cancellable: true,
+        time: 1000,
+        align: { top: 0, topOffset: 16 },
+        ease: function easeInCirc(x: number): number {
+          return 1 - Math.sqrt(1 - Math.pow(x, 2))
+        }
+      })
     setShowOptions(true)
     setUserInput(event.target.value)
   }
@@ -107,8 +120,8 @@ export default function Searchbox() {
 
   return (
     <form className="flex-1 max-w-lg" onSubmit={handleSubmit}>
-      <div className="flex flex-1 gap-2">
-        <div className="flex-1 relative">
+      <div className={clsx('sm:gap-2', 'flex flex-1 gap-1')}>
+        <div className={clsx('sm:relative', 'flex-1')}>
           <TextInput
             value={userInput}
             onChange={handleChange}
@@ -116,7 +129,7 @@ export default function Searchbox() {
           />
 
           {showOptions && !!filteredOptions.length && (
-            <div className="flex flex-col absolute top-full w-full mt-2 bg-light-gray-200 rounded gap-2 p-2">
+            <div className="flex flex-col absolute top-full w-full mt-2 bg-light-gray-200 rounded gap-2 p-2 z-[3] border-2 border-light-gray-300">
               {filteredOptions.map(
                 (item: TGeographicFeatureWithCoordinates) => {
                   return (
@@ -144,12 +157,17 @@ export default function Searchbox() {
         <button
           type="submit"
           className={clsx(
-            'ml-auto py-2 px-4 rounded bg-light-orange-200 [&:not(:disabled):hover]:bg-light-orange-300',
+            'md:py-2 md:px-4',
+            'ml-auto p-2 rounded bg-light-orange-200 [&:not(:disabled):hover]:bg-light-orange-300',
             'transition-[background-color] ease-in duration-150',
             'focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
           )}
         >
-          Pesquisar
+          <span className={clsx('sm:inline', 'hidden')}>Pesquisar</span>
+
+          <MagnifyingGlass
+            className={clsx('sm:hidden', 'w-6 h-6 text-light-gray-800')}
+          />
         </button>
       </div>
     </form>

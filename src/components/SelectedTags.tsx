@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { useFilter } from '../contexts/FilterContext'
 import { FilterTag } from './Tag/FilterTag'
 
@@ -6,7 +7,7 @@ export function SelectedTags() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex items-center text-2xl mb-4">
+      <div className={clsx('sm:flex', 'hidden items-center text-2xl mb-4')}>
         <p>{state.delivery === 'delivery' ? 'Entregas em' : 'Retiradas em'}</p>
         &nbsp;
         <strong>{state.currentPosition?.place}</strong>

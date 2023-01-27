@@ -107,7 +107,7 @@ export function FoodCard({ food, restaurant }: FoodProps) {
       </Dialog.Trigger>
 
       <Dialog.Content
-        className="w-96"
+        className={clsx('sm:w-96', 'w-[calc(100vw-2rem)]')}
         onCloseInteractOverlay={() => setOpen(false)}
       >
         <header className="flex p-4 items-center justify-between">

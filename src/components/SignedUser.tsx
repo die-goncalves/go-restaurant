@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { GearSix, SignOut, UserGear } from 'phosphor-react'
+import { SignOut, User, UserGear } from 'phosphor-react'
 import NextLink from 'next/link'
 import NextRouter from 'next/router'
 import { Popover } from './Popover'
@@ -19,22 +19,39 @@ export function SignedUser() {
   }
 
   return (
-    <div className="flex box-border h-10 items-center rounded py-2 px-4 bg-light-gray-200 gap-4 border-b-2 border-light-orange-300">
-      <span>{session?.user.email}</span>
+    <div
+      className={clsx(
+        'xs:rounded xs:shadow-[inset_0px_-2px_0px_0px_#d6d3d1]',
+        'flex items-center justify-center'
+      )}
+    >
+      <span className={clsx('xs:inline', 'px-2 hidden')}>
+        {session?.user.email}
+      </span>
       <Popover.Root>
         <Popover.Trigger>
           <button
             className={clsx(
-              'flex h-6 w-6 rounded bg-light-gray-300 [&:not(:disabled):hover]:bg-light-gray-400',
+              'xs:box-border xs:border-2 xs:border-light-gray-300',
+              'flex w-10 h-10 justify-center items-center rounded bg-light-gray-200 [&:not(:disabled):hover]:bg-light-gray-300',
               'transition-[background-color] ease-in duration-150',
-              'focus:outline focus:outline-2 focus:outline-light-indigo-300'
+              'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
             )}
           >
-            <GearSix className="m-auto w-4 h-4 text-light-gray-800" />
+            <User className="m-auto w-6 h-6 text-light-gray-800" />
           </button>
         </Popover.Trigger>
-        <Popover.Content className={clsx('p-4 w-60', '')}>
+
+        <Popover.Content sideOffset={8} className={clsx('p-4 w-60', '')}>
           <div className="flex flex-col gap-2">
+            <span
+              className={clsx(
+                'xs:hidden',
+                'flex rounded items-center justify-center font-medium h-10 border-2 border-light-gray-200'
+              )}
+            >
+              {session?.user.email}
+            </span>
             <NextLink
               href="/dashboard"
               className={clsx(

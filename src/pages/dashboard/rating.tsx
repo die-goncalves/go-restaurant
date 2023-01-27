@@ -9,6 +9,7 @@ import { Skeleton } from '../../components/Skeleton'
 import { RatingCard } from '../../components/Rating/RatingCard'
 import { DashboardNavigation } from '../../components/DashboardNavigation'
 import { Logo } from '../../components/Logo'
+import clsx from 'clsx'
 
 type ProfileProps = {
   user: User
@@ -87,13 +88,26 @@ export default function Rating({ user }: ProfileProps) {
         <title>Avaliações | GoRestaurant</title>
       </Head>
       <div className="flex flex-col">
-        <header className="flex px-[3.75rem] py-4 items-center justify-between bg-light-gray-100">
+        <header
+          className={clsx(
+            'lg:px-8',
+            'sm:px-6',
+            'flex p-4 items-center justify-between bg-light-gray-100'
+          )}
+        >
           <Logo />
 
           <SignedUser />
         </header>
-        <div className="flex px-[3.75rem] min-h-[calc(100vh-4.5rem)]">
-          <div className="flex sticky top-0 h-max">
+
+        <div
+          className={clsx(
+            'lg:px-8',
+            'sm:flex-row sm:px-6',
+            'flex flex-col px-4 min-h-[calc(100vh-4.5rem)]'
+          )}
+        >
+          <div className={clsx('sm:top-0', 'flex sticky -top-4 h-max z-[1]')}>
             <DashboardNavigation />
           </div>
 
@@ -105,7 +119,16 @@ export default function Rating({ user }: ProfileProps) {
                 </span>
               </div>
             ) : (
-              <div className="h-full w-full grid grid-cols-4 gap-8 py-4">
+              <div
+                className={clsx(
+                  '2xl:grid-cols-4',
+                  'xl:grid-cols-[1fr_1fr_1fr]',
+                  'lg:gap-8',
+                  'md:grid-cols-2',
+                  'sm:grid-cols-1 sm:gap-6',
+                  'h-full w-full grid grid-cols-1 gap-4 py-4'
+                )}
+              >
                 {foodsAvailableForRating &&
                   foodsAvailableForRating.map(food => (
                     <RatingCard key={food.id} food={food} />
@@ -113,7 +136,16 @@ export default function Rating({ user }: ProfileProps) {
               </div>
             )
           ) : (
-            <div className="h-full w-full grid grid-cols-4 gap-8 py-4">
+            <div
+              className={clsx(
+                '2xl:grid-cols-4',
+                'xl:grid-cols-[1fr_1fr_1fr]',
+                'lg:gap-8',
+                'md:grid-cols-2',
+                'sm:grid-cols-1 sm:gap-6',
+                'h-full w-full grid grid-cols-1 gap-4 py-4'
+              )}
+            >
               {Array.from({ length: 6 }).map((_, index) => (
                 <Skeleton key={index} className="rounded w-full h-56" />
               ))}

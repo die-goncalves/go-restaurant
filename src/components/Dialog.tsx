@@ -1,4 +1,5 @@
 import * as DialogPrimitive from '@radix-ui/react-dialog'
+import clsx from 'clsx'
 import { forwardRef } from 'react'
 
 const DialogComponentRoot = (props: DialogPrimitive.DialogProps) => (
@@ -25,7 +26,12 @@ const DialogComponentContent = forwardRef<
       ref={forwardedRef}
       onPointerDownOutside={e => e.preventDefault()}
       onInteractOutside={e => e.preventDefault()}
-      className={`${props.className} bg-light-gray-100 rounded overflow-hidden fixed top-2/4 left-2/4 max-w-[85vw] max-h-[85vh] animate-overlayContent focus:outline-none -translate-x-2/4 -translate-y-2/4 shadow-xl z-30`}
+      className={clsx(
+        props.className,
+        'bg-light-gray-100 rounded overflow-hidden fixed top-2/4 left-2/4 animate-overlayContent focus:outline-none -translate-x-2/4 -translate-y-2/4 shadow-xl z-30',
+        'md:max-w-[85vw] md:max-h-[85vh]',
+        'sm:max-h-[calc(100vh-2.5rem)]'
+      )}
     >
       {children}
     </DialogPrimitive.Content>

@@ -37,7 +37,12 @@ export function Help() {
       </Trigger>
 
       <Portal>
-        <Content className="flex flex-col h-[560px] w-[432px] bg-light-gray-100 rounded overflow-hidden fixed bottom-0 right-0 focus:outline-none -translate-x-4 -translate-y-[5.5rem] shadow-xl z-30">
+        <Content
+          className={clsx(
+            'md:w-[432px] md:h-[560px] md:overflow-hidden',
+            'flex flex-col h-[calc(100vh-104px)] w-[calc(100vw-2rem)] overflow-auto bg-light-gray-100 rounded fixed bottom-0 right-0 focus:outline-none -translate-x-4 -translate-y-[5.5rem] shadow-xl z-30'
+          )}
+        >
           <header className="flex p-4 items-center justify-between">
             <p className="text-xl font-medium">Instruções de uso</p>
             <Close asChild>
@@ -52,7 +57,12 @@ export function Help() {
               </button>
             </Close>
           </header>
-          <main className="flex flex-col pl-4 overflow-auto scrollbar-gutter-stable gap-4">
+          <main
+            className={clsx(
+              'md:pr-0 md:overflow-auto md:scrollbar-gutter-stable',
+              'flex flex-col gap-4 px-4'
+            )}
+          >
             <div>
               <p className="text-lg">Login e cadastro</p>
               <ul className="list-disc list-inside">
@@ -117,7 +127,12 @@ export function Help() {
           </main>
           <footer className="flex flex-col self-end justify-center p-4 gap-4">
             <div className="flex bg-light-orange-200/60 rounded p-2 border-2 border-light-orange-300">
-              <Info className="flex flex-none w-6 h-6 text-light-gray-800 mr-2" />
+              <Info
+                className={clsx(
+                  'md:flex',
+                  'hidden flex-none w-6 h-6 text-light-gray-800 mr-2'
+                )}
+              />
               <span className="text-sm text-justify">
                 O projeto possui limites em relação à exibição de mapas e
                 operações de geolocalização. Com os limites ultrapassados você
