@@ -41,35 +41,38 @@ export default function App({
   )
 
   return (
-    <SessionContextProvider
-      supabaseClient={supabaseClient}
-      initialSession={pageProps.initialSession}
-    >
-      <AuthProvider>
-        <PositionProvider>
-          <FilterProvider>
-            <CartProvider>
-              <QueryClientProvider client={queryClient}>
-                <Head>
-                  <meta
-                    name="viewport"
-                    content="width=device-width, initial-scale=1.0"
-                  ></meta>
-                </Head>
-                <style jsx global>{`
-                  :root {
-                    --font-barlow-semi-condensed: ${barlow_semi_condensed.style
-                      .fontFamily};
-                  }
-                `}</style>
-                <Component {...pageProps} />
-                <Notification />
-                <ReactQueryDevtools initialIsOpen={false} />
-              </QueryClientProvider>
-            </CartProvider>
-          </FilterProvider>
-        </PositionProvider>
-      </AuthProvider>
-    </SessionContextProvider>
+    <>
+      <style jsx global>{`
+        :root {
+          --font-barlow-semi-condensed: ${barlow_semi_condensed.style
+            .fontFamily};
+        }
+      `}</style>
+      <Head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0"
+        ></meta>
+      </Head>
+
+      <SessionContextProvider
+        supabaseClient={supabaseClient}
+        initialSession={pageProps.initialSession}
+      >
+        <AuthProvider>
+          <PositionProvider>
+            <FilterProvider>
+              <CartProvider>
+                <QueryClientProvider client={queryClient}>
+                  <Component {...pageProps} />
+                  <Notification />
+                  <ReactQueryDevtools initialIsOpen={false} />
+                </QueryClientProvider>
+              </CartProvider>
+            </FilterProvider>
+          </PositionProvider>
+        </AuthProvider>
+      </SessionContextProvider>
+    </>
   )
 }
