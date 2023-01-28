@@ -162,7 +162,7 @@ export const getServerSideProps: GetServerSideProps = async ctx => {
   const supabase = createServerSupabaseClient(ctx, {
     cookieOptions: {
       name: '@gorestaurant-v0.1.0:auth-token',
-      domain: 'localhost',
+      domain: `${process.env.NEXT_PUBLIC_DOMAIN_APP}`,
       path: '/',
       sameSite: 'lax',
       secure: false,
