@@ -293,11 +293,11 @@ export default async function handler(
     }
 
     if (!!filteredData.length) {
-      return res.json(filteredData)
+      return res.status(200).json(filteredData)
     } else {
-      return res.json([])
+      return res.status(200).json([])
     }
   } else {
-    return res.json([])
+    return res.status(200).json([])
   }
 }

@@ -51,18 +51,22 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
       }
     ],
     async () => {
-      const { data } = await api.get(`/api/filter`, {
-        params: {
-          tag: state.tags,
-          price: state.price,
-          delivery: state.delivery,
-          sort: state.sort,
-          lng: state.currentPosition?.coordinates.longitude,
-          lat: state.currentPosition?.coordinates.latitude,
-          place: state.currentPosition?.place
-        }
-      })
-      return data
+      try {
+        const { data } = await api.get(`/api/filter`, {
+          params: {
+            tag: state.tags,
+            price: state.price,
+            delivery: state.delivery,
+            sort: state.sort,
+            lng: state.currentPosition?.coordinates.longitude,
+            lat: state.currentPosition?.coordinates.latitude,
+            place: state.currentPosition?.place
+          }
+        })
+        return data
+      } catch (error) {
+        console.log({ error })
+      }
     },
     {
       staleTime: 24 * 60 * 60
