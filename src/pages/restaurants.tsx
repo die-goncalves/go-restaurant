@@ -21,7 +21,9 @@ import { SignedUser } from '../components/SignedUser'
 import { Logo } from '../components/Logo'
 
 type RestaurantsProps = {
+  place: string
   geohash: string
+  coordinates: { lng: number; lat: number }
   tags: Array<{
     id: string
     name: string
@@ -33,7 +35,12 @@ const DynamicCart = dynamic(() => import('../components/Cart'), {
   ssr: false
 })
 
-export default function Restaurants({ geohash, tags }: RestaurantsProps) {
+export default function Restaurants({
+  place,
+  geohash,
+  coordinates,
+  tags
+}: RestaurantsProps) {
   const { isLoading: isLoadingSession, session } = useAuth()
   const { state, handleAddPosition } = useFilter()
 
@@ -45,9 +52,9 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
         price: state.price,
         delivery: state.delivery,
         sort: state.sort,
-        lng: state.currentPosition?.coordinates.longitude,
-        lat: state.currentPosition?.coordinates.latitude,
-        place: state.currentPosition?.place
+        lng: state.currentPosition?.coordinates.longitude ?? coordinates.lng,
+        lat: state.currentPosition?.coordinates.latitude ?? coordinates.lat,
+        place: state.currentPosition?.place ?? place
       }
     ],
     async () => {
@@ -58,9 +65,10 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
             price: state.price,
             delivery: state.delivery,
             sort: state.sort,
-            lng: state.currentPosition?.coordinates.longitude,
-            lat: state.currentPosition?.coordinates.latitude,
-            place: state.currentPosition?.place
+            lng:
+              state.currentPosition?.coordinates.longitude ?? coordinates.lng,
+            lat: state.currentPosition?.coordinates.latitude ?? coordinates.lat,
+            place: state.currentPosition?.place ?? place
           }
         })
         return data
@@ -210,7 +218,16 @@ export default function Restaurants({ geohash, tags }: RestaurantsProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async ctx => {
-  const { place } = ctx.query
+  const { place, geohash } = ctx.query as { place?: string; geohash?: string }
+
+  if (!place || !geohash) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false
+      }
+    }
+  }
 
   const supabase = createServerSupabaseClient(ctx, {
     cookieOptions: {
@@ -230,9 +247,13 @@ export const getServerSideProps: GetServerSideProps = async ctx => {
 
   const tags = data ? tagListingForFiltering(data) : []
 
+  const { longitude: lng, latitude: lat } = decodeGeohash(geohash)
+
   return {
     props: {
-      geohash: ctx.query.geohash,
+      place,
+      geohash,
+      coordinates: { lng, lat },
       tags
     }
   }
