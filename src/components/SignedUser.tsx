@@ -42,7 +42,7 @@ export function SignedUser() {
           </button>
         </Popover.Trigger>
 
-        <Popover.Content sideOffset={8} className={clsx('p-4 w-60', '')}>
+        <Popover.Content sideOffset={8} className="p-4 w-60 z-[2]">
           <div className="flex flex-col gap-2">
             <span
               className={clsx(
