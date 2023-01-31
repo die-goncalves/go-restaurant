@@ -215,7 +215,7 @@ As imagens das comidas e dos restaurantes podem ser encontradas em [Unsplash](ht
 
 ### Visão do projeto
 
-| <img width="320px" alt="320px" src="assets/gifs/320px.gif" /> | <img width="1440px" alt="320px" src="assets/gifs/1440px.gif" /> |
+| <img width="100%" alt="320px" src="assets/gifs/320px.gif" /> | <img width="100%" alt="1440px" src="assets/gifs/1440px.gif" /> |
 |:----:|:----:|
 |  320px  | 1440px |
 
