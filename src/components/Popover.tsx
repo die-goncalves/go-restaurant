@@ -1,5 +1,6 @@
+import { css } from '@/styled-system/css'
+import { cx } from '@/styled-system/css/cx'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
-import clsx from 'clsx'
 import { forwardRef } from 'react'
 
 const PopoverComponentRoot = (props: PopoverPrimitive.PopoverProps) => (
@@ -23,9 +24,23 @@ const PopoverComponentContent = forwardRef<
 >(({ children, className, ...props }, forwardedRef) => (
   <PopoverPrimitive.Portal>
     <PopoverPrimitive.Content
-      className={clsx(
-        'box-border bg-light-gray-100 overflow-hidden shadow-xl rounded border-t-2 border-light-gray-200 animate-fade',
-        'focus:outline focus:outline-2 focus:outline-light-indigo-300',
+      className={cx(
+        css({
+          boxSizing: 'border-box',
+          bg: 'light.gray.100',
+          overflow: 'hidden',
+          shadow: 'xl',
+          rounded: 'sm',
+          borderTopWidth: '2',
+          borderTopColor: 'light.gray.200',
+          animation: 'fade',
+          outline: 'none',
+          _focus: {
+            outlineStyle: 'solid',
+            outlineWidth: '2',
+            outlineColor: 'light.indigo.300'
+          }
+        }),
         className
       )}
       sideOffset={12}
@@ -33,7 +48,7 @@ const PopoverComponentContent = forwardRef<
       ref={forwardedRef}
     >
       {children}
-      <PopoverPrimitive.Arrow className="fill-light-gray-200" />
+      <PopoverPrimitive.Arrow className={css({ fill: 'light.gray.200' })} />
     </PopoverPrimitive.Content>
   </PopoverPrimitive.Portal>
 ))

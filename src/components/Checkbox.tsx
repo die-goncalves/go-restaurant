@@ -1,6 +1,6 @@
-import clsx from 'clsx'
 import { ReactNode } from 'react'
 import { Check } from 'phosphor-react'
+import { css } from '@/styled-system/css'
 
 type CheckboxProps = {
   onChangeChecked: () => void
@@ -18,31 +18,87 @@ export function Checkbox({
   qty
 }: CheckboxProps) {
   return (
-    <label className="flex flex-1 items-center relative px-4 py-2 gap-4 cursor-pointer select-none">
+    <label
+      className={css({
+        display: 'flex',
+        flex: 1,
+        alignItems: 'center',
+        position: 'relative',
+        px: '4',
+        py: '2',
+        gap: '4',
+        cursor: 'pointer',
+        userSelect: 'none'
+      })}
+    >
       <input
-        className={clsx('peer sr-only')}
+        className={`peer ${css({
+          position: 'absolute',
+          width: '1px',
+          height: '1px',
+          padding: 0,
+          margin: '-1px',
+          overflow: 'hidden',
+          clip: 'rect(0,0,0,0)',
+          whiteSpace: 'nowrap',
+          borderWidth: 0
+        })}`}
         type="checkbox"
         checked={checked}
         onChange={onChangeChecked}
         value={value}
       />
       <span
-        className={clsx(
-          'relative inline-block w-4 h-4 rounded bg-light-gray-200',
-          'peer-focus:outline peer-focus:outline-2 peer-focus:outline-offset-2 peer-focus:outline-light-indigo-300'
-        )}
+        className={css({
+          position: 'relative',
+          display: 'inline-block',
+          w: '4',
+          h: '4',
+          borderRadius: 'sm',
+          bg: 'light.gray.200',
+          _peerFocus: {
+            outlineStyle: 'solid',
+            outlineWidth: '2px',
+            outlineOffset: '2px',
+            outlineColor: 'light.indigo.300'
+          }
+        })}
       />
       <span
-        className={clsx(
-          'flex absolute w-4 h-4 rounded bg-transparent',
-          'peer-checked:invisible'
-        )}
+        className={css({
+          display: 'flex',
+          position: 'absolute',
+          w: '4',
+          h: '4',
+          borderRadius: 'sm',
+          bg: 'transparent',
+          _peerChecked: { visibility: 'hidden' }
+        })}
       >
-        <Check className="m-auto w-3 h-3 text-light-gray-800" weight="bold" />
+        <Check
+          className={css({
+            margin: 'auto',
+            w: '3',
+            h: '3',
+            color: 'light.gray.800'
+          })}
+          weight="bold"
+        />
       </span>
 
-      <div className="flex">
-        {children}&nbsp;<span className="text-light-gray-500">({qty})</span>
+      <div
+        className={css({
+          display: 'flex'
+        })}
+      >
+        {children}&nbsp;
+        <span
+          className={css({
+            color: 'light.gray.500'
+          })}
+        >
+          ({qty})
+        </span>
       </div>
     </label>
   )

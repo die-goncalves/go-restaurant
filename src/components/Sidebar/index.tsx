@@ -1,10 +1,10 @@
-import clsx from 'clsx'
-import { useFilter } from '../../contexts/FilterContext'
-import { Accordion } from '../Accordion'
-import { Checkbox } from '../Checkbox'
-import { DialogMap } from '../DialogMap'
-import { RadioGroup } from '../RadioGroup'
-import { Slider } from '../Slider'
+import { useFilter } from '@/src/contexts/filter-context'
+import { Accordion } from '@/src/components/accordion'
+import { Checkbox } from '@/src/components/checkbox'
+import { DialogMap } from '@/src/components/dialog-map'
+import { RadioGroup } from '@/src/components/radio-group'
+import { Slider } from '@/src/components/slider'
+import { css } from '@/styled-system/css'
 
 type SidebarProps = {
   tags: Array<{
@@ -26,11 +26,26 @@ export function Sidebar({ tags }: SidebarProps) {
 
   return (
     <div
-      className={clsx(
-        'lg:w-80',
-        'sm:fixed sm:w-60 sm:shadow-none sm:mb-0',
-        'flex flex-col relative bg-light-gray-100 w-full h-full max-h-[calc(100vh-4.5rem)] overflow-auto scrollbar-gutter-stable shadow-lg mb-8'
-      )}
+      className={css({
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        bg: 'light.gray.100',
+        w: 'full',
+        h: 'full',
+        maxHeight: 'calc(100vh - 4.5rem)',
+        overflow: 'auto',
+        mb: '8',
+        scrollbarGutter: 'stable',
+        boxShadow: 'lg',
+        lg: { w: '80' },
+        sm: {
+          position: 'fixed',
+          w: '60',
+          boxShadow: 'none',
+          mb: '0'
+        }
+      })}
     >
       <div>
         <DialogMap />
@@ -40,7 +55,12 @@ export function Sidebar({ tags }: SidebarProps) {
           value={state.delivery}
           onValueChange={handleDelivery}
         >
-          <div className="flex flex-col">
+          <div
+            className={css({
+              display: 'flex',
+              flexDirection: 'column'
+            })}
+          >
             <RadioGroup.Item value="delivery">Entrega</RadioGroup.Item>
             <RadioGroup.Item value="pickup">Retirada</RadioGroup.Item>
           </div>
@@ -48,12 +68,23 @@ export function Sidebar({ tags }: SidebarProps) {
       </div>
 
       <Accordion.Root>
-        <div className="h-0.5 w-full bg-light-gray-200" />
+        <div
+          className={css({
+            h: '0.5',
+            w: 'full',
+            bg: 'light.gray.200'
+          })}
+        />
         <Accordion.Item value="order">
           <Accordion.Trigger>Ordenar</Accordion.Trigger>
           <Accordion.Content>
             <RadioGroup.Root value={state.sort} onValueChange={handleSort}>
-              <div className="flex flex-col">
+              <div
+                className={css({
+                  display: 'flex',
+                  flexDirection: 'column'
+                })}
+              >
                 <RadioGroup.Item value="rating">Avaliação</RadioGroup.Item>
                 <RadioGroup.Item value="delivery time">
                   Tempo de entrega
@@ -64,22 +95,43 @@ export function Sidebar({ tags }: SidebarProps) {
         </Accordion.Item>
         {state.delivery === 'delivery' && (
           <>
-            <div className="h-0.5 w-full bg-light-gray-200" />
+            <div
+              className={css({
+                h: '0.5',
+                w: 'full',
+                bg: 'light.gray.200'
+              })}
+            />
             <Accordion.Item value="price">
               <Accordion.Trigger>Preço para entrega</Accordion.Trigger>
               <Accordion.Content>
-                <div className="flex">
+                <div
+                  className={css({
+                    display: 'flex'
+                  })}
+                >
                   <Slider value={state.price} onValueChange={handlePrice} />
                 </div>
               </Accordion.Content>
             </Accordion.Item>
           </>
         )}
-        <div className="h-0.5 w-full bg-light-gray-200" />
+        <div
+          className={css({
+            h: '0.5',
+            w: 'full',
+            bg: 'light.gray.200'
+          })}
+        />
         <Accordion.Item value="category">
           <Accordion.Trigger>Categorias</Accordion.Trigger>
           <Accordion.Content>
-            <div className="flex flex-col">
+            <div
+              className={css({
+                display: 'flex',
+                flexDirection: 'column'
+              })}
+            >
               {tags &&
                 tags.map(t => (
                   <Checkbox

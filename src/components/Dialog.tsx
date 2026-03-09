@@ -1,3 +1,4 @@
+import { css, cx } from '@/styled-system/css'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import clsx from 'clsx'
 import { forwardRef } from 'react'
@@ -12,25 +13,54 @@ const DialogComponentTrigger = (props: DialogPrimitive.DialogTriggerProps) => (
 )
 DialogComponentTrigger.displayName = 'DialogTrigger'
 
+const DialogComponentTitle = forwardRef<
+  HTMLHeadingElement,
+  DialogPrimitive.DialogTitleProps
+>(({ children, ...props }, forwardedRef) => (
+  <DialogPrimitive.DialogTitle {...props} ref={forwardedRef}>
+    {children}
+  </DialogPrimitive.DialogTitle>
+))
+DialogComponentTitle.displayName = 'DialogTitle'
+
 const DialogComponentContent = forwardRef<
   HTMLDivElement,
   DialogPrimitive.DialogContentProps & { onCloseInteractOverlay: () => void }
->(({ children, onCloseInteractOverlay, ...props }, forwardedRef) => (
+>(({ children, className, onCloseInteractOverlay, ...props }, forwardedRef) => (
   <DialogPrimitive.Portal>
     <DialogPrimitive.Overlay
       onClick={onCloseInteractOverlay}
-      className="bg-light-gray-900 fixed inset-0 bg-opacity-75 animate-overlayShow z-20"
+      className={css({
+        bg: 'light.gray.900',
+        position: 'fixed',
+        inset: '0',
+        opacity: '0.75',
+        animation: 'overlayShow',
+        zIndex: '20'
+      })}
     />
     <DialogPrimitive.Content
       {...props}
       ref={forwardedRef}
       onPointerDownOutside={e => e.preventDefault()}
       onInteractOutside={e => e.preventDefault()}
-      className={clsx(
-        props.className,
-        'bg-light-gray-100 rounded overflow-hidden fixed top-2/4 left-2/4 animate-overlayContent focus:outline-none -translate-x-2/4 -translate-y-2/4 shadow-xl z-30',
-        'md:max-w-[85vw] md:max-h-[85vh]',
-        'sm:max-h-[calc(100vh-2.5rem)]'
+      className={cx(
+        css({
+          bg: 'light.gray.100',
+          rounded: 'sm',
+          overflow: 'hidden',
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          animation: 'overlayShow',
+          outline: 'none',
+          shadow: 'xl',
+          zIndex: '30',
+          sm: { maxH: 'calc(100vh - 2.5rem)' },
+          md: { maxW: '85vw', maxH: '85vh' }
+        }),
+        className
       )}
     >
       {children}
@@ -53,5 +83,6 @@ export const Dialog = {
   Root: DialogComponentRoot,
   Trigger: DialogComponentTrigger,
   Content: DialogComponentContent,
+  Title: DialogComponentTitle,
   Close: DialogComponentClose
 }

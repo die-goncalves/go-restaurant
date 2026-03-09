@@ -1,10 +1,42 @@
-import clsx from 'clsx'
 import { CopySimple } from 'phosphor-react'
 import toast from 'react-hot-toast'
 import { useMediaQuery } from 'react-responsive'
 import { TOrder } from '../types'
 import { formatNumber } from '../utils/formatNumber'
-import { Accordion } from './Accordion'
+import { Accordion } from './accordion'
+import { css } from '@/styled-system/css'
+
+const tableStyle = css.raw({
+  w: 'full',
+  rounded: 'sm',
+  borderWidth: '2',
+  borderColor: 'light.gray.400',
+  borderCollapse: 'separate',
+  '& th': { p: '2 4' },
+  '& td': { p: '2 4' },
+  '& tr:nth-child(even)': { bg: 'light.gray.300' },
+  '& tbody tr:hover': { bg: 'light.gray.300' }
+})
+
+const tableNowrap = css([
+  tableStyle,
+  {
+    '& td': { p: '2 4', whiteSpace: 'nowrap' }
+  }
+])
+
+const dateRow = css({
+  display: 'flex',
+  w: 'full',
+  justifyContent: 'space-between',
+  xl: {
+    display: 'grid',
+    gridTemplateColumns: '100px auto',
+    columnGap: '2',
+    alignItems: 'center',
+    justifyContent: 'start'
+  }
+})
 
 type PaymentProps = {
   payment: Omit<TOrder, 'line_items' | 'shipping_options'> & {
@@ -22,6 +54,9 @@ type PaymentProps = {
   }
 }
 export function Payment({ payment }: PaymentProps) {
+  const isPaid = payment.payment_status === 'paid'
+  const isAtLeast640 = useMediaQuery({ minWidth: 640 })
+
   const totalPrice = payment.line_items?.reduce(
     (acc, currentItem) =>
       (acc += currentItem.quantity * currentItem.food.price),
@@ -57,58 +92,113 @@ export function Payment({ payment }: PaymentProps) {
     }
   )
 
-  const isAtLeast640 = useMediaQuery({ minWidth: 640 })
-
   async function copy(event: React.MouseEvent<HTMLButtonElement>) {
     event.stopPropagation()
     await navigator.clipboard.writeText(payment.payment_intent_id ?? '')
     toast('Identificação do pagamento copiado')
   }
 
+  const formatDate = (date: string, full = false) =>
+    new Intl.DateTimeFormat(
+      'pt-BR',
+      full ? { dateStyle: 'full', timeStyle: 'long' } : undefined
+    ).format(new Date(date))
+
   return (
     <Accordion.Root>
       <Accordion.Item value="order">
         <Accordion.Trigger
-          className={clsx(
-            'flex rounded w-full h-max shadow-md',
-            payment.payment_status === 'paid'
-              ? 'bg-light-green-200'
-              : 'bg-light-red-200 opacity-80'
-          )}
+          className={css({
+            display: 'flex',
+            rounded: 'sm',
+            w: 'full',
+            h: 'max',
+            shadow: 'md',
+            bg: isPaid ? 'light.green.200' : 'light.red.200',
+            opacity: isPaid ? '1' : '0.8'
+          })}
         >
-          <div className="flex flex-col w-full gap-2 pr-4">
-            <div className="flex justify-between items-start">
+          <div
+            className={css({
+              display: 'flex',
+              flexDirection: 'column',
+              w: 'full',
+              gap: '2',
+              pr: '4'
+            })}
+          >
+            <div
+              className={css({
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start'
+              })}
+            >
               <div
-                className={clsx(
-                  'xl:grid xl:grid-cols-[100px_auto] xl:gap-x-2',
-                  'md:flex-row md:items-center md:gap-2',
-                  'flex flex-col items-start justify-center'
-                )}
+                className={css({
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  justifyContent: 'center',
+                  md: { flexDirection: 'row', alignItems: 'center', gap: '2' },
+                  xl: {
+                    display: 'grid',
+                    gridTemplateColumns: '100px auto',
+                    columnGap: '2'
+                  }
+                })}
               >
-                <p className="text-left font-medium uppercase">Pagamento</p>
+                <p
+                  className={css({
+                    textAlign: 'left',
+                    fontWeight: 'medium',
+                    textTransform: 'uppercase'
+                  })}
+                >
+                  Pagamento
+                </p>
                 {isAtLeast640 ? (
-                  <p className="text-sm">{payment.payment_intent_id}</p>
+                  <p className={css({ fontSize: 'sm' })}>
+                    {payment.payment_intent_id}
+                  </p>
                 ) : (
-                  <div className="flex items-center">
+                  <div
+                    className={css({ display: 'flex', alignItems: 'center' })}
+                  >
                     <p
-                      className={clsx(
-                        'xs:max-w-none',
-                        'text-sm max-w-[100px] truncate'
-                      )}
+                      className={css({
+                        fontSize: 'sm',
+                        maxW: '100px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        xs: { maxW: 'none' }
+                      })}
                     >
                       {payment.payment_intent_id}
                     </p>
                     <button
                       onClick={copy}
-                      className={clsx(
-                        'xs:hidden',
-                        'p-1 rounded',
-                        'transition-[background-color, outline] ease-in duration-150',
-                        'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                      )}
+                      className={css({
+                        p: '1',
+                        rounded: 'sm',
+                        transition: 'background-color 150ms ease-in',
+                        outline: 'none',
+                        _focus: {
+                          outlineStyle: 'solid',
+                          outlineWidth: '2',
+                          outlineOffset: '2',
+                          outlineColor: 'light.indigo.300'
+                        },
+                        xs: { display: 'none' }
+                      })}
                     >
                       <CopySimple
-                        className="w-4 h-4 text-light-gray-800"
+                        className={css({
+                          w: '4',
+                          h: '4',
+                          color: 'light.gray.800'
+                        })}
                         weight="light"
                       />
                     </button>
@@ -116,141 +206,185 @@ export function Payment({ payment }: PaymentProps) {
                 )}
               </div>
 
-              <div className="flex items-center justify-end">
-                <p className="font-medium">
-                  {payment.payment_status === 'paid' ? 'PAGO' : 'NÃO PAGO'}
+              <div
+                className={css({
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end'
+                })}
+              >
+                <p className={css({ fontWeight: 'medium' })}>
+                  {isPaid ? 'PAGO' : 'NÃO PAGO'}
                 </p>
               </div>
             </div>
 
-            <div className={clsx('xl:grid xl:grid-cols-2', 'flex flex-col')}>
-              <div
-                className={clsx(
-                  'xl:grid xl:grid-cols-[100px_auto] xl:gap-x-2 xl:items-center xl:justify-start',
-                  'flex w-full justify-between'
-                )}
-              >
-                <p className="flex flex-none mr-2 text-left text-sm italic">
+            <div
+              className={css({
+                display: 'flex',
+                flexDirection: 'column',
+                xl: {
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))'
+                }
+              })}
+            >
+              <div className={dateRow}>
+                <p
+                  className={css({
+                    display: 'flex',
+                    flexShrink: '0',
+                    mr: '2',
+                    textAlign: 'left',
+                    fontSize: 'sm',
+                    fontStyle: 'italic'
+                  })}
+                >
                   Criado em
                 </p>
-                {isAtLeast640 ? (
-                  <p className="text-sm text-right">
-                    {new Intl.DateTimeFormat('pt-BR', {
-                      dateStyle: 'full',
-                      timeStyle: 'long'
-                    }).format(new Date(payment.created_at))}
-                  </p>
-                ) : (
-                  <p className="text-sm">
-                    {new Intl.DateTimeFormat('pt-BR').format(
-                      new Date(payment.created_at)
-                    )}
-                  </p>
-                )}
+                <p className={css({ fontSize: 'sm', textAlign: 'right' })}>
+                  {formatDate(payment.created_at, isAtLeast640)}
+                </p>
               </div>
 
-              {payment.updated_at ? (
-                <div
-                  className={clsx(
-                    'xl:grid xl:grid-cols-[100px_auto] xl:gap-x-2 xl:items-center xl:justify-start',
-                    'flex w-full justify-between'
-                  )}
-                >
-                  <p className="flex flex-none mr-2 text-left text-sm italic">
+              {payment.updated_at && (
+                <div className={dateRow}>
+                  <p
+                    className={css({
+                      display: 'flex',
+                      flexShrink: '0',
+                      mr: '2',
+                      textAlign: 'left',
+                      fontSize: 'sm',
+                      fontStyle: 'italic'
+                    })}
+                  >
                     Atualizado em
                   </p>
-                  {isAtLeast640 ? (
-                    <p className="text-sm text-right">
-                      {new Intl.DateTimeFormat('pt-BR', {
-                        dateStyle: 'full',
-                        timeStyle: 'long'
-                      }).format(new Date(payment.updated_at))}
-                    </p>
-                  ) : (
-                    <p className="text-sm">
-                      {new Intl.DateTimeFormat('pt-BR').format(
-                        new Date(payment.updated_at)
-                      )}
-                    </p>
-                  )}
+                  <p className={css({ fontSize: 'sm', textAlign: 'right' })}>
+                    {formatDate(payment.updated_at, isAtLeast640)}
+                  </p>
                 </div>
-              ) : null}
+              )}
             </div>
           </div>
         </Accordion.Trigger>
+
         <Accordion.Content>
-          <div className="flex flex-col gap-4 p-4 bg-light-gray-200 rounded-b">
-            <div className="flex w-full flex-col gap-4">
+          <div
+            className={css({
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4',
+              p: '4',
+              bg: 'light.gray.200',
+              rounded: 'b'
+            })}
+          >
+            <div
+              className={css({
+                display: 'flex',
+                w: 'full',
+                flexDirection: 'column',
+                gap: '4'
+              })}
+            >
               {groupPayment &&
-                Object.entries(groupPayment).map(restaurant => {
-                  return (
-                    <div key={restaurant[0]} className="flex flex-col gap-4">
-                      <p className="text-center">
-                        Comida pedida no restaurante&nbsp;
-                        <span className="text-light-gray-800 font-medium">
-                          {restaurant[0]}
-                        </span>
-                      </p>
-                      <div className="w-full overflow-auto">
-                        <table className="w-full [&_th]:p-[0.5rem_1rem] [&_td]:p-[0.5rem_1rem] [&_td]:whitespace-nowrap rounded border-2 border-light-gray-400 border-separate [&_tr:nth-child(even)]:bg-light-gray-300 [&>tbody_tr:hover]:bg-light-gray-300">
-                          <thead className="bg-light-gray-100">
-                            <tr>
-                              <th className="text-left">Comida</th>
-                              <th className="text-right">Preço</th>
-                              <th className="text-right">Quantidade</th>
-                              <th className="text-right">Total</th>
+                Object.entries(groupPayment).map(([name, items]) => (
+                  <div
+                    key={name}
+                    className={css({
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4'
+                    })}
+                  >
+                    <p className={css({ textAlign: 'center' })}>
+                      Comida pedida no restaurante&nbsp;
+                      <span
+                        className={css({
+                          color: 'light.gray.800',
+                          fontWeight: 'medium'
+                        })}
+                      >
+                        {name}
+                      </span>
+                    </p>
+                    <div className={css({ w: 'full', overflow: 'auto' })}>
+                      <table className={tableNowrap}>
+                        <thead className={css({ bg: 'light.gray.100' })}>
+                          <tr>
+                            <th className={css({ textAlign: 'left' })}>
+                              Comida
+                            </th>
+                            <th className={css({ textAlign: 'right' })}>
+                              Preço
+                            </th>
+                            <th className={css({ textAlign: 'right' })}>
+                              Quantidade
+                            </th>
+                            <th className={css({ textAlign: 'right' })}>
+                              Total
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {items?.map(item => (
+                            <tr key={item.food_id}>
+                              <td className={css({ textAlign: 'left' })}>
+                                {item.food.name}
+                              </td>
+                              <td className={css({ textAlign: 'right' })}>
+                                {formatNumber({
+                                  options: { currency: 'BRL' },
+                                  numberToBeFormatted: Number(item.food.price)
+                                })}
+                              </td>
+                              <td className={css({ textAlign: 'right' })}>
+                                {item.quantity}
+                              </td>
+                              <td className={css({ textAlign: 'right' })}>
+                                {formatNumber({
+                                  options: { currency: 'BRL' },
+                                  numberToBeFormatted:
+                                    Number(item.quantity) *
+                                    Number(item.food.price)
+                                })}
+                              </td>
                             </tr>
-                          </thead>
-                          <tbody>
-                            {restaurant[1].map(item => (
-                              <tr key={item.food_id}>
-                                <td className="text-left">{item.food.name}</td>
-                                <td className="text-right">
-                                  {formatNumber({
-                                    options: { currency: 'BRL' },
-                                    numberToBeFormatted: Number(item.food.price)
-                                  })}
-                                </td>
-                                <td className="text-right">{item.quantity}</td>
-                                <td className="text-right">
-                                  {formatNumber({
-                                    options: { currency: 'BRL' },
-                                    numberToBeFormatted:
-                                      Number(item.quantity) *
-                                      Number(item.food.price)
-                                  })}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  )
-                })}
+                  </div>
+                ))}
             </div>
-            <div className="flex flex-col gap-4">
-              <p className="text-center">Sobre o envio</p>
-              <div className="w-full overflow-auto">
-                <table className="w-full [&_th]:p-[0.5rem_1rem] [&_td]:p-[0.5rem_1rem] [&_td]:whitespace-nowrap rounded border-2 border-light-gray-400 border-separate [&_tr:nth-child(even)]:bg-light-gray-300 [&>tbody_tr:hover]:bg-light-gray-300">
-                  <thead className="bg-light-gray-100">
+            <div
+              className={css({
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4'
+              })}
+            >
+              <p className={css({ textAlign: 'center' })}>Sobre o envio</p>
+              <div className={css({ w: 'full', overflow: 'auto' })}>
+                <table className={tableNowrap}>
+                  <thead className={css({ bg: 'light.gray.100' })}>
                     <tr>
-                      <th className="text-left">Endereço</th>
-                      <th className="text-right">Geohash</th>
-                      <th className="text-right">Preço</th>
+                      <th className={css({ textAlign: 'left' })}>Endereço</th>
+                      <th className={css({ textAlign: 'right' })}>Geohash</th>
+                      <th className={css({ textAlign: 'right' })}>Preço</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="text-left">
-                        {payment.shipping_options &&
-                          payment.shipping_options.shipping_address}
+                      <td className={css({ textAlign: 'left' })}>
+                        {payment.shipping_options?.shipping_address}
                       </td>
-                      <td className="text-right">
-                        {payment.shipping_options &&
-                          payment.shipping_options.shipping_geohash}
+                      <td className={css({ textAlign: 'right' })}>
+                        {payment.shipping_options?.shipping_geohash}
                       </td>
-                      <td className="text-right">
+                      <td className={css({ textAlign: 'right' })}>
                         {payment.shipping_options &&
                           formatNumber({
                             options: { currency: 'BRL' },
@@ -264,16 +398,17 @@ export function Payment({ payment }: PaymentProps) {
                 </table>
               </div>
             </div>
+
             <div>
-              <table className="w-full [&_th]:p-[0.5rem_1rem] [&_td]:p-[0.5rem_1rem] rounded border-2 border-light-gray-400 border-separate [&_tr:nth-child(even)]:bg-light-gray-300 [&>tbody_tr:hover]:bg-light-gray-300">
-                <thead className="bg-light-gray-100">
+              <table className={css(tableStyle)}>
+                <thead className={css({ bg: 'light.gray.100' })}>
                   <tr>
-                    <th className="text-right">Custo total</th>
+                    <th className={css({ textAlign: 'right' })}>Custo total</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="text-right">
+                    <td className={css({ textAlign: 'right' })}>
                       {payment.shipping_options &&
                         totalPrice &&
                         formatNumber({

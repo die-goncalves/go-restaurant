@@ -1,9 +1,11 @@
-import clsx from 'clsx'
+'use client'
+
 import { useEffect, useState } from 'react'
 import NextImage from 'next/image'
 import { X } from 'phosphor-react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { shimmerBase64 } from '../utils/blurDataURL'
+import { css } from '@/styled-system/css'
 
 const gmailSVG = (
   <svg
@@ -170,6 +172,54 @@ const linkedinSVG = (
   </svg>
 )
 
+const contactLink = css({
+  display: 'flex',
+  position: 'relative',
+  alignItems: 'center',
+  rounded: 'sm',
+  overflow: 'hidden',
+  h: '10',
+  w: 'full',
+  bg: 'light.gray.200',
+  transition: 'all 150ms ease-in',
+  outline: 'none',
+  '&:not(:disabled):hover': { bg: 'light.gray.300' },
+  _focus: {
+    outlineStyle: 'solid',
+    outlineWidth: '2',
+    outlineOffset: '2',
+    outlineColor: 'light.indigo.300'
+  }
+})
+
+const contactLinkInner = css({
+  display: 'flex',
+  flexShrink: '0',
+  alignItems: 'center',
+  px: '2',
+  gap: '2',
+  h: 'full',
+  w: '28',
+  bg: 'light.gray.300'
+})
+
+const inspirationLink = css({
+  display: 'flex',
+  rounded: 'sm',
+  h: '10',
+  w: 'full',
+  bg: 'light.gray.100/70',
+  transition: 'all 150ms ease-in',
+  outline: 'none',
+  _hover: { bg: 'light.gray.100/80' },
+  _focus: {
+    outlineStyle: 'solid',
+    outlineWidth: '2',
+    outlineOffset: '2',
+    outlineColor: 'light.indigo.300'
+  }
+})
+
 export function Presentation() {
   const [open, setOpen] = useState(false)
 
@@ -202,56 +252,140 @@ export function Presentation() {
   return (
     <Dialog.Root open={open}>
       <Dialog.Portal>
-        <Dialog.Overlay className="bg-light-gray-900 fixed inset-0 bg-opacity-75 animate-overlayShow z-20" />
+        <Dialog.Overlay
+          className={css({
+            bg: 'light.gray.900',
+            position: 'fixed',
+            inset: '0',
+            opacity: '0.75',
+            animation: 'overlayShow',
+            zIndex: '20'
+          })}
+        />
         <Dialog.Content
-          className={clsx(
-            'fixed flex flex-col rounded bg-light-gray-100 overflow-hidden animate-overlayContent focus:outline-none shadow-xl z-30',
-            'lg:top-1/2 lg:left-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2 lg:w-auto lg:h-auto',
-            'sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-auto',
-            'top-2 left-2 w-[calc(100vw-1rem)] max-h-[calc(100vh-1rem)]'
-          )}
+          className={css({
+            position: 'fixed',
+            display: 'flex',
+            flexDirection: 'column',
+            rounded: 'sm',
+            bg: 'light.gray.100',
+            overflow: 'hidden',
+            animation: 'overlayShow',
+            outline: 'none',
+            shadow: 'xl',
+            zIndex: '30',
+            top: '2',
+            left: '2',
+            w: 'calc(100vw - 1rem)',
+            maxH: 'calc(100vh - 1rem)',
+            sm: {
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              w: 'auto'
+            },
+            lg: { h: 'auto' }
+          })}
         >
-          <header className="flex p-4 items-center justify-between">
-            <p className="text-xl font-medium">Bem vindo!</p>
+          <header
+            className={css({
+              display: 'flex',
+              p: '4',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            })}
+          >
+            <Dialog.DialogTitle asChild>
+              <p className={css({ fontSize: 'xl', fontWeight: 'medium' })}>
+                Bem vindo!
+              </p>
+            </Dialog.DialogTitle>
             <button
-              className={clsx(
-                'p-2 rounded bg-light-gray-200 [&:not(:disabled):hover]:bg-light-gray-300',
-                'transition-[background-color, outline] ease-in duration-150',
-                'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-              )}
+              className={css({
+                p: '2',
+                rounded: 'sm',
+                bg: 'light.gray.200',
+                transition: 'all 150ms ease-in',
+                outline: 'none',
+                '&:not(:disabled):hover': { bg: 'light.gray.300' },
+                _focus: {
+                  outlineStyle: 'solid',
+                  outlineWidth: '2',
+                  outlineOffset: '2',
+                  outlineColor: 'light.indigo.300'
+                }
+              })}
               onClick={handleClose}
             >
-              <X className="w-6 h-6" />
+              <X className={css({ w: '6', h: '6' })} />
             </button>
           </header>
 
-          <div className={clsx('overflow-auto')}>
-            <p className="pb-4 px-4 text-center">
+          <div className={css({ overflow: 'auto' })}>
+            <p className={css({ pb: '4', px: '4', textAlign: 'center' })}>
               Sou Diego Gonçalves e apresento a você o projeto&nbsp;
               <a
                 href="https://github.com/die-goncalves/go-restaurant"
                 target="_blank"
                 rel="noreferrer"
-                className="group relative bg-no-repeat bg-bottom bg-[length:auto_2px] hover:bg-[length:auto_4px] bg-gradient-to-r from-light-orange-500 to-light-orange-200 transition-all duration-150 ease-in"
+                className={css({
+                  position: 'relative',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'bottom',
+                  backgroundSize: 'auto 2px',
+                  backgroundImage:
+                    'linear-gradient(to right, token(colors.light.orange.500), token(colors.light.orange.200))',
+                  transition: 'all 150ms ease-in',
+                  _hover: { backgroundSize: 'auto 4px' }
+                })}
               >
                 GoRestaurant
               </a>
             </p>
             <div
-              className={clsx('lg:flex-row', 'relative flex flex-col h-max')}
+              className={css({
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                h: 'max',
+                lg: { flexDirection: 'row' }
+              })}
             >
               <div
-                className={clsx('lg:w-[450px]', 'md:w-[500px]', 'sm:w-[400px]')}
+                className={css({
+                  sm: { w: '400px' },
+                  md: { w: '500px' },
+                  lg: { w: '450px' }
+                })}
               >
-                <main className="flex flex-col pb-4 px-4 gap-4">
-                  <div className="flex gap-8">
-                    <div className="flex flex-col gap-4">
-                      <p className="text-center">
+                <main
+                  className={css({
+                    display: 'flex',
+                    flexDirection: 'column',
+                    pb: '4',
+                    px: '4',
+                    gap: '4'
+                  })}
+                >
+                  <div className={css({ display: 'flex', gap: '8' })}>
+                    <div
+                      className={css({
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4'
+                      })}
+                    >
+                      <p className={css({ textAlign: 'center' })}>
                         GoRestaurant é uma plataforma que oferece serviço de
                         venda de alimentos pela internet com entrega ou retirada
                         no local.
                       </p>
-                      <span className="indent-4 text-justify">
+                      <span
+                        className={css({
+                          textIndent: '4',
+                          textAlign: 'justify'
+                        })}
+                      >
                         O usuário acessa a plataforma, seleciona um local para
                         entrega, a plataforma oferece todos os restaurantes da
                         sua região, o usuário escolhe sua comida favorita, fecha
@@ -265,19 +399,31 @@ export function Presentation() {
                         href="https://github.com/die-goncalves/go-restaurant"
                         target="_blank"
                         rel="noreferrer"
-                        className={clsx(
-                          'flex items-center rounded overflow-hidden h-10 w-full bg-light-gray-200 [&:not(:disabled):hover]:bg-light-gray-300',
-                          'transition-[background-color, outline] ease-in duration-150',
-                          'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                        )}
+                        className={contactLink}
                       >
-                        <div className="flex flex-none items-center px-2 gap-2 h-full w-28 bg-light-gray-300">
-                          <div className="flex items-center w-6 h-6">
+                        <div className={contactLinkInner}>
+                          <div
+                            className={css({
+                              display: 'flex',
+                              alignItems: 'center',
+                              w: '6',
+                              h: '6'
+                            })}
+                          >
                             {githubSVG}
                           </div>
-                          <span className="font-medium">Github</span>
+                          <span className={css({ fontWeight: 'medium' })}>
+                            Github
+                          </span>
                         </div>
-                        <span className="px-2 line-clamp-1">
+                        <span
+                          className={css({
+                            px: '2',
+                            overflow: 'hidden',
+                            display: '-webkit-box',
+                            WebkitLineClamp: '1'
+                          })}
+                        >
                           die-goncalves/go-restaurant
                         </span>
                       </a>
@@ -285,46 +431,83 @@ export function Presentation() {
                   </div>
                 </main>
 
-                <footer className="px-4 pb-4">
-                  <div className="flex flex-col gap-4">
-                    <p className="text-center">Contatos</p>
-                    <div className="grid grid-rows-2 grid-cols-1 gap-4">
+                <footer className={css({ px: '4', pb: '4' })}>
+                  <div
+                    className={css({
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4'
+                    })}
+                  >
+                    <p className={css({ textAlign: 'center' })}>Contatos</p>
+                    <div
+                      className={css({
+                        display: 'grid',
+                        gridTemplateRows: 'repeat(2, minmax(0, 1fr))',
+                        gridTemplateColumns: 'repeat(1, minmax(0, 1fr))',
+                        gap: '4'
+                      })}
+                    >
                       <a
                         href="https://www.linkedin.com/in/diego-goncalves1990"
                         target="_blank"
                         rel="noreferrer"
-                        className={clsx(
-                          'flex relative items-center rounded overflow-hidden h-10 w-full bg-light-gray-200 [&:not(:disabled):hover]:bg-light-gray-300',
-                          'transition-[background-color, outline] ease-in duration-150',
-                          'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                        )}
+                        className={contactLink}
                       >
-                        <div className="flex flex-none items-center px-2 gap-2 h-full w-28 bg-light-gray-300">
-                          <div className="flex items-center w-6 h-6">
+                        <div className={contactLinkInner}>
+                          <div
+                            className={css({
+                              display: 'flex',
+                              alignItems: 'center',
+                              w: '6',
+                              h: '6'
+                            })}
+                          >
                             {linkedinSVG}
                           </div>
-                          <span className="font-medium">Linkedin</span>
+                          <span className={css({ fontWeight: 'medium' })}>
+                            Linkedin
+                          </span>
                         </div>
-                        <span className="px-2 line-clamp-1">
+                        <span
+                          className={css({
+                            px: '2',
+                            overflow: 'hidden',
+                            display: '-webkit-box',
+                            WebkitLineClamp: '1'
+                          })}
+                        >
                           diego-goncalves1990
                         </span>
                       </a>
 
                       <a
                         href="mailto:die.goncalves1990@gmail.com"
-                        className={clsx(
-                          'flex items-center rounded overflow-hidden h-10 w-full bg-light-gray-200 [&:not(:disabled):hover]:bg-light-gray-300',
-                          'transition-[background-color, outline] ease-in duration-150',
-                          'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                        )}
+                        className={contactLink}
                       >
-                        <div className="flex flex-none items-center px-2 gap-2 h-full w-28 bg-light-gray-300">
-                          <div className="flex items-center w-6 h-6">
+                        <div className={contactLinkInner}>
+                          <div
+                            className={css({
+                              display: 'flex',
+                              alignItems: 'center',
+                              w: '6',
+                              h: '6'
+                            })}
+                          >
                             {gmailSVG}
                           </div>
-                          <span className="font-medium">Gmail</span>
+                          <span className={css({ fontWeight: 'medium' })}>
+                            Gmail
+                          </span>
                         </div>
-                        <span className="px-2 line-clamp-1">
+                        <span
+                          className={css({
+                            px: '2',
+                            overflow: 'hidden',
+                            display: '-webkit-box',
+                            WebkitLineClamp: '1'
+                          })}
+                        >
                           die.goncalves1990@gmail.com
                         </span>
                       </a>
@@ -334,43 +517,97 @@ export function Presentation() {
               </div>
 
               <div
-                className={clsx(
-                  'relative left-0 top-0 bottom-0',
-                  'lg:w-[300px] lg:h-auto',
-                  'sm:h-60',
-                  'h-80'
-                )}
+                className={css({
+                  position: 'relative',
+                  left: '0',
+                  top: '0',
+                  bottom: '0',
+                  h: '80',
+                  sm: { h: '60' },
+                  lg: { w: '300px', h: 'auto' }
+                })}
               >
-                <div className="absolute inset-0 overflow-hidden">
+                <div
+                  className={css({
+                    position: 'absolute',
+                    inset: '0',
+                    overflow: 'hidden'
+                  })}
+                >
                   <NextImage
                     src="https://images.unsplash.com/photo-1478145046317-39f10e56b5e9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1887&q=80"
                     alt=""
                     fill
-                    className="object-cover contrast-125"
+                    className={css({
+                      objectFit: 'cover',
+                      filter: 'contrast(1.25)'
+                    })}
                     placeholder="blur"
                     blurDataURL={shimmerBase64}
                     sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
                   />
-                  <div className="flex absolute h-72 w-full overflow-hidden bg-gradient-to-b from-light-gray-100 opacity-100"></div>
+                  <div
+                    className={css({
+                      display: 'flex',
+                      position: 'absolute',
+                      h: '72',
+                      w: 'full',
+                      overflow: 'hidden',
+                      backgroundImage:
+                        'linear-gradient(to bottom, token(colors.light.gray.100), transparent)',
+                      opacity: '1'
+                    })}
+                  ></div>
                 </div>
 
-                <div className="absolute inset-0 z-[1]">
-                  <div className="relative flex flex-col gap-4 w-full h-full">
-                    <p className="mx-auto text-center max-w-[12rem] font-medium">
+                <div
+                  className={css({
+                    position: 'absolute',
+                    inset: '0',
+                    zIndex: '1'
+                  })}
+                >
+                  <div
+                    className={css({
+                      position: 'relative',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4',
+                      w: 'full',
+                      h: 'full'
+                    })}
+                  >
+                    <p
+                      className={css({
+                        mx: 'auto',
+                        textAlign: 'center',
+                        maxW: '48',
+                        fontWeight: 'medium'
+                      })}
+                    >
                       Plataformas que inspiraram
                     </p>
-                    <div className="absolute top-1/2 right-1/2 -translate-y-1/2 translate-x-1/2 grid grid-rows-3 grid-cols-1 gap-4 w-36 m-auto">
+                    <div
+                      className={css({
+                        position: 'absolute',
+                        top: '50%',
+                        right: '50%',
+                        transform: 'translateY(-50%) translateX(50%)',
+                        display: 'grid',
+                        gridTemplateRows: 'repeat(3, minmax(0, 1fr))',
+                        gridTemplateColumns: 'repeat(1, minmax(0, 1fr))',
+                        gap: '4',
+                        w: '36',
+                        m: 'auto'
+                      })}
+                    >
                       <a
                         href="https://www.ubereats.com/br"
                         target="_blank"
                         rel="noreferrer"
-                        className={clsx(
-                          'flex rounded h-10 w-full bg-light-gray-100/70 hover:bg-light-gray-100/80',
-                          'transition-[background-color, outline] ease-in duration-150',
-                          'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                        )}
+                        className={inspirationLink}
                       >
-                        <div className="h-max w-24 m-auto">
+                        <div className={css({ h: 'max', w: '24', m: 'auto' })}>
                           <svg
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                             xmlns="http://www.w3.org/2000/svg"
@@ -398,13 +635,9 @@ export function Presentation() {
                         href="https://deliveroo.co.uk/"
                         target="_blank"
                         rel="noreferrer"
-                        className={clsx(
-                          'flex rounded h-10 w-full bg-light-gray-100/70 hover:bg-light-gray-100/80',
-                          'transition-[background-color, outline] ease-in duration-150',
-                          'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                        )}
+                        className={inspirationLink}
                       >
-                        <div className="h-max w-24 m-auto">
+                        <div className={css({ h: 'max', w: '24', m: 'auto' })}>
                           <svg
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                             xmlns="http://www.w3.org/2000/svg"
@@ -423,13 +656,9 @@ export function Presentation() {
                         href="https://www.swiggy.com/"
                         target="_blank"
                         rel="noreferrer"
-                        className={clsx(
-                          'flex rounded h-10 w-full bg-light-gray-100/70 hover:bg-light-gray-100/80',
-                          'transition-[background-color, outline] ease-in duration-150',
-                          'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                        )}
+                        className={inspirationLink}
                       >
-                        <div className="h-max w-24 m-auto">
+                        <div className={css({ h: 'max', w: '24', m: 'auto' })}>
                           <svg
                             xmlnsXlink="http://www.w3.org/1999/xlink"
                             xmlns="http://www.w3.org/2000/svg"

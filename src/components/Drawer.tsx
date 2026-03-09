@@ -1,5 +1,7 @@
+'use client'
+
+import { css, cx } from '@/styled-system/css'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import clsx from 'clsx'
 import { forwardRef } from 'react'
 
 const DrawerComponentRoot = (props: DialogPrimitive.DialogProps) => (
@@ -27,25 +29,54 @@ const DrawerComponentClose = forwardRef<
 ))
 DrawerComponentClose.displayName = 'DrawerClose'
 
+const DrawerComponentTitle = forwardRef<
+  HTMLHeadingElement,
+  DialogPrimitive.DialogTitleProps
+>(({ children, ...props }, forwardedRef) => (
+  <DialogPrimitive.DialogTitle {...props} ref={forwardedRef}>
+    {children}
+  </DialogPrimitive.DialogTitle>
+))
+DrawerComponentTitle.displayName = 'DrawerTitle'
+
 const DrawerComponentContent = forwardRef<
   HTMLDivElement,
   DialogPrimitive.DialogContentProps
 >(({ children, className, ...props }, forwardedRef) => (
   <DialogPrimitive.Portal>
     <DialogPrimitive.Overlay
-      className={clsx(
-        'bg-light-gray-900 fixed inset-0 bg-opacity-75 z-20',
-        'data-[state="open"]:animate-[fadeIn_250ms_ease-in] data-[state="closed"]:animate-[fadeOut_250ms_ease-in]'
-      )}
+      className={css({
+        bg: 'light.gray.900',
+        position: 'fixed',
+        inset: '0',
+        opacity: '0.75',
+        zIndex: '20',
+        '&[data-state="open"]': { animation: 'fadeIn 250ms ease-in' },
+        '&[data-state="closed"]': { animation: 'fadeOut 250ms ease-in' }
+      })}
     />
     <DialogPrimitive.Content
       {...props}
       ref={forwardedRef}
-      className={clsx(
-        className,
-        'bg-light-gray-100 overflow-hidden fixed right-0 top-0 bottom-0 h-screen shadow-xl z-30',
-        'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-light-indigo-300',
-        'data-[state="open"]:animate-[slideLeft_250ms_ease-in] data-[state="closed"]:animate-[fadeOut_250ms_ease-in]'
+      className={cx(
+        css({
+          bg: 'light.gray.100',
+          overflow: 'hidden',
+          position: 'fixed',
+          right: '0',
+          top: '0',
+          bottom: '0',
+          h: 'screen',
+          shadow: 'xl',
+          zIndex: '30',
+          outline: 'none',
+          _focus: {
+            boxShadow: 'inset 0 0 0 2px var(--colors-light-indigo-300)'
+          },
+          '&[data-state="open"]': { animation: 'slideLeft 250ms ease-in' },
+          '&[data-state="closed"]': { animation: 'fadeOut 250ms ease-in' }
+        }),
+        className
       )}
     >
       {children}
@@ -58,5 +89,6 @@ export const Drawer = {
   Root: DrawerComponentRoot,
   Trigger: DrawerComponentTrigger,
   Close: DrawerComponentClose,
-  Content: DrawerComponentContent
+  Content: DrawerComponentContent,
+  Title: DrawerComponentTitle
 }

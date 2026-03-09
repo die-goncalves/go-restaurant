@@ -1,7 +1,7 @@
-import clsx from 'clsx'
 import { forwardRef } from 'react'
 import { CaretDown } from 'phosphor-react'
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
+import { css, cx } from '@/styled-system/css'
 
 const AccordionComponentRoot = forwardRef<
   HTMLDivElement,
@@ -27,18 +27,37 @@ const AccordionComponentTrigger = forwardRef<
   HTMLButtonElement,
   AccordionPrimitive.AccordionTriggerProps
 >(({ children, className, ...props }, forwardedRef) => (
-  <AccordionPrimitive.Header className="flex">
+  <AccordionPrimitive.Header className={css({ display: 'flex' })}>
     <AccordionPrimitive.Trigger
-      className={clsx(
-        'flex flex-1 group h-10 items-center justify-between py-2 px-4 bg-light-gray-100',
-        'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-light-indigo-300',
+      className={cx(
+        css({
+          display: 'flex',
+          flex: '1',
+          h: '10',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          py: '2',
+          px: '4',
+          bg: 'light.gray.100',
+          outline: 'none',
+          _focus: {
+            boxShadow: 'inset 0 0 0 2px var(--colors-light-indigo-300)'
+          }
+        }),
         className
       )}
       {...props}
       ref={forwardedRef}
     >
       {children}
-      <CaretDown className="w-6 h-6 group-data-[state=open]:rotate-180 transition-[transform] duration-150 ease-in" />
+      <CaretDown
+        className={css({
+          w: '6',
+          h: '6',
+          transition: 'transform 150ms ease-in',
+          '&[data-state=open]': { transform: 'rotate(180deg)' }
+        })}
+      />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ))
@@ -49,7 +68,11 @@ const AccordionComponentContent = forwardRef<
   AccordionPrimitive.AccordionContentProps
 >(({ children, ...props }, forwardedRef) => (
   <AccordionPrimitive.Content
-    className="overflow-hidden data-[state=open]:animate-[slideDown_150ms_ease-in] data-[state=closed]:animate-[slideUp_150ms_ease-out]"
+    className={css({
+      overflow: 'hidden',
+      '&[data-state="open"]': { animation: 'slideDown 150ms ease-in' },
+      '&[data-state="closed"]': { animation: 'slideUp 150ms ease-out' }
+    })}
     {...props}
     ref={forwardedRef}
   >

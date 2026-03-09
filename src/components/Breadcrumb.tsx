@@ -1,7 +1,7 @@
 import { forwardRef, ReactNode } from 'react'
 import NextLink, { LinkProps } from 'next/link'
 import { Item, List, Root } from '@radix-ui/react-navigation-menu'
-import clsx from 'clsx'
+import { css } from '@/styled-system/css'
 
 type BreadcrumbComponentRootProps = {
   children: ReactNode
@@ -11,7 +11,9 @@ const BreadcrumbComponentRoot = ({
 }: BreadcrumbComponentRootProps) => {
   return (
     <Root>
-      <List className="flex items-baseline">{children}</List>
+      <List className={css({ display: 'flex', alignItems: 'baseline' })}>
+        {children}
+      </List>
     </Root>
   )
 }
@@ -32,17 +34,29 @@ const BreadcrumbComponentLink = forwardRef<
         <span
           ref={forwardedRef}
           {...props}
-          className={clsx('sm:text-lg sm:not-italic', 'text-base italic')}
+          className={css({
+            fontSize: 'base',
+            fontStyle: 'italic',
+            sm: { fontSize: 'lg', fontStyle: 'normal' }
+          })}
         />
       ) : (
         <NextLink
           ref={forwardedRef}
           {...props}
-          className={clsx(
-            'font-medium rounded hover:opacity-80 hover:underline',
-            'transition-[opacity, outline] ease-in duration-150',
-            'outline-none focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-          )}
+          className={css({
+            fontWeight: 'medium',
+            rounded: 'sm',
+            transition: 'opacity 150ms ease-in',
+            outline: 'none',
+            _hover: { opacity: '0.8', textDecoration: 'underline' },
+            _focus: {
+              outlineStyle: 'solid',
+              outlineWidth: '2',
+              outlineOffset: '2',
+              outlineColor: 'light.indigo.300'
+            }
+          })}
         />
       )}
     </Item>

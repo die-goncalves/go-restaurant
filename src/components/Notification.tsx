@@ -1,7 +1,8 @@
-import React from 'react'
-import clsx from 'clsx'
+'use client'
+
 import { Toaster, toast, ToastBar, resolveValue } from 'react-hot-toast'
 import { X } from 'phosphor-react'
+import { css } from '@/styled-system/css'
 
 export const Notification = () => {
   return (
@@ -20,39 +21,77 @@ export const Notification = () => {
     >
       {t => (
         <div
-          className={clsx(
-            'overflow-hidden rounded shadow-lg p-0 max-w-xs',
-            t.visible ? 'animate-enter' : 'animate-leave'
-          )}
+          className={css({
+            overflow: 'hidden',
+            rounded: 'sm',
+            shadow: 'lg',
+            p: '0',
+            maxW: 'xs',
+            animation: t.visible ? 'enter' : 'leave'
+          })}
         >
           <ToastBar toast={t} style={{ all: 'unset', animation: 'none' }}>
             {({ icon, message }) => {
               return (
                 <div
-                  className={clsx(
-                    'flex items-baseline box-border p-3 rounded shadow-lg bg-light-gray-100 border-2 border-light-gray-200',
-                    t.type === 'success' && 'border-light-green-200',
-                    t.type === 'error' && 'border-light-red-200'
-                  )}
+                  className={css({
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    boxSizing: 'border-box',
+                    p: '3',
+                    rounded: 'sm',
+                    shadow: 'lg',
+                    bg: 'light.gray.100',
+                    borderWidth: '2',
+                    borderColor:
+                      t.type === 'success'
+                        ? 'light.green.200'
+                        : t.type === 'error'
+                          ? 'light.red.200'
+                          : 'light.gray.200'
+                  })}
                 >
-                  <div className="flex w-6 h-6 justify-center items-center">
+                  <div
+                    className={css({
+                      display: 'flex',
+                      w: '6',
+                      h: '6',
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    })}
+                  >
                     {icon}
                   </div>
 
-                  <span className="px-3 text-base">
+                  <span className={css({ px: '3', fontSize: 'base' })}>
                     {resolveValue(t.message, t)}
                   </span>
 
                   {t.type !== 'loading' && (
                     <button
                       onClick={() => toast.dismiss(t.id)}
-                      className={clsx(
-                        'p-1 rounded bg-light-gray-200 [&:not(:disabled):hover]:bg-light-gray-300',
-                        'transition-[background-color] ease-in duration-150',
-                        'focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-light-indigo-300'
-                      )}
+                      className={css({
+                        p: '1',
+                        rounded: 'sm',
+                        bg: 'light.gray.200',
+                        transition: 'background-color 150ms ease-in',
+                        outline: 'none',
+                        '&:not(:disabled):hover': { bg: 'light.gray.300' },
+                        _focus: {
+                          outlineStyle: 'solid',
+                          outlineWidth: '2',
+                          outlineOffset: '2',
+                          outlineColor: 'light.indigo.300'
+                        }
+                      })}
                     >
-                      <X className="w-4 h-4 text-light-gray-800" />
+                      <X
+                        className={css({
+                          w: '4',
+                          h: '4',
+                          color: 'light.gray.800'
+                        })}
+                      />
                     </button>
                   )}
                 </div>

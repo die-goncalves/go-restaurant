@@ -1,11 +1,13 @@
-import clsx from 'clsx'
+'use client'
+
 import { useEffect, useState } from 'react'
 import { FeatureCollection } from 'geojson'
 import { ParallaxProvider, ParallaxBanner } from 'react-scroll-parallax'
 import { overallRatingRestaurant } from '../../utils/overallRatingRestaurant'
-import { supabase } from '../../services/supabaseClient'
-import MapRegionAndPartners from './MapRegionAndPartners'
-import { OverMap } from './OverMap'
+import { MapRegionAndPartners } from './map-region-and-partners'
+import { OverMap } from './over-map'
+import { createClient } from '@/src/lib/supabase/client'
+import { css } from '@/styled-system/css'
 
 export function Partners() {
   const [geoJSON, setGeoJSON] = useState<FeatureCollection>()
@@ -16,12 +18,14 @@ export function Partners() {
   useEffect(() => {
     async function fetchData() {
       let geojson: FeatureCollection
-      const { data } = await supabase.from('restaurants').select(
-        `
+      const { data } = await createClient()
+        .from('restaurants')
+        .select(
+          `
           *,
           foods ( food_rating ( * ) )
         `
-      )
+        )
 
       if (data) {
         const restaurantsByRegion = data.reduce(
@@ -66,12 +70,12 @@ export function Partners() {
             ? rating.overallRating < 1
               ? '#be123c'
               : rating.overallRating < 2
-              ? '#f43f5e'
-              : rating.overallRating < 3
-              ? '#f59e0b'
-              : rating.overallRating < 4
-              ? '#10b981'
-              : '#047857'
+                ? '#f43f5e'
+                : rating.overallRating < 3
+                  ? '#f59e0b'
+                  : rating.overallRating < 4
+                    ? '#10b981'
+                    : '#047857'
             : '#78716c'
 
           geojson.features.push({
@@ -98,29 +102,87 @@ export function Partners() {
   }, [])
 
   return (
-    <div className="flex flex-col">
-      <div className="flex relative h-screen">
+    <div className={css({ display: 'flex', flexDirection: 'column' })}>
+      <div
+        className={css({ display: 'flex', position: 'relative', h: 'screen' })}
+      >
         <OverMap />
         <ParallaxProvider>
-          <div className="flex relative h-full w-full">
+          <div
+            className={css({
+              display: 'flex',
+              position: 'relative',
+              h: 'full',
+              w: 'full'
+            })}
+          >
             <div
-              className={clsx(
-                'xl:translate-x-36',
-                'lg:flex',
-                'absolute top-1/2 -translate-y-1/2 translate-x-20 z-[2] hidden'
-              )}
+              className={css({
+                position: 'absolute',
+                top: '50%',
+                transform: 'translateY(-50%) translateX(5rem)',
+                zIndex: '2',
+                display: 'none',
+                lg: {
+                  display: 'flex',
+                  transform: 'translateY(-50%) translateX(9rem)'
+                }
+              })}
             >
-              <div className="h-full w-full ">
-                <div className="flex rounded m-auto h-96 w-96 flex-col bg-light-gray-100 overflow-hidden">
-                  <p className="p-4 text-xl font-medium self-center">
+              <div className={css({ h: 'full', w: 'full' })}>
+                <div
+                  className={css({
+                    display: 'flex',
+                    rounded: 'sm',
+                    m: 'auto',
+                    h: '96',
+                    w: '96',
+                    flexDirection: 'column',
+                    bg: 'light.gray.100',
+                    overflow: 'hidden'
+                  })}
+                >
+                  <p
+                    className={css({
+                      p: '4',
+                      fontSize: 'xl',
+                      fontWeight: 'medium',
+                      alignSelf: 'center'
+                    })}
+                  >
                     Regiões e parcerias
                   </p>
-                  <div className="flex flex-col gap-4 h-full pl-4 pb-4 overflow-auto scrollbar-gutter-stable">
+                  <div
+                    className={css({
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4',
+                      h: 'full',
+                      pl: '4',
+                      pb: '4',
+                      overflow: 'auto',
+                      scrollbarGutter: 'stable'
+                    })}
+                  >
                     {Object.entries(restaurants).map(region => {
                       return (
-                        <div key={region[0]} className="flex flex-col gap-4">
-                          <p className="font-medium">
-                            <mark className="inline-block leading-[0] pb-2 bg-light-orange-200">
+                        <div
+                          key={region[0]}
+                          className={css({
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '4'
+                          })}
+                        >
+                          <p className={css({ fontWeight: 'medium' })}>
+                            <mark
+                              className={css({
+                                display: 'inline-block',
+                                lineHeight: '0',
+                                pb: '2',
+                                bg: 'light.orange.200'
+                              })}
+                            >
                               {region[0]}
                             </mark>
                           </p>
@@ -139,39 +201,65 @@ export function Partners() {
 
             <div
               id="navigation"
-              className={clsx(
-                'lg:mr-[10px]',
-                'absolute right-0 z-10 top-[calc(100vh-50%)] -translate-y-[91px] mr-4'
-              )}
+              className={css({
+                position: 'absolute',
+                right: '0',
+                zIndex: '10',
+                top: 'calc(100vh - 50%)',
+                transform: 'translateY(-91px)',
+                mr: '4',
+                lg: { mr: '10px' }
+              })}
             ></div>
             <div
               id="scale"
-              className={clsx(
-                'lg:mr-[10px]',
-                'absolute right-0 z-10 top-[calc(100vh-50%)] translate-y-[4px] mr-4'
-              )}
+              className={css({
+                position: 'absolute',
+                right: '0',
+                zIndex: '10',
+                top: 'calc(100vh - 50%)',
+                transform: 'translateY(4px)',
+                mr: '4',
+                lg: { mr: '10px' }
+              })}
             ></div>
             <div
               id="attribution"
-              className={clsx(
-                'lg:m-0',
-                'absolute right-0 z-10 top-[calc(100vh-50%)] translate-y-[19px] mr-1.5'
-              )}
+              className={css({
+                position: 'absolute',
+                right: '0',
+                zIndex: '10',
+                top: 'calc(100vh - 50%)',
+                transform: 'translateY(19px)',
+                mr: '1.5',
+                lg: { m: '0' }
+              })}
             ></div>
             <div
               id="inside-map"
-              className={clsx(
-                'lg:mr-[40px]',
-                'absolute right-0 z-10 top-[calc(100vh-50%)] translate-y-[91px] mr-[44px]'
-              )}
+              className={css({
+                position: 'absolute',
+                right: '0',
+                zIndex: '10',
+                top: 'calc(100vh - 50%)',
+                transform: 'translateY(91px)',
+                mr: '44px',
+                lg: { mr: '40px' }
+              })}
             ></div>
 
             <ParallaxBanner
-              className="h-full w-full bg-light-gray-100"
+              className={css({ h: 'full', w: 'full', bg: 'light.gray.100' })}
               layers={[
                 {
                   children: (
-                    <div className="relative w-full h-full">
+                    <div
+                      className={css({
+                        position: 'relative',
+                        w: 'full',
+                        h: 'full'
+                      })}
+                    >
                       {geoJSON && <MapRegionAndPartners geoJSON={geoJSON} />}
                     </div>
                   ),
@@ -184,18 +272,61 @@ export function Partners() {
       </div>
 
       <div
-        className={clsx('lg:hidden', 'sm:p-6', '2xs:mt-10', 'flex p-4 mt-8')}
+        className={css({
+          display: 'flex',
+          p: '4',
+          mt: '8',
+          '2xs': { mt: '10' },
+          sm: { p: '6' },
+          lg: { display: 'none' }
+        })}
       >
-        <div className="flex w-full flex-col bg-light-gray-100">
-          <p className="mb-4 text-xl font-medium self-center">
+        <div
+          className={css({
+            display: 'flex',
+            w: 'full',
+            flexDirection: 'column',
+            bg: 'light.gray.100'
+          })}
+        >
+          <p
+            className={css({
+              mb: '4',
+              fontSize: 'xl',
+              fontWeight: 'medium',
+              alignSelf: 'center'
+            })}
+          >
             Regiões e parcerias
           </p>
-          <div className="flex flex-col gap-4 pl-4 pb-4">
+          <div
+            className={css({
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4',
+              pl: '4',
+              pb: '4'
+            })}
+          >
             {Object.entries(restaurants).map(region => {
               return (
-                <div key={region[0]} className="flex flex-col gap-4">
-                  <p className="font-medium">
-                    <mark className="inline-block leading-[0] pb-2 bg-light-orange-200">
+                <div
+                  key={region[0]}
+                  className={css({
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4'
+                  })}
+                >
+                  <p className={css({ fontWeight: 'medium' })}>
+                    <mark
+                      className={css({
+                        display: 'inline-block',
+                        lineHeight: '0',
+                        pb: '2',
+                        bg: 'light.orange.200'
+                      })}
+                    >
                       {region[0]}
                     </mark>
                   </p>

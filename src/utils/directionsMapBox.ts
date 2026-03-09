@@ -8,7 +8,7 @@ async function getRouteTimeAndDistance(
   endRoute: Coordinates
 ): Promise<{ duration: number; distance: number }> {
   const query = await fetch(
-    `https://api.mapbox.com/directions/v5/mapbox/driving/${startRoute.lng}%2C${startRoute.lat}%3B${endRoute.lng}%2C${endRoute.lat}?alternatives=false&geometries=geojson&steps=false&access_token=${process.env.NEXT_PUBLIC_MAPBOX_GL_ACCESS_TOKEN}`,
+    `https://api.mapbox.com/directions/v5/mapbox/driving/${startRoute.lng}%2C${startRoute.lat}%3B${endRoute.lng}%2C${endRoute.lat}?alternatives=false&geometries=geojson&steps=false&access_token=${process.env.NEXT_PUBLIC_MAPBOX_GL_PUBLISHABLE_KEY}`,
     { method: 'GET' }
   )
   const json = await query.json()

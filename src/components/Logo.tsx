@@ -1,32 +1,59 @@
 import NextLink from 'next/link'
 import NextImage from 'next/image'
 import { shimmerBase64 } from '../utils/blurDataURL'
-import clsx from 'clsx'
+import { css } from '@/styled-system/css'
 
 type LogoProps = {
   named?: boolean
 }
 export function Logo({ named = false }: LogoProps) {
   return (
-    <NextLink href={'/'} className="group flex gap-2" title="GoRestaurant">
+    <NextLink
+      href="/"
+      className={`group ${css({
+        display: 'flex',
+        gap: '2'
+      })}`}
+      title="GoRestaurant"
+    >
       <div
-        className={clsx(
-          'relative w-8 h-8 transition-all duration-150 ease-in',
-          !named ? 'hover:scale-110' : ''
-        )}
+        className={css({
+          position: 'relative',
+          w: '8',
+          h: '8',
+          transition: 'all 150ms ease-in',
+          ...(!named && {
+            _hover: { transform: 'scale(2)' }
+          })
+        })}
       >
         <NextImage
           src="/logo.svg"
           alt="pizza"
           fill
-          className="object-contain"
+          className={css({ objectFit: 'contain' })}
           placeholder="blur"
           blurDataURL={shimmerBase64}
           sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
         />
       </div>
       {named && (
-        <span className="flex items-center relative text-lg text-gray-800 bg-no-repeat bg-bottom bg-[length:auto_2px] group-hover:bg-[length:auto_4px] bg-gradient-to-r from-light-orange-500 to-light-orange-200 transition-all duration-150 ease-in">
+        <span
+          className={css({
+            display: 'flex',
+            alignItems: 'center',
+            position: 'relative',
+            fontSize: 'lg',
+            color: 'gray.800',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'bottom',
+            backgroundSize: 'auto 2px',
+            backgroundImage:
+              'linear-gradient(to right, token(colors.light.orange.500), token(colors.light.orange.200))',
+            transition: 'all 150ms ease-in',
+            _groupHover: { backgroundSize: 'auto 4px' }
+          })}
+        >
           GoRestaurant
         </span>
       )}

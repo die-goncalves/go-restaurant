@@ -1,3 +1,6 @@
+'use client'
+
+import { css } from '@/styled-system/css'
 import TypewriterEffect from 'typewriter-effect'
 
 const phrases = [
@@ -10,7 +13,12 @@ const phrases = [
 
 export function Typewriter() {
   return (
-    <strong className="text-4xl font-medium">
+    <strong
+      className={css({
+        fontSize: '4xl',
+        fontWeight: 'medium'
+      })}
+    >
       <TypewriterEffect
         options={{
           strings: phrases,
