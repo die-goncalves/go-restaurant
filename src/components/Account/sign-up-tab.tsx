@@ -7,6 +7,9 @@ import { AuthApiError } from '@supabase/supabase-js'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/auth-context'
 import { css } from '@/styled-system/css'
+import { logger } from '@/src/lib/logger'
+
+const log = logger.child({ module: 'client', component: 'SignUpTab' })
 
 type FormInputs = {
   email: string
@@ -55,6 +58,8 @@ export function SignUpTab({ onCloseDialog }: SignUpTabProps) {
   })
 
   const onSubmit = async (data: FormInputs): Promise<void> => {
+    const submitLog = log.child({ handler: 'onSubmit' })
+
     const { error } = await signUp({
       email: data.email,
       password: data.password
@@ -63,15 +68,19 @@ export function SignUpTab({ onCloseDialog }: SignUpTabProps) {
     if (error) {
       if (error instanceof AuthApiError) {
         if (error.message === 'User already registered') {
+          submitLog.warn('Sign up failed — user already registered')
           toast.error('Usuário já cadastrado')
+        } else {
+          submitLog.error({ error }, 'Auth API error during sign up')
         }
       } else {
-        console.error(error)
+        submitLog.error({ error }, 'Unexpected error during sign up')
       }
-    } else {
-      toast.success('Cadastro realizado')
-      onCloseDialog()
+      return
     }
+
+    toast.success('Cadastro realizado')
+    onCloseDialog()
   }
 
   return (

@@ -3,6 +3,9 @@ import NextImage from 'next/image'
 import { shimmerBase64 } from '../../utils/blurDataURL'
 import { createClient } from '@/src/lib/supabase/client'
 import { css } from '@/styled-system/css'
+import { logger } from '@/src/lib/logger'
+
+const log = logger.child({ module: 'client', component: 'RatingCard' })
 
 type StarColorTokens = { fill: string; stroke: string }
 const starColorTokens = (value?: number): StarColorTokens => {
@@ -59,11 +62,15 @@ export function RatingCard({ product, clientId }: FoodRatingCardProps) {
   }>({ saved: false, loading: false })
 
   const handleStarClick = async (value: number) => {
-    setStars(value)
-    setSaveStatus({ saved: false, loading: false })
+    const clickLog = log.child({
+      handler: 'onStarClick',
+      productId: product.product.id,
+      storeId: product.store.id,
+      stars: value
+    })
 
     setStars(value)
-    setSaveStatus({ saved: false, loading: true })
+    setSaveStatus({ saved: false, loading: false })
 
     const { error } = await supabase.from('product_ratings').upsert(
       {
@@ -78,7 +85,7 @@ export function RatingCard({ product, clientId }: FoodRatingCardProps) {
     )
 
     if (error) {
-      console.error({ error })
+      clickLog.error({ error }, 'Error saving rating')
       setSaveStatus({ saved: false, loading: false })
       return
     }

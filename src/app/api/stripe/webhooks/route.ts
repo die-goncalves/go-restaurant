@@ -2,6 +2,13 @@ import Stripe from 'stripe'
 import { createClient } from '@/src/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/src/lib/stripe'
+import { logger } from '@/src/lib/logger'
+
+const log = logger.child({
+  module: 'api',
+  route: '/api/stripe/webhooks',
+  method: 'POST'
+})
 
 type SplitItem = {
   storeId: string
@@ -11,6 +18,7 @@ type SplitItem = {
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
+  const reqLog = log.child({ id: crypto.randomUUID() })
 
   const body = await request.text()
   const signature = request.headers.get('stripe-signature')
@@ -26,8 +34,8 @@ export async function POST(request: NextRequest) {
     } else {
       event = JSON.parse(body) as Stripe.Event
     }
-  } catch (err) {
-    console.error('[webhook] Assinatura inválida:', err)
+  } catch (error) {
+    reqLog.error({ error }, 'Invalid webhook signature')
     return NextResponse.json(
       { error: 'Webhook signature verification failed' },
       { status: 400 }
@@ -37,6 +45,10 @@ export async function POST(request: NextRequest) {
   switch (event.type) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
+      const eventLog = reqLog.child({
+        event: 'checkout.session.completed',
+        sessionId: session.id
+      })
 
       if (session.payment_status === 'paid') {
         try {
@@ -48,16 +60,14 @@ export async function POST(request: NextRequest) {
             .single()
           if (splitsError || !sessionSplits) {
             throw new Error(
-              `Splits não encontrados para sessão ${session.id}: ${splitsError?.message}`
+              `Splits not found for session ${session.id}: ${splitsError?.message}`
             )
           }
           const splits = sessionSplits?.splits as SplitItem[]
 
           const userId = session.metadata!.userId
           if (!userId) {
-            throw new Error(
-              `userId ausente no metadata da sessão ${session.id}`
-            )
+            throw new Error(`userId missing in session metadata ${session.id}`)
           }
 
           // 2. Salvar o pedido
@@ -82,7 +92,7 @@ export async function POST(request: NextRequest) {
           )
           if (orderError) {
             throw new Error(
-              `Erro ao salvar pedido ${session.id}: ${orderError.message}`
+              `Error saving order ${session.id}: ${orderError.message}`
             )
           }
 
@@ -112,7 +122,7 @@ export async function POST(request: NextRequest) {
             .select('id, product_id')
           if (orderProductsError) {
             throw new Error(
-              `Erro ao salvar produtos da sessão ${session.id}: ${orderProductsError.message}`
+              `Error saving order products for session ${session.id}: ${orderProductsError.message}`
             )
           }
 
@@ -122,7 +132,7 @@ export async function POST(request: NextRequest) {
           )
           if (!paymentIntent.latest_charge) {
             throw new Error(
-              `Charge não encontrado para payment_intent ${paymentIntent.id}`
+              `Charge not found for payment_intent ${paymentIntent.id}`
             )
           }
           const latestChargeId = paymentIntent.latest_charge as string
@@ -137,19 +147,22 @@ export async function POST(request: NextRequest) {
             return acc
           }, {})
           for (const [storeId, { amount }] of Object.entries(splitsByStore)) {
+            const storeLog = eventLog.child({ storeId })
+
             const { data: store, error: storeError } = await supabase
               .from('stores')
               .select('id, stripe_account_id, commission_rate')
               .eq('id', storeId)
               .single()
             if (storeError || !store?.stripe_account_id) {
-              console.error(
-                `[checkout.session.completed] Loja ${storeId} não encontrada ou sem conta Stripe — pulando transferência`
+              storeLog.error(
+                { error: storeError },
+                'Store not found or missing Stripe account — skipping transfer'
               )
               continue
             }
 
-            const rate = store.commission_rate ?? 0.05 // fallback para 5%
+            const rate = store.commission_rate ?? 0.05
 
             let transfer: Stripe.Response<Stripe.Transfer>
             try {
@@ -162,9 +175,9 @@ export async function POST(request: NextRequest) {
                 source_transaction: latestChargeId
               })
             } catch (transferError) {
-              console.error(
-                `[checkout.session.completed] Erro ao transferir para loja ${storeId}:`,
-                transferError
+              storeLog.error(
+                { error: transferError },
+                'Error creating transfer — skipping'
               )
               continue
             }
@@ -180,9 +193,9 @@ export async function POST(request: NextRequest) {
                 transferred_amount: Math.round(amount * (1 - rate))
               })
             if (orderTransfersError) {
-              console.error(
-                `[checkout.session.completed] Erro ao salvar transferência ${transfer.id} no banco:`,
-                orderTransfersError.message
+              storeLog.error(
+                { error: orderTransfersError, transferId: transfer.id },
+                'Error saving transfer record'
               )
             }
 
@@ -192,25 +205,33 @@ export async function POST(request: NextRequest) {
               .eq('order_id', session.id)
               .eq('store_id', store.id)
             if (updateProductsError) {
-              console.error(
-                `[checkout.session.completed] Erro ao atualizar transfer_id nos produtos da loja ${storeId}:`,
-                updateProductsError.message
+              storeLog.error(
+                { error: updateProductsError },
+                'Error updating transfer_id on order products'
               )
             }
           }
           // 7. Limpar splits temporários
+          eventLog.info(
+            { step: 'cleanup_splits' },
+            'Cleaning up session splits'
+          )
           const { error: deleteError } = await supabase
             .from('session_splits')
             .delete()
             .eq('session_id', session.id)
           if (deleteError) {
-            console.error(
-              `[checkout.session.completed] Erro ao deletar session_splits ${session.id}:`,
-              deleteError.message
+            eventLog.error(
+              { error: deleteError },
+              'Error deleting session splits'
             )
           }
-        } catch (err) {
-          console.error('[checkout.session.completed] Erro crítico:', err)
+        } catch (error) {
+          eventLog.error(
+            { error },
+            'Critical error processing checkout.session.completed'
+          )
+
           return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }
@@ -222,21 +243,23 @@ export async function POST(request: NextRequest) {
     }
     case 'checkout.session.expired': {
       const session = event.data.object as Stripe.Checkout.Session
+      const eventLog = reqLog.child({
+        event: 'checkout.session.expired',
+        sessionId: session.id
+      })
+
       const { error } = await supabase
         .from('session_splits')
         .delete()
         .eq('session_id', session.id)
       if (error) {
-        console.error(
-          `[checkout.session.expired] Erro ao deletar splits da sessão ${session.id}:`,
-          error.message
-        )
+        eventLog.error({ error }, 'Error deleting session splits')
       }
 
       break
     }
     default:
-      console.log(`[webhook] Evento não tratado: ${event.type}`)
+      reqLog.info({ event: event.type }, 'Unhandled event type')
   }
 
   return NextResponse.json({ received: true }, { status: 200 })

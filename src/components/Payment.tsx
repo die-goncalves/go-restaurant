@@ -98,7 +98,6 @@ export function Payment({ payment }: PaymentProps) {
     acc[storeId].push(item)
     return acc
   }, {})
-  console.log(productsByStore)
 
   async function copy(event: React.MouseEvent<HTMLButtonElement>) {
     event.stopPropagation()

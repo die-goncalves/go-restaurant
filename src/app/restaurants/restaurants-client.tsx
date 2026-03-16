@@ -16,6 +16,9 @@ import { SignedUser } from '@/src/components/signed-user'
 import { Logo } from '@/src/components/logo'
 import { css } from '@/styled-system/css'
 import { Cart } from '@/src/components/cart'
+import { logger } from '@/src/lib/logger'
+
+const log = logger.child({ module: 'client', component: 'RestaurantsClient' })
 
 const restaurantGrid = css({
   display: 'grid',
@@ -62,6 +65,13 @@ export function RestaurantsClient({
       }
     ],
     queryFn: async () => {
+      const queryLog = log.child({
+        hook: 'useQuery',
+        queryKey: 'filter',
+        place: currentPlace,
+        delivery: state.delivery
+      })
+
       try {
         const params = new URLSearchParams()
         if (state.categories?.length)
@@ -78,7 +88,7 @@ export function RestaurantsClient({
         const data = await response.json()
         return data
       } catch (error) {
-        console.log({ error })
+        queryLog.error({ error }, 'Error fetching stores')
       }
     },
     staleTime: 24 * 60 * 60

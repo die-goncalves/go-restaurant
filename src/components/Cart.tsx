@@ -10,6 +10,9 @@ import { Dialog } from './dialog'
 import { loadStripe, Stripe } from '@stripe/stripe-js'
 import { useAuth } from '../contexts/auth-context'
 import { css } from '@/styled-system/css'
+import { logger } from '../lib/logger'
+
+const log = logger.child({ module: 'client', component: 'Cart' })
 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
@@ -53,21 +56,25 @@ export function Cart() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    const submitLog = log.child({ handler: 'onSubmit' })
 
     try {
       const response = await fetch('/api/stripe/checkout-session', {
         method: 'POST'
       })
       if (!response.ok) {
+        submitLog.error(
+          { status: response.status, statusText: response.statusText },
+          'Failed to create checkout session'
+        )
         throw new Error(`Error creating session: ${response.statusText}`)
       }
       const { sessionId } = await response.json()
 
-      // Redirect to Checkout.
       const stripe = await getStripe()
       await stripe!.redirectToCheckout({ sessionId })
-    } catch (err) {
-      console.error(err)
+    } catch (error) {
+      submitLog.error({ error }, 'Unexpected error during checkout')
     }
   }
 

@@ -1,8 +1,17 @@
 import { type NextRequest } from 'next/server'
 import { updateSession } from './lib/supabase/proxy'
+import { logger } from './lib/logger'
+
+const log = logger.child({ module: 'proxy' })
 
 export async function proxy(request: NextRequest) {
-  console.log('🔹 proxy rodando:', request.nextUrl.pathname)
+  const reqLog = log.child({
+    id: crypto.randomUUID(),
+    pathname: request.nextUrl.pathname,
+    method: request.method
+  })
+
+  reqLog.info('Proxy running.')
   // update user's auth session
   return await updateSession(request)
 }

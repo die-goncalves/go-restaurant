@@ -7,6 +7,9 @@ import { AuthApiError } from '@supabase/supabase-js'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../contexts/auth-context'
 import { css } from '@/styled-system/css'
+import { logger } from '@/src/lib/logger'
+
+const log = logger.child({ module: 'client', component: 'SignInTab' })
 
 type FormInputs = {
   email: string
@@ -40,6 +43,8 @@ export function SignInTab({ onCloseDialog }: SignInTabProps) {
   })
 
   const onSubmit = async (data: FormInputs): Promise<void> => {
+    const submitLog = log.child({ handler: 'onSubmit' })
+
     const { error } = await signIn({
       email: data.email,
       password: data.password
@@ -48,15 +53,19 @@ export function SignInTab({ onCloseDialog }: SignInTabProps) {
     if (error) {
       if (error instanceof AuthApiError) {
         if (error.message === 'Invalid login credentials') {
+          submitLog.warn('Sign in failed — invalid credentials')
           toast.error('Credenciais de login inválidas')
+        } else {
+          submitLog.error({ error }, 'Auth API error during sign in')
         }
       } else {
-        console.error(error)
+        submitLog.error({ error }, 'Unexpected error during sign in')
       }
-    } else {
-      toast.success('Login realizado')
-      onCloseDialog()
+      return
     }
+
+    toast.success('Login realizado')
+    onCloseDialog()
   }
 
   return (
