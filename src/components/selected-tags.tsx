@@ -41,8 +41,8 @@ export function SelectedTags() {
               : `Até R$${state.price[0]}`}
           </FilterTag>
         )}
-        {!!state.tags.length &&
-          state.tags.map(tag => (
+        {!!state.categories.length &&
+          state.categories.map(tag => (
             <FilterTag key={`filter-tag-${tag}`} onClose={() => handleTag(tag)}>
               {tag}
             </FilterTag>

@@ -4,6 +4,35 @@ import { redirect } from 'next/navigation'
 import { RestaurantClient } from './restaurant-client'
 import { createStaticClient } from '@/src/lib/supabase/static'
 import { createClient } from '@/src/lib/supabase/server'
+import { parsePoint } from '@/src/utils/parse-point'
+import { Tables } from '@/src/types/supabase'
+
+type Rating = {
+  id: string
+  user_id: string
+  stars: number
+  comment: string | null
+  created_at: string
+}
+export type Product = {
+  id: string
+  name: string
+  description: string
+  price_cents: number
+  image_url: string
+  is_available: boolean
+  average_rating: number
+  sections: string[]
+  ratings: Rating[] | null
+}
+
+export type Store = Omit<
+  Tables<'store_details_view'>,
+  'coordinates' | 'products'
+> & {
+  coordinates: { lat: null; lng: null } | { lat: number; lng: number }
+  products: Product[]
+}
 
 type RestaurantPageProps = {
   params: Promise<{ id: string }>
@@ -13,7 +42,7 @@ export async function generateMetadata({ params }: RestaurantPageProps) {
   const supabase = await createClient()
 
   const { data } = await supabase
-    .from('restaurants')
+    .from('stores')
     .select('name')
     .eq('id', id)
     .single()
@@ -27,60 +56,48 @@ export async function generateMetadata({ params }: RestaurantPageProps) {
 
 export async function generateStaticParams() {
   const supabase = await createStaticClient()
-  const { data } = await supabase.from('restaurants').select('id')
+  const { data } = await supabase.from('stores').select('id')
 
-  return (data ?? []).map(restaurant => ({ id: restaurant.id }))
+  return (data ?? []).map(store => ({ id: store.id }))
 }
 
 export default async function RestaurantPage({ params }: RestaurantPageProps) {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data } = await supabase
-    .from('restaurants')
-    .select(
-      `
-      *,
-      foods (
-        *,
-        tag ( * ),
-        food_rating ( * )
-      ),
-      operating_hours ( * )
-    `
-    )
+  const { data, error } = await supabase
+    .from('store_details_view')
+    .select('*')
     .eq('id', id)
     .single()
 
   if (!data) redirect('/')
 
-  const restaurant = {
+  const products = data.products as Product[]
+  const store: Store = {
     id: data.id,
     name: data.name,
     phone_number: data.phone_number,
-    coordinates: data.coordinates,
+    coordinates: parsePoint(data.coordinates!),
     address: data.address,
-    image: data.image,
-    place: data.place,
+    image_url: data.image_url,
+    neighborhood: data.neighborhood,
     description: data.description,
     operating_hours: data.operating_hours,
-    foods: data.foods.map(food => ({
-      id: food.id,
-      restaurant_id: food.restaurant_id,
-      name: food.name,
-      price: food.price,
-      image: food.image,
-      description: food.description,
-      tag: food.tag,
-      stripe_food_id: food.stripe_food_id,
-      stripe_price_id: food.stripe_price_id,
-      food_rating: food.food_rating.map(fr => ({
-        food_id: fr.food_id,
-        customer_id: fr.customer_id,
-        rating: fr.rating
-      }))
+    is_open: data.is_open,
+    average_rating: data.average_rating,
+    total_reviews: data.total_reviews,
+    products: products.map(p => ({
+      id: p.id,
+      name: p.name,
+      description: p.description,
+      image_url: p.image_url,
+      price_cents: p.price_cents,
+      sections: p.sections,
+      ratings: p.ratings,
+      average_rating: p.average_rating,
+      is_available: p.is_available
     }))
   }
-
-  return <RestaurantClient restaurant={restaurant} />
+  return <RestaurantClient restaurant={store} />
 }

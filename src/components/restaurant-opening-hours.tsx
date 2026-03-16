@@ -1,20 +1,10 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { X } from 'phosphor-react'
 import { TOperatingHours } from '../types'
 import { Dialog } from './dialog'
 import { css, cx } from '@/styled-system/css'
-
-const WEEKDAYS = new Map([
-  ['Sunday', 0],
-  ['Monday', 1],
-  ['Tuesday', 2],
-  ['Wednesday', 3],
-  ['Thursday', 4],
-  ['Friday', 5],
-  ['Saturday', 6]
-])
 
 const WEEKDAY_LABELS = [
   'Domingo',
@@ -27,10 +17,9 @@ const WEEKDAY_LABELS = [
 ]
 
 type HourEntry = {
-  id: string
   start_hour: string
   end_hour: string
-  weekday: string
+  weekday: number
 }
 
 function orderHours(operating_hours: HourEntry[]) {
@@ -38,7 +27,7 @@ function orderHours(operating_hours: HourEntry[]) {
     Record<number, HourEntry[]>
   >(
     (acc, element) => {
-      const idx = WEEKDAYS.get(element.weekday) as number
+      const idx = element.weekday
       const sorted = [...acc[idx], element].sort((a, b) =>
         a.start_hour.localeCompare(b.start_hour)
       )
@@ -47,6 +36,52 @@ function orderHours(operating_hours: HourEntry[]) {
     { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }
   )
   return { separateDaysOfTheWeek }
+}
+
+function getCurrentOrNext(schedule: Record<number, HourEntry[]>) {
+  const now = new Date()
+  const currentDay = now.getDay()
+  const currentMinutes = now.getHours() * 60 + now.getMinutes()
+
+  function toMinutes(time: string) {
+    const [h, m] = time.split(':').map(Number)
+    return h * 60 + m
+  }
+
+  const todaySlots = schedule[currentDay] || []
+  for (const slot of todaySlots) {
+    const start = toMinutes(slot.start_hour)
+    const end = toMinutes(slot.end_hour)
+
+    if (currentMinutes >= start && currentMinutes <= end) {
+      return { type: 'current', slot }
+    }
+  }
+
+  let closest = null
+  let minDiff = Infinity
+  for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+    const day = (currentDay + dayOffset) % 7
+    const slots = schedule[day] || []
+
+    for (const slot of slots) {
+      const start = toMinutes(slot.start_hour)
+
+      const diffDays = dayOffset
+      let diffMinutes = start - currentMinutes
+
+      if (dayOffset > 0) {
+        diffMinutes = diffDays * 1440 + start - currentMinutes
+      }
+
+      if (diffMinutes > 0 && diffMinutes < minDiff) {
+        minDiff = diffMinutes
+        closest = slot
+      }
+    }
+  }
+
+  return closest ? { type: 'next', slot: closest } : null
 }
 
 type RestaurantOpeningHoursProps = {
@@ -71,19 +106,25 @@ export function RestaurantOpeningHours({
     () => Math.max(...Object.values(hours).map(day => day.length)),
     [hours]
   )
+  const result = useMemo(() => getCurrentOrNext(hours), [hours])
 
-  const getCellBg = (colIndex: number, rowIndex: number) => {
-    const entry = hours[colIndex][rowIndex]
-    if (!entry) return ''
-    if (isRestaurantOpen?.open && isRestaurantOpen.current?.id === entry.id)
-      return 'light.green.200'
-    if (
-      !isRestaurantOpen?.open &&
-      isRestaurantOpen?.for_coming?.id === entry.id
-    )
-      return 'light.orange.200'
-    return ''
-  }
+  const getCellBg = useCallback(
+    (colIndex: number, rowIndex: number) => {
+      const entry = hours[colIndex][rowIndex]
+      if (!entry) return ''
+      if (entry.weekday === result?.slot.weekday) {
+        if (
+          entry.start_hour === result.slot.start_hour &&
+          entry.end_hour === result.slot.end_hour
+        ) {
+          if (result.type === 'next') return 'light.orange.200'
+          if (result.type === 'current') return 'light.green.200'
+        }
+      }
+      return ''
+    },
+    [hours, result]
+  )
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -116,7 +157,7 @@ export function RestaurantOpeningHours({
               w: '6'
             })}
           >
-            {isRestaurantOpen?.open ? (
+            {isRestaurantOpen ? (
               <span
                 className={css({
                   position: 'relative',
@@ -175,9 +216,12 @@ export function RestaurantOpeningHours({
             sm: { alignItems: 'center' }
           })}
         >
-          <p className={css({ fontSize: 'xl', fontWeight: 'medium' })}>
-            Horário de funcionamento do restaurante
-          </p>
+          <Dialog.Title>
+            <p className={css({ fontSize: 'xl', fontWeight: 'medium' })}>
+              Horário de funcionamento do restaurante
+            </p>
+          </Dialog.Title>
+
           <Dialog.Close>
             <button
               className={css({

@@ -1,8 +1,11 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/src/lib/supabase/server'
-import { tagListingForFiltering } from '@/src/utils/tags'
 import { decodeGeohash } from '@/src/utils/geohash'
 import { RestaurantsClient } from './restaurants-client'
+
+type RestaurantsPageProps = {
+  searchParams: Promise<{ place?: string; geohash?: string }>
+}
 
 export async function generateMetadata({ searchParams }: RestaurantsPageProps) {
   const { place } = await searchParams
@@ -13,9 +16,6 @@ export async function generateMetadata({ searchParams }: RestaurantsPageProps) {
   }
 }
 
-type RestaurantsPageProps = {
-  searchParams: Promise<{ place?: string; geohash?: string }>
-}
 export default async function RestaurantsPage({
   searchParams
 }: RestaurantsPageProps) {
@@ -25,12 +25,11 @@ export default async function RestaurantsPage({
 
   const supabase = await createClient()
 
-  const { data } = await supabase
-    .from('restaurants')
-    .select('foods ( tag ( * ) )')
-    .filter('place', 'eq', place)
+  const { data } = await supabase.rpc('get_categories_by_neighborhood', {
+    p_neighborhood: place
+  })
 
-  const tags = data ? tagListingForFiltering(data) : []
+  const categories = data ?? []
   const { longitude: lng, latitude: lat } = decodeGeohash(geohash)
 
   return (
@@ -38,7 +37,7 @@ export default async function RestaurantsPage({
       place={place}
       geohash={geohash}
       coordinates={{ lng, lat }}
-      tags={tags}
+      categories={categories}
     />
   )
 }

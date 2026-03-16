@@ -8,6 +8,7 @@ import { MapRegionAndPartners } from './map-region-and-partners'
 import { OverMap } from './over-map'
 import { createClient } from '@/src/lib/supabase/client'
 import { css } from '@/styled-system/css'
+import { parsePoint } from '@/src/utils/parse-point'
 
 export function Partners() {
   const [geoJSON, setGeoJSON] = useState<FeatureCollection>()
@@ -19,27 +20,27 @@ export function Partners() {
     async function fetchData() {
       let geojson: FeatureCollection
       const { data } = await createClient()
-        .from('restaurants')
+        .from('stores')
         .select(
           `
           *,
-          foods ( food_rating ( * ) )
+          products ( product_ratings ( * ) )
         `
         )
 
       if (data) {
         const restaurantsByRegion = data.reduce(
           (acc, currentValue) => {
-            if (acc[currentValue.place]) {
-              acc[currentValue.place] = [
-                ...acc[currentValue.place],
+            if (acc[currentValue.neighborhood]) {
+              acc[currentValue.neighborhood] = [
+                ...acc[currentValue.neighborhood],
                 currentValue.name
               ]
               return acc
             }
             return {
               ...acc,
-              [currentValue.place]: [currentValue.name]
+              [currentValue.neighborhood]: [currentValue.name]
             }
           },
           {} as {
@@ -65,18 +66,20 @@ export function Partners() {
           features: []
         }
         data.forEach(feature => {
-          const rating = overallRatingRestaurant([...feature.foods])
-          const starColor = rating.overallRating
-            ? rating.overallRating < 1
-              ? '#be123c'
-              : rating.overallRating < 2
-                ? '#f43f5e'
-                : rating.overallRating < 3
-                  ? '#f59e0b'
-                  : rating.overallRating < 4
-                    ? '#10b981'
-                    : '#047857'
-            : '#78716c'
+          const { lat, lng } =
+            feature.coordinates && parsePoint(feature.coordinates)
+          // const rating = overallRatingRestaurant([...feature.foods])
+          // const starColor = rating.overallRating
+          //   ? rating.overallRating < 1
+          //     ? '#be123c'
+          //     : rating.overallRating < 2
+          //       ? '#f43f5e'
+          //       : rating.overallRating < 3
+          //         ? '#f59e0b'
+          //         : rating.overallRating < 4
+          //           ? '#10b981'
+          //           : '#047857'
+          //   : '#78716c'
 
           geojson.features.push({
             type: 'Feature',
@@ -84,13 +87,13 @@ export function Partners() {
               id: feature.id,
               name: feature.name,
               phone: feature.phone_number,
-              starColor,
-              image: { src: feature.image, alt: feature.name },
+              // starColor,
+              image: { src: feature.image_url, alt: feature.name },
               description: feature.description
             },
             geometry: {
               type: 'Point',
-              coordinates: [feature.coordinates.lng, feature.coordinates.lat]
+              coordinates: [lng, lat]
             }
           })
         })

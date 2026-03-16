@@ -3,7 +3,6 @@
 import { useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import dynamic from 'next/dynamic'
 import { useFilter } from '@/src/contexts/filter-context'
 import { useAuth } from '@/src/contexts/auth-context'
 import { geographicInformation } from '@/src/utils/geographicInformation'
@@ -16,10 +15,7 @@ import { Skeleton } from '@/src/components/skeleton'
 import { SignedUser } from '@/src/components/signed-user'
 import { Logo } from '@/src/components/logo'
 import { css } from '@/styled-system/css'
-
-const DynamicCart = dynamic(() => import('@/src/components/cart'), {
-  ssr: false
-})
+import { Cart } from '@/src/components/cart'
 
 const restaurantGrid = css({
   display: 'grid',
@@ -36,28 +32,27 @@ type RestaurantsClientProps = {
   place: string
   geohash: string
   coordinates: { lng: number; lat: number }
-  tags: Array<{ id: string; name: string; count: number }>
+  categories: Array<{ id: string; name: string }>
 }
 export function RestaurantsClient({
   place,
   geohash,
   coordinates,
-  tags
+  categories
 }: RestaurantsClientProps) {
   const { isLoading: isLoadingSession, session } = useAuth()
   const { state, handleAddPosition } = useFilter()
-  const router = useRouter() // ✅ substituiu NextRouter
+  const router = useRouter()
 
   const lng = state.currentPosition?.coordinates.longitude ?? coordinates.lng
   const lat = state.currentPosition?.coordinates.latitude ?? coordinates.lat
   const currentPlace = state.currentPosition?.place ?? place
 
   const { data, isLoading, isSuccess } = useQuery({
-    // ✅ nova sintaxe do react-query v5
     queryKey: [
       'filter',
       {
-        tags: state.tags,
+        categories: state.categories,
         price: state.price,
         delivery: state.delivery,
         sort: state.sort,
@@ -69,8 +64,8 @@ export function RestaurantsClient({
     queryFn: async () => {
       try {
         const params = new URLSearchParams()
-        if (state.tags?.length)
-          state.tags.forEach(tag => params.append('tag', tag))
+        if (state.categories?.length)
+          state.categories.forEach(c => params.append('categories', c))
         if (state.price) params.set('price', String(state.price))
         if (state.sort) params.set('sort', state.sort)
         params.set('delivery', state.delivery)
@@ -79,6 +74,7 @@ export function RestaurantsClient({
         params.set('place', currentPlace)
 
         const response = await fetch(`/api/filter?${params}`)
+
         const data = await response.json()
         return data
       } catch (error) {
@@ -114,7 +110,7 @@ export function RestaurantsClient({
     if (geohash) {
       getPositionCoordinates()
     } else {
-      router.push('/') // ✅ substituiu NextRouter.push
+      router.push('/')
     }
   }, [geohash, handleAddPosition, router])
 
@@ -137,7 +133,7 @@ export function RestaurantsClient({
       >
         <Logo />
         <div className={css({ display: 'flex', gap: '4' })}>
-          <DynamicCart />
+          <Cart />
           {isLoadingSession ? (
             <Skeleton className={css({ h: '10', w: '48' })} />
           ) : session ? (
@@ -157,7 +153,7 @@ export function RestaurantsClient({
           lg: { mx: '8' }
         })}
       >
-        <Sidebar tags={tags} />
+        <Sidebar tags={categories} />
 
         <main
           className={css({

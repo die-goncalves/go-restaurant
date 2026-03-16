@@ -10,7 +10,6 @@ type SidebarProps = {
   tags: Array<{
     id: string
     name: string
-    count: number
   }>
 }
 
@@ -139,7 +138,6 @@ export function Sidebar({ tags }: SidebarProps) {
                     onChangeChecked={() => handleTag(t.name)}
                     key={`sidebar-checkbox-key-${t.id}`}
                     value={t.name.toLowerCase()}
-                    qty={t.count}
                   >
                     {t.name}
                   </Checkbox>

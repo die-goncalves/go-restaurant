@@ -104,7 +104,7 @@ export function MapRegionAndPartners({ geoJSON }: MapRegionAndPartnersProp) {
 
           new mapboxgl.Marker({ color: '#fcd34d' })
             .setLngLat(item.geometry.coordinates)
-            .setPopup(popup)
+            // .setPopup(popup)
             .addTo(map.current)
             .getElement()
             .addEventListener('click', () => {

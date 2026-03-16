@@ -1,6 +1,4 @@
 import { Star } from 'phosphor-react'
-import { TFoodRating, TFoods } from '../../types'
-import { overallRatingRestaurant } from '../../utils/overallRatingRestaurant'
 import { css } from '@/styled-system/css'
 
 const starColorMap = (overallRating: number | undefined) => {
@@ -18,25 +16,14 @@ const formatRatingCount = (count: number) => {
   return `( ${count} avaliações )`
 }
 
-type RatingProps = {
-  foods: Array<
-    Omit<
-      TFoods,
-      | 'restaurant_id'
-      | 'stripe_food_id'
-      | 'stripe_price_id'
-      | 'created_at'
-      | 'updated_at'
-    > & {
-      food_rating: Array<
-        Omit<TFoodRating, 'food_id' | 'created_at' | 'updated_at'>
-      >
-    }
-  >
-}
-export function Rating({ foods }: RatingProps) {
-  const rating = overallRatingRestaurant([...foods])
-  const activeColor = starColorMap(rating.overallRating)
+export function Rating({
+  rating,
+  reviews
+}: {
+  rating: number
+  reviews: number
+}) {
+  const activeColor = starColorMap(rating)
 
   return (
     <div className={css({ display: 'flex', alignItems: 'center', gap: '1' })}>
@@ -54,10 +41,7 @@ export function Rating({ foods }: RatingProps) {
             <Star
               weight="duotone"
               style={{
-                color:
-                  rating.overallRating && rating.overallRating > i
-                    ? activeColor
-                    : 'var(--colors-light-gray-500)'
+                color: rating > i ? activeColor : 'var(--colors-light-gray-500)'
               }}
               className={css({
                 w: '4',
@@ -77,8 +61,8 @@ export function Rating({ foods }: RatingProps) {
           rounded: 'sm'
         })}
       >
-        <p>{rating.overallRating}</p>
-        <p>{formatRatingCount(rating.numberRatings)}</p>
+        <p>{rating}</p>
+        <p>{formatRatingCount(reviews)}</p>
       </div>
     </div>
   )

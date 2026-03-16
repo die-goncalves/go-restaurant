@@ -39,265 +39,724 @@ export type Database = {
   }
   public: {
     Tables: {
-      checkout_session: {
+      categories: {
         Row: {
           created_at: string
-          customer_id: string
-          expires_at: string
           id: string
-          line_items: Json | null
-          payment_intent_id: string | null
-          payment_status: string | null
-          shipping_options: Json | null
-          status: string | null
+          name: string
+          slug: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string
-          customer_id: string
-          expires_at?: string
-          id: string
-          line_items?: Json | null
-          payment_intent_id?: string | null
-          payment_status?: string | null
-          shipping_options?: Json | null
-          status?: string | null
+          id?: string
+          name: string
+          slug: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string
-          customer_id?: string
-          expires_at?: string
           id?: string
-          line_items?: Json | null
-          payment_intent_id?: string | null
-          payment_status?: string | null
-          shipping_options?: Json | null
-          status?: string | null
+          name?: string
+          slug?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: 'checkout_session_customer_id_fkey'
-            columns: ['customer_id']
-            isOneToOne: false
-            referencedRelation: 'stripe_customer'
-            referencedColumns: ['stripe_customer_id']
-          }
-        ]
+        Relationships: []
       }
-      food_rating: {
+      customers: {
         Row: {
           created_at: string
-          customer_id: string
-          food_id: string
-          rating: number | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          customer_id: string
-          food_id: string
-          rating?: number | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          customer_id?: string
-          food_id?: string
-          rating?: number | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'food_rating_food_id_fkey'
-            columns: ['food_id']
-            isOneToOne: false
-            referencedRelation: 'foods'
-            referencedColumns: ['id']
-          }
-        ]
-      }
-      foods: {
-        Row: {
-          created_at: string
-          description: string | null
           id: string
-          image: string | null
-          name: string | null
-          price: number | null
-          restaurant_id: string
-          stripe_food_id: string | null
-          stripe_price_id: string | null
-          tag_id: string
-          updated_at: string
+          stripe_customer_id: string
+          updated_at: string | null
         }
         Insert: {
           created_at?: string
-          description?: string | null
-          id?: string
-          image?: string | null
-          name?: string | null
-          price?: number | null
-          restaurant_id: string
-          stripe_food_id?: string | null
-          stripe_price_id?: string | null
-          tag_id: string
-          updated_at?: string
+          id: string
+          stripe_customer_id: string
+          updated_at?: string | null
         }
         Update: {
           created_at?: string
-          description?: string | null
           id?: string
-          image?: string | null
-          name?: string | null
-          price?: number | null
-          restaurant_id?: string
-          stripe_food_id?: string | null
-          stripe_price_id?: string | null
-          tag_id?: string
-          updated_at?: string
+          stripe_customer_id?: string
+          updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: 'foods_restaurant_id_fkey'
-            columns: ['restaurant_id']
-            isOneToOne: false
-            referencedRelation: 'restaurants'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'foods_tag_id_fkey'
-            columns: ['tag_id']
-            isOneToOne: false
-            referencedRelation: 'tag'
-            referencedColumns: ['id']
-          }
-        ]
+        Relationships: []
       }
       operating_hours: {
         Row: {
-          end_hour: string | null
+          end_hour: string
           id: string
-          restaurant_id: string
-          start_hour: string | null
-          weekday: Database['public']['Enums']['weekday_enum'] | null
+          start_hour: string
+          store_id: string
+          weekday: number | null
         }
         Insert: {
-          end_hour?: string | null
+          end_hour: string
           id?: string
-          restaurant_id: string
-          start_hour?: string | null
-          weekday?: Database['public']['Enums']['weekday_enum'] | null
+          start_hour: string
+          store_id: string
+          weekday?: number | null
         }
         Update: {
-          end_hour?: string | null
+          end_hour?: string
           id?: string
-          restaurant_id?: string
-          start_hour?: string | null
-          weekday?: Database['public']['Enums']['weekday_enum'] | null
+          start_hour?: string
+          store_id?: string
+          weekday?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: 'operating_hours_restaurant_id_fkey'
-            columns: ['restaurant_id']
+            foreignKeyName: 'operating_hours_store_id_fkey'
+            columns: ['store_id']
             isOneToOne: false
-            referencedRelation: 'restaurants'
+            referencedRelation: 'store_details_view'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'operating_hours_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'operating_hours_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores_ratings_summary'
             referencedColumns: ['id']
           }
         ]
       }
-      restaurants: {
+      order_products: {
         Row: {
-          address: string | null
-          coordinates: Json | null
+          created_at: string | null
+          id: string
+          order_id: string
+          price_cents: number
+          product_id: string
+          quantity: number
+          store_id: string
+          transfer_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          order_id: string
+          price_cents: number
+          product_id: string
+          quantity?: number
+          store_id: string
+          transfer_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          order_id?: string
+          price_cents?: number
+          product_id?: string
+          quantity?: number
+          store_id?: string
+          transfer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'order_products_order_fkey'
+            columns: ['order_id']
+            isOneToOne: false
+            referencedRelation: 'orders'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'order_products_product_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'order_products_store_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'store_details_view'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'order_products_store_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'order_products_store_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores_ratings_summary'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      order_transfers: {
+        Row: {
+          commission_rate: number
+          created_at: string
+          gross_amount: number
+          id: string
+          order_id: string
+          store_id: string
+          stripe_transfer_id: string
+          transferred_amount: number
+        }
+        Insert: {
+          commission_rate: number
+          created_at?: string
+          gross_amount: number
+          id?: string
+          order_id: string
+          store_id: string
+          stripe_transfer_id: string
+          transferred_amount: number
+        }
+        Update: {
+          commission_rate?: number
+          created_at?: string
+          gross_amount?: number
+          id?: string
+          order_id?: string
+          store_id?: string
+          stripe_transfer_id?: string
+          transferred_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'order_transfers_order_fkey'
+            columns: ['order_id']
+            isOneToOne: false
+            referencedRelation: 'orders'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'order_transfers_store_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'store_details_view'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'order_transfers_store_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'order_transfers_store_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores_ratings_summary'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string | null
+          customer_id: string | null
+          expires_at: string | null
+          id: string
+          payment_intent: string | null
+          payment_status:
+            | Database['public']['Enums']['checkout_payment_status']
+            | null
+          shipping_address: Json | null
+          shipping_amount: number | null
+          status: Database['public']['Enums']['checkout_status'] | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id?: string | null
+          expires_at?: string | null
+          id: string
+          payment_intent?: string | null
+          payment_status?:
+            | Database['public']['Enums']['checkout_payment_status']
+            | null
+          shipping_address?: Json | null
+          shipping_amount?: number | null
+          status?: Database['public']['Enums']['checkout_status'] | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string | null
+          expires_at?: string | null
+          id?: string
+          payment_intent?: string | null
+          payment_status?:
+            | Database['public']['Enums']['checkout_payment_status']
+            | null
+          shipping_address?: Json | null
+          shipping_amount?: number | null
+          status?: Database['public']['Enums']['checkout_status'] | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      product_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          order_product_id: string
+          product_id: string
+          stars: number
+          store_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          order_product_id: string
+          product_id: string
+          stars: number
+          store_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          order_product_id?: string
+          product_id?: string
+          stars?: number
+          store_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'product_ratings_order_product_fkey'
+            columns: ['order_product_id']
+            isOneToOne: true
+            referencedRelation: 'order_products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_ratings_product_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_ratings_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'store_details_view'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_ratings_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_ratings_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores_ratings_summary'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      product_sections: {
+        Row: {
+          product_id: string
+          section_id: string
+        }
+        Insert: {
+          product_id: string
+          section_id: string
+        }
+        Update: {
+          product_id?: string
+          section_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'product_sections_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_sections_section_id_fkey'
+            columns: ['section_id']
+            isOneToOne: false
+            referencedRelation: 'sections'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      products: {
+        Row: {
           created_at: string
           description: string | null
           id: string
-          image: string | null
-          name: string | null
-          phone_number: string | null
-          place: string | null
-          updated_at: string
+          image_url: string | null
+          name: string
+          price_cents: number
+          updated_at: string | null
         }
         Insert: {
-          address?: string | null
-          coordinates?: Json | null
           created_at?: string
           description?: string | null
           id?: string
-          image?: string | null
-          name?: string | null
-          phone_number?: string | null
-          place?: string | null
-          updated_at?: string
+          image_url?: string | null
+          name: string
+          price_cents: number
+          updated_at?: string | null
         }
         Update: {
-          address?: string | null
-          coordinates?: Json | null
           created_at?: string
           description?: string | null
           id?: string
-          image?: string | null
-          name?: string | null
-          phone_number?: string | null
-          place?: string | null
-          updated_at?: string
+          image_url?: string | null
+          name?: string
+          price_cents?: number
+          updated_at?: string | null
         }
         Relationships: []
       }
-      stripe_customer: {
-        Row: {
-          customer_id: string
-          stripe_customer_id: string
-        }
-        Insert: {
-          customer_id: string
-          stripe_customer_id: string
-        }
-        Update: {
-          customer_id?: string
-          stripe_customer_id?: string
-        }
-        Relationships: []
-      }
-      tag: {
+      sections: {
         Row: {
           created_at: string
           id: string
-          name: string | null
+          name: string
+          slug: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string
           id?: string
-          name?: string | null
+          name: string
+          slug: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string
           id?: string
-          name?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      session_splits: {
+        Row: {
+          created_at: string
+          session_id: string
+          splits: Json
+        }
+        Insert: {
+          created_at?: string
+          session_id: string
+          splits: Json
+        }
+        Update: {
+          created_at?: string
+          session_id?: string
+          splits?: Json
+        }
+        Relationships: []
+      }
+      store_categories: {
+        Row: {
+          category_id: string
+          store_id: string
+        }
+        Insert: {
+          category_id: string
+          store_id: string
+        }
+        Update: {
+          category_id?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'store_categories_category_id_fkey'
+            columns: ['category_id']
+            isOneToOne: false
+            referencedRelation: 'categories'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'store_categories_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'store_details_view'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'store_categories_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'store_categories_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores_ratings_summary'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      store_products: {
+        Row: {
+          is_available: boolean | null
+          product_id: string
+          stock_quantity: number
+          store_id: string
+        }
+        Insert: {
+          is_available?: boolean | null
+          product_id: string
+          stock_quantity?: number
+          store_id: string
+        }
+        Update: {
+          is_available?: boolean | null
+          product_id?: string
+          stock_quantity?: number
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'store_products_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'store_products_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'store_details_view'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'store_products_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'store_products_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores_ratings_summary'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      stores: {
+        Row: {
+          address: string | null
+          commission_rate: number
+          coordinates: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          name: string
+          neighborhood: string | null
+          phone_number: string | null
+          stripe_account_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          commission_rate?: number
+          coordinates?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name: string
+          neighborhood?: string | null
+          phone_number?: string | null
+          stripe_account_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          commission_rate?: number
+          coordinates?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name?: string
+          neighborhood?: string | null
+          phone_number?: string | null
+          stripe_account_id?: string
           updated_at?: string | null
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      product_ratings_summary: {
+        Row: {
+          average_rating: number | null
+          product_id: string | null
+          total_reviews: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'product_ratings_product_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      product_store_ratings_summary: {
+        Row: {
+          average_rating: number | null
+          product_id: string | null
+          store_id: string | null
+          total_reviews: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'product_ratings_product_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_ratings_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'store_details_view'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_ratings_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_ratings_store_id_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores_ratings_summary'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+      store_details_view: {
+        Row: {
+          address: string | null
+          average_rating: number | null
+          coordinates: string | null
+          description: string | null
+          id: string | null
+          image_url: string | null
+          is_open: boolean | null
+          name: string | null
+          neighborhood: string | null
+          operating_hours: Json | null
+          phone_number: string | null
+          products: Json | null
+          total_reviews: number | null
+        }
+        Insert: {
+          address?: string | null
+          average_rating?: never
+          coordinates?: string | null
+          description?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_open?: never
+          name?: string | null
+          neighborhood?: string | null
+          operating_hours?: never
+          phone_number?: string | null
+          products?: never
+          total_reviews?: never
+        }
+        Update: {
+          address?: string | null
+          average_rating?: never
+          coordinates?: string | null
+          description?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_open?: never
+          name?: string | null
+          neighborhood?: string | null
+          operating_hours?: never
+          phone_number?: string | null
+          products?: never
+          total_reviews?: never
+        }
+        Relationships: []
+      }
+      stores_ratings_summary: {
+        Row: {
+          average_rating: number | null
+          categories: string[] | null
+          coordinates: string | null
+          created_at: string | null
+          id: string | null
+          image_url: string | null
+          name: string | null
+          neighborhood: string | null
+          total_reviews: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      get_categories_by_neighborhood: {
+        Args: { p_neighborhood: string }
+        Returns: {
+          id: string
+          name: string
+        }[]
+      }
+      unaccent: { Args: { '': string }; Returns: string }
     }
     Enums: {
-      weekday_enum:
-        | 'Monday'
-        | 'Tuesday'
-        | 'Wednesday'
-        | 'Thursday'
-        | 'Friday'
-        | 'Saturday'
-        | 'Sunday'
+      checkout_payment_status: 'paid' | 'unpaid' | 'no_payment_required'
+      checkout_status: 'open' | 'complete' | 'expired'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -428,15 +887,8 @@ export const Constants = {
   },
   public: {
     Enums: {
-      weekday_enum: [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'
-      ]
+      checkout_payment_status: ['paid', 'unpaid', 'no_payment_required'],
+      checkout_status: ['open', 'complete', 'expired']
     }
   }
 } as const

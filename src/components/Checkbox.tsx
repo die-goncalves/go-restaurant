@@ -7,15 +7,13 @@ type CheckboxProps = {
   checked: boolean
   children: ReactNode
   value: string
-  qty: number
 }
 
 export function Checkbox({
   children,
   checked,
   onChangeChecked,
-  value,
-  qty
+  value
 }: CheckboxProps) {
   return (
     <label
@@ -91,14 +89,7 @@ export function Checkbox({
           display: 'flex'
         })}
       >
-        {children}&nbsp;
-        <span
-          className={css({
-            color: 'light.gray.500'
-          })}
-        >
-          ({qty})
-        </span>
+        {children}
       </div>
     </label>
   )

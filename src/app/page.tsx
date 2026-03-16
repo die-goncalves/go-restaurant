@@ -20,7 +20,6 @@ import { css } from '@/styled-system/css'
 export default function Home() {
   const { isLoading, session } = useAuth()
 
-  console.log({ isLoading, session })
   return (
     <div
       className={css({

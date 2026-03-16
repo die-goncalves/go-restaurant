@@ -1,8 +1,9 @@
 import { stripe } from '@/src/lib/stripe'
 import { createClient } from '@/src/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import Stripe from 'stripe'
 
-export default async function POST(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
 
@@ -10,30 +11,15 @@ export default async function POST(request: NextRequest) {
 
     const shippingRaw = cookieStore.get('@gorestaurant-v0.1.0:shipping')?.value
     const cartRaw = cookieStore.get('@gorestaurant-v0.1.0:cart')?.value
-    const jwtRaw = cookieStore.get('@gorestaurant-v0.1.0:auth-token')?.value
-
-    if (!shippingRaw || !cartRaw || !jwtRaw) {
+    if (!shippingRaw || !cartRaw) {
       return NextResponse.json(
         { statusCode: 400, message: 'Cookies missing!' },
         { status: 400 }
       )
     }
-
-    const shipping = JSON.parse(shippingRaw)
-    const cart = JSON.parse(cartRaw)
-    const jwt = JSON.parse(jwtRaw)
-
-    const line_items = cart.map(
-      (food: { stripe_price_id: string; amount: number }) => ({
-        price: food.stripe_price_id,
-        quantity: food.amount
-      })
-    )
-
     const {
       data: { user }
-    } = await supabase.auth.getUser(jwt[0])
-
+    } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json(
         { statusCode: 401, message: 'Unauthenticated user' },
@@ -41,33 +27,111 @@ export default async function POST(request: NextRequest) {
       )
     }
 
+    const shipping = JSON.parse(shippingRaw)
+
+    const cart: { id: string; amount: number; store: { id: string } }[] =
+      JSON.parse(cartRaw).map(
+        (item: {
+          productId: string
+          productName: string
+          productImageURL: string
+          priceCents: number
+          storeId: string
+          storeName: string
+          storeImageURL: string
+          amount: number
+        }) => ({
+          id: item.productId,
+          amount: item.amount,
+          store: { id: item.storeId }
+        })
+      )
+    const product = cart.map(p => ({
+      productId: p.id,
+      productAmount: p.amount,
+      storeId: p.store.id
+    }))
+    const productIds = [...new Set(product.map(p => p.productId))]
+    const storeIds = [...new Set(product.map(p => p.storeId))]
+    const [productsRes, storesRes] = await Promise.all([
+      supabase
+        .from('products')
+        .select('id, name, image_url, price_cents')
+        .in('id', productIds),
+      supabase.from('stores').select('id, stripe_account_id').in('id', storeIds)
+    ])
+    if (productsRes.error) throw productsRes.error
+    if (storesRes.error) throw storesRes.error
+    const productsMap = Object.fromEntries(productsRes.data.map(p => [p.id, p]))
+    const storesMap = Object.fromEntries(storesRes.data.map(s => [s.id, s]))
+    const enrichedProducts = product.map(item => ({
+      amount: item.productAmount,
+      product: productsMap[item.productId] || null,
+      store: storesMap[item.storeId] || null
+    }))
+
+    const splits: { storeId: string; productId: string; amount: number }[] = []
+    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] =
+      enrichedProducts.map(p => {
+        const amount = p.product.price_cents * p.amount
+        // const commission = Math.round(amount * 0.05)
+        // const store = amount - commission
+
+        splits.push({
+          storeId: p.store.id,
+          productId: p.product.id,
+          amount: amount
+        })
+
+        const item: Stripe.Checkout.SessionCreateParams.LineItem = {
+          price_data: {
+            currency: 'brl',
+            unit_amount: p.product.price_cents,
+            product_data: {
+              name: p.product.name,
+              ...(p.product.image_url && { images: [p.product.image_url] })
+            }
+          },
+          quantity: p.amount
+        }
+        return item
+      })
+
     let stripeCustomerId: string | null = null
     const { data } = await supabase
-      .from('stripe_customer')
+      .from('customers')
       .select('*')
-      .eq('customer_id', user.id)
-
+      .eq('id', user.id)
     stripeCustomerId = data && data.length ? data[0].stripe_customer_id : null
 
     if (!stripeCustomerId) {
       const stripeCustomer = await stripe.customers.create({
-        email: user.email
+        email: user.email,
+        metadata: {
+          supabaseUUID: user.id
+        }
       })
-      await supabase.from('stripe_customer').insert([
+      await supabase.from('customers').insert([
         {
-          customer_id: user.id,
+          id: user.id,
           stripe_customer_id: stripeCustomer.id
         }
       ])
       stripeCustomerId = stripeCustomer.id
     }
 
+    const domainURL = process.env.DOMAIN || 'http://localhost:3000'
+
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
+      mode: 'payment',
+      payment_method_types: ['card'],
       line_items,
       metadata: {
+        userId: user.id,
         shipping_address: shipping.user_location.place_name,
         shipping_geohash: shipping.user_location.geohash
+        // splits: JSON.stringify(splits) // Mais de 500 caracteres é proibido
       },
       shipping_options: [
         {
@@ -81,12 +145,13 @@ export default async function POST(request: NextRequest) {
           }
         }
       ],
-      payment_method_types: ['card'],
-      mode: 'payment',
       allow_promotion_codes: true,
-      success_url: `${process.env.STRIPE_SUCCESS_URL}/?success=true`,
-      cancel_url: `${process.env.STRIPE_CANCEL_URL}/?canceled=true`
+      success_url: `${domainURL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${domainURL}/canceled`
     })
+    await supabase
+      .from('session_splits')
+      .insert({ session_id: session.id, splits: splits })
 
     const response = NextResponse.json(
       { sessionId: session.id },

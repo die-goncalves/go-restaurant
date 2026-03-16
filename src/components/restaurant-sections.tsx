@@ -8,6 +8,7 @@ import { ListPlus } from 'phosphor-react'
 import { TFoodRating, TFoods, TRestaurant, TTag } from '../types'
 import { FoodCard } from '@/src/components/food-card'
 import { css } from '@/styled-system/css'
+import { Store } from '../app/restaurant/[id]/page'
 
 const categoryButton = (isActive: boolean) =>
   css({
@@ -89,16 +90,8 @@ function scrollFunction(id: string) {
 }
 
 type RestaurantSectionsProps = {
-  tags: Array<{ id: string; name: string }>
-  restaurant: Pick<TRestaurant, 'id' | 'name' | 'image'> & {
-    foods: Array<
-      Omit<TFoods, 'created_at' | 'updated_at'> & {
-        food_rating: Array<Omit<TFoodRating, 'created_at' | 'updated_at'>>
-      } & {
-        tag: Omit<TTag, 'created_at' | 'updated_at'>
-      }
-    >
-  }
+  tags: string[]
+  restaurant: Store
 }
 export function RestaurantSections({
   tags,
@@ -263,12 +256,12 @@ export function RestaurantSections({
             >
               {tags.map(tag => (
                 <button
-                  className={categoryButton(state.activeId === `btn-${tag.id}`)}
-                  key={`key-btn-${tag.id}`}
-                  id={`btn-${tag.id}`}
-                  onClick={() => scrollFunction(`sect-${tag.id}`)}
+                  className={categoryButton(state.activeId === `btn-${tag}`)}
+                  key={`key-btn-${tag}`}
+                  id={`btn-${tag}`}
+                  onClick={() => scrollFunction(`sect-${tag}`)}
                 >
-                  {tag.name}
+                  {tag}
                 </button>
               ))}
             </div>
@@ -370,11 +363,11 @@ export function RestaurantSections({
           return (
             <section
               className={css({ w: 'full' })}
-              key={`sect-${tag.id}`}
-              id={`sect-${tag.id}`}
+              key={`sect-${tag}`}
+              id={`sect-${tag}`}
             >
               <p className={css({ fontSize: '2xl', pt: '8', pb: '4' })}>
-                {tag.name}
+                {tag}
               </p>
               <div
                 className={css({
@@ -388,18 +381,18 @@ export function RestaurantSections({
                   }
                 })}
               >
-                {restaurant.foods
-                  .map(f => {
-                    if (tag.id === f.tag.id) {
+                {restaurant.products
+                  .map(p => {
+                    if (p.sections.includes(tag)) {
                       return (
                         <FoodCard
-                          key={f.id}
+                          key={p.id}
                           restaurant={{
-                            id: restaurant.id,
-                            name: restaurant.name,
-                            image: restaurant.image
+                            id: restaurant.id!,
+                            name: restaurant.name!,
+                            imageURL: restaurant.image_url!
                           }}
-                          food={f}
+                          food={p}
                         />
                       )
                     }

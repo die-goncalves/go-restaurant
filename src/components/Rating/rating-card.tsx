@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import NextImage from 'next/image'
 import { shimmerBase64 } from '../../utils/blurDataURL'
-import { TFoods, TRestaurant } from '../../types'
 import { createClient } from '@/src/lib/supabase/client'
 import { css } from '@/styled-system/css'
 
@@ -18,94 +17,78 @@ const starColorTokens = (value?: number): StarColorTokens => {
 }
 
 type FoodRatingCardProps = {
-  food: Pick<TFoods, 'id' | 'name' | 'image'> & {
-    restaurant: Pick<TRestaurant, 'name'>
+  product: {
+    id: string
+    quantity: number
+    price_cents: number
+    order: {
+      id: string
+      payment_status: 'paid' | 'unpaid' | 'no_payment_required' | null
+      created_at: string | null
+    }
+    product: {
+      id: string
+      name: string
+      image_url: string | null
+    }
+    store: {
+      id: string
+      name: string
+      image_url: string | null
+    }
+    product_ratings: {
+      id: string
+      stars: number
+      comment: string | null
+      created_at: string
+      updated_at: string | null
+    } | null
   }
   clientId: string
 }
-export function RatingCard({ food, clientId }: FoodRatingCardProps) {
+export function RatingCard({ product, clientId }: FoodRatingCardProps) {
   const supabase = useMemo(() => createClient(), [])
 
-  const [clickValue, setClickValue] = useState<number>()
+  const existingRating = product.product_ratings
+  const [stars, setStars] = useState<number | undefined>(
+    existingRating?.stars ?? undefined
+  )
   const [saveStatus, setSaveStatus] = useState<{
     saved: boolean
     loading: boolean
   }>({ saved: false, loading: false })
-  const [foodRated, setFoodRated] = useState<{
-    created_at: string
-    customer_id: string
-    food_id: string
-    rating: number
-    updated_at: string
-  } | null>(null)
 
-  useEffect(() => {
-    async function updateRating(rating: number) {
-      setSaveStatus(ss => ({ ...ss, saved: false, loading: true }))
-      const { data, error } = await supabase
-        .from('food_rating')
-        .update({
-          rating,
-          updated_at: new Date().toISOString().toLocaleString()
-        })
-        .match({ food_id: food.id, customer_id: clientId })
-      if (error) console.error({ error })
+  const handleStarClick = async (value: number) => {
+    setStars(value)
+    setSaveStatus({ saved: false, loading: false })
 
-      setSaveStatus(ss => ({ ...ss, saved: true, loading: false }))
-    }
-    async function createRating(rating: number) {
-      setSaveStatus(ss => ({ ...ss, saved: false, loading: true }))
-      const { error } = await supabase.from('food_rating').insert([
-        {
-          food_id: food.id,
-          customer_id: clientId,
-          rating
-        }
-      ])
-      if (error) console.error({ error })
+    setStars(value)
+    setSaveStatus({ saved: false, loading: true })
 
-      setSaveStatus(ss => ({ ...ss, saved: true, loading: false }))
+    const { error } = await supabase.from('product_ratings').upsert(
+      {
+        order_product_id: product.id,
+        product_id: product.product.id,
+        store_id: product.store.id,
+        user_id: clientId,
+        stars: value,
+        updated_at: new Date().toISOString()
+      },
+      { onConflict: 'order_product_id' }
+    )
+
+    if (error) {
+      console.error({ error })
+      setSaveStatus({ saved: false, loading: false })
+      return
     }
 
-    async function awaitingRating(rating: number) {
-      if (foodRated) {
-        updateRating(rating)
-      } else {
-        createRating(rating)
-      }
-    }
-
-    if (!!clickValue) awaitingRating(clickValue)
-  }, [clickValue, clientId, food.id, foodRated, supabase])
-
-  useEffect(() => {
-    async function foodAlreadyRated() {
-      const { data, error } = await supabase
-        .from('food_rating')
-        .select('*')
-        .match({ food_id: food.id, customer_id: clientId })
-
-      if (error) {
-        console.error({ error })
-      }
-      if (data?.length) {
-        setFoodRated(data[0])
-      }
-    }
-
-    foodAlreadyRated()
-  }, [clientId, food.id, supabase])
+    setSaveStatus({ saved: true, loading: false })
+  }
 
   const getStarColors = (i: number): StarColorTokens => {
-    if (clickValue) {
-      return clickValue >= i + 1
-        ? starColorTokens(clickValue)
-        : starColorTokens()
-    }
-    if (foodRated) {
-      return foodRated.rating >= i + 1
-        ? starColorTokens(foodRated.rating)
-        : starColorTokens()
+    if (stars) {
+      return stars >= i + 1 ? starColorTokens(stars) : starColorTokens()
     }
     return starColorTokens()
   }
@@ -131,8 +114,8 @@ export function RatingCard({ food, clientId }: FoodRatingCardProps) {
         })}
       >
         <NextImage
-          src={food.image}
-          alt={food.name}
+          src={product.product.image_url ?? ''}
+          alt={product.product.name}
           fill
           className={css({ objectFit: 'cover' })}
           placeholder="blur"
@@ -153,9 +136,11 @@ export function RatingCard({ food, clientId }: FoodRatingCardProps) {
       >
         <div className={css({ display: 'flex', flexDirection: 'column' })}>
           <p className={css({ textAlign: 'center', fontSize: 'sm' })}>
-            {food.restaurant.name}
+            {product.store.name}
           </p>
-          <span className={css({ textAlign: 'center' })}>{food.name}</span>
+          <span className={css({ textAlign: 'center' })}>
+            {product.product.name}
+          </span>
         </div>
 
         <div
@@ -169,6 +154,7 @@ export function RatingCard({ food, clientId }: FoodRatingCardProps) {
           <div
             className={css({
               display: 'flex',
+              flexDir: 'column',
               gap: '2',
               whiteSpace: 'nowrap',
               alignItems: 'center'
@@ -177,14 +163,13 @@ export function RatingCard({ food, clientId }: FoodRatingCardProps) {
             <div className={css({ display: 'flex' })}>
               {Array.from({ length: 5 }).map((_, i) => {
                 const { fill, stroke } = getStarColors(i)
-                const isAnimated =
-                  clickValue && clickValue >= i + 1 && saveStatus.saved
+                const isAnimated = stars && stars >= i + 1 && saveStatus.saved
 
                 return (
                   <button
                     key={`${i}-star`}
                     disabled={saveStatus.loading}
-                    onClick={() => setClickValue(i + 1)}
+                    onClick={() => handleStarClick(i + 1)}
                     className={css({
                       bg: 'light.gray.200',
                       cursor: saveStatus.loading ? 'wait' : 'pointer',

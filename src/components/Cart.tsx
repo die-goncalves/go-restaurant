@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import NextImage from 'next/image'
 import { Minus, Plus, ShoppingCartSimple, SmileySad, X } from 'phosphor-react'
 import { formatNumber } from '../utils/formatNumber'
@@ -74,6 +74,13 @@ export function Cart() {
   const qtyCart = qtyItemsInTheCart()
   const foodByRestaurant = separateFoodByRestaurant()
   const price = totalPrice()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) return null
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -228,9 +235,9 @@ export function Cart() {
             </div>
           ) : (
             <div className={css({ py: '4', xs: { px: '4' } })}>
-              {Object.entries(foodByRestaurant).map(([, foods]) => (
+              {Object.entries(foodByRestaurant).map(([, products]) => (
                 <div
-                  key={foods[0].id}
+                  key={products[0].storeId}
                   className={css({
                     display: 'flex',
                     flexDirection: 'column',
@@ -251,8 +258,8 @@ export function Cart() {
                       })}
                     >
                       <NextImage
-                        src={foods[0].restaurant.image}
-                        alt={foods[0].restaurant.name}
+                        src={products[0].storeImageURL}
+                        alt={products[0].storeName}
                         fill
                         className={css({
                           rounded: 'sm',
@@ -279,7 +286,7 @@ export function Cart() {
                           fontWeight: 'medium'
                         })}
                       >
-                        {foods[0].restaurant.name}
+                        {products[0].storeName}
                       </span>
                     </div>
                   </div>
@@ -291,9 +298,9 @@ export function Cart() {
                       gap: '2'
                     })}
                   >
-                    {foods.map(food => (
+                    {products.map(product => (
                       <div
-                        key={food.id}
+                        key={`${product.storeId}:${product.productId}`}
                         className={css({
                           display: 'flex',
                           px: '4',
@@ -309,8 +316,8 @@ export function Cart() {
                           })}
                         >
                           <NextImage
-                            src={food.image}
-                            alt={food.name}
+                            src={product.productImageURL}
+                            alt={product.productName}
                             fill
                             className={css({
                               rounded: 'sm',
@@ -330,7 +337,7 @@ export function Cart() {
                             pl: '2'
                           })}
                         >
-                          <span>{food.name}</span>
+                          <span>{product.productName}</span>
                           <div
                             className={css({
                               display: 'flex',
@@ -340,7 +347,12 @@ export function Cart() {
                           >
                             <button
                               className={qtyButton}
-                              onClick={() => removeFood({ id: food.id })}
+                              onClick={() => {
+                                removeFood({
+                                  productId: product.productId,
+                                  storeId: product.storeId
+                                })
+                              }}
                             >
                               <Minus
                                 className={css({
@@ -351,14 +363,23 @@ export function Cart() {
                               />
                             </button>
                             <span className={css({ alignSelf: 'center' })}>
-                              {food.amount}
+                              {product.amount}
                             </span>
                             <button
                               className={qtyButton}
                               onClick={() =>
                                 addFood({
-                                  restaurant: foods[0].restaurant,
-                                  food
+                                  store: {
+                                    id: product.storeId,
+                                    name: product.storeName,
+                                    imageUrl: product.storeImageURL
+                                  },
+                                  product: {
+                                    id: product.productId,
+                                    name: product.productName,
+                                    imageUrl: product.productImageURL,
+                                    priceCents: product.priceCents
+                                  }
                                 })
                               }
                             >
@@ -404,7 +425,7 @@ export function Cart() {
               <span className={css({ bg: 'light.gray.200', px: '2' })}>
                 {formatNumber({
                   options: { currency: 'BRL' },
-                  numberToBeFormatted: price ?? 0
+                  numberToBeFormatted: price ? price / 100 : 0
                 })}
               </span>
             </div>

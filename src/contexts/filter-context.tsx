@@ -8,7 +8,7 @@ import {
 import { TGeographicFeatureWithCoordinates } from '../types'
 
 enum Actions {
-  'tag',
+  'categories',
   'price',
   'sort',
   'delivery',
@@ -21,7 +21,7 @@ type TActions = {
   payload?: any
 }
 type TFilter = {
-  tags: string[]
+  categories: string[]
   price: number[] | undefined
   sort: string
   delivery: string
@@ -30,18 +30,20 @@ type TFilter = {
 }
 function reducer(state: TFilter, action: TActions) {
   switch (action.type) {
-    case 'tag': {
-      const has = state.tags.find(t => t === action.payload.tag)
+    case 'categories': {
+      const has = state.categories.find(t => t === action.payload.categories)
       if (has) {
-        const newArray = state.tags.filter(t => t !== action.payload.tag)
+        const newArray = state.categories.filter(
+          t => t !== action.payload.categories
+        )
         return {
           ...state,
-          tags: newArray
+          categories: newArray
         }
       } else {
         return {
           ...state,
-          tags: [...state.tags, action.payload.tag]
+          categories: [...state.categories, action.payload.categories]
         }
       }
     }
@@ -95,7 +97,7 @@ function reducer(state: TFilter, action: TActions) {
   }
 }
 const initialState: TFilter = {
-  tags: [],
+  categories: [],
   price: undefined,
   sort: '',
   delivery: 'delivery',
@@ -126,11 +128,11 @@ type FilterProviderProps = {
 export function FilterProvider({ children }: FilterProviderProps) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  const handleTag = useCallback((tag: string) => {
+  const handleTag = useCallback((categories: string) => {
     dispatch({
-      type: 'tag',
+      type: 'categories',
       payload: {
-        tag
+        categories
       }
     })
   }, [])
@@ -186,7 +188,7 @@ export function FilterProvider({ children }: FilterProviderProps) {
     []
   )
   function isCheckedTag(tag: string): boolean {
-    const founded = state.tags.find(t => t === tag)
+    const founded = state.categories.find(t => t === tag)
     return !founded
   }
 

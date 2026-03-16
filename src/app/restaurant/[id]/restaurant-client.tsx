@@ -32,20 +32,10 @@ import { css } from '@/styled-system/css'
 import { RestaurantSections } from '@/src/components/restaurant-sections'
 import { RedirectWithDialogMap } from '@/src/components/redirect-with-dialog-map'
 import { Cart } from '@/src/components/cart'
-
-type Restaurant = Omit<TRestaurant, 'created_at' | 'updated_at'> & {
-  operating_hours: Array<TOperatingHours>
-  foods: Array<
-    Omit<TFoods, 'created_at' | 'updated_at'> & {
-      food_rating: Array<Omit<TFoodRating, 'created_at' | 'updated_at'>>
-    } & {
-      tag: Omit<TTag, 'created_at' | 'updated_at'>
-    }
-  >
-}
+import { Store } from './page'
 
 type RestaurantClientProps = {
-  restaurant: Restaurant
+  restaurant: Store
 }
 
 export function RestaurantClient({ restaurant }: RestaurantClientProps) {
@@ -66,7 +56,7 @@ export function RestaurantClient({ restaurant }: RestaurantClientProps) {
             lng: state.currentPosition.coordinates.longitude,
             lat: state.currentPosition.coordinates.latitude
           },
-          { lng: restaurant.coordinates.lng, lat: restaurant.coordinates.lat }
+          { lng: restaurant.coordinates.lng!, lat: restaurant.coordinates.lat! }
         )
         const price = Math.round(result.distance / 1000) * 0.12
 
@@ -118,25 +108,32 @@ export function RestaurantClient({ restaurant }: RestaurantClientProps) {
     if (geohash) getPositionCoordinates(geohash)
   }, [handleAddPosition, searchParams])
 
-  const tags = useMemo(() => {
-    const removeDuplicateTags = restaurant.foods.reduce(
-      (acc, currentValue) => {
-        if (acc[currentValue.tag.id]) return acc
-        return { ...acc, [currentValue.tag.id]: currentValue.tag }
-      },
-      {} as { [key: string]: { id: string; name: string } }
-    )
+  const sections = useMemo(() => {
+    const menu = restaurant.products.reduce<
+      Record<string, { id: string; name: string }[]>
+    >((acc, product, index) => {
+      const id = String(index + 1)
 
-    return Object.values(removeDuplicateTags).sort((a, b) =>
-      a.name > b.name ? 1 : a.name < b.name ? -1 : 0
-    )
-  }, [restaurant])
+      product.sections.forEach(section => {
+        acc[section] ??= []
+        acc[section].push({ id, name: product.name })
+      })
 
-  const open = useMemo(() => {
-    return whenOpen(restaurant.operating_hours, {
-      day: new Date().getDay(),
-      timer: new Date().toLocaleTimeString()
-    })
+      return acc
+    }, {})
+    const sortedMenu = (
+      Object.entries(menu) as [string, { id: string; name: string }[]][]
+    )
+      .map(
+        ([section, products]) =>
+          [
+            section,
+            [...products].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
+          ] as [string, { id: string; name: string }[]]
+      )
+      .sort((a, b) => a[0].localeCompare(b[0], 'pt-BR'))
+
+    return sortedMenu
   }, [restaurant])
 
   return (
@@ -193,9 +190,9 @@ export function RestaurantClient({ restaurant }: RestaurantClientProps) {
               Página inicial
             </Breadcrumb.Link>
             <Breadcrumb.Link
-              href={`/restaurants?place=${restaurant.place}&geohash=${state.currentPosition?.geohash}`}
+              href={`/restaurants?place=${restaurant.neighborhood}&geohash=${state.currentPosition?.geohash}`}
             >
-              {restaurant.place}
+              {restaurant.neighborhood}
             </Breadcrumb.Link>
             <Breadcrumb.Link href="#" isCurrentPage>
               {restaurant.name}
@@ -213,10 +210,10 @@ export function RestaurantClient({ restaurant }: RestaurantClientProps) {
             <h1 className={css({ fontSize: '3xl', fontWeight: 'medium' })}>
               {restaurant.name}
             </h1>
-            <RestaurantOpeningHours
+            {/* <RestaurantOpeningHours
               operatingHours={restaurant.operating_hours}
-              isRestaurantOpen={open}
-            />
+              isRestaurantOpen={restaurant.is_open}
+            /> */}
           </div>
 
           <div
@@ -227,7 +224,10 @@ export function RestaurantClient({ restaurant }: RestaurantClientProps) {
               gap: '1'
             })}
           >
-            <Rating foods={restaurant.foods} />
+            <Rating
+              rating={restaurant.average_rating!}
+              reviews={restaurant.total_reviews!}
+            />
           </div>
 
           <div
@@ -238,8 +238,8 @@ export function RestaurantClient({ restaurant }: RestaurantClientProps) {
               gap: '2'
             })}
           >
-            {tags.map(t => (
-              <TextTag key={t.id}>{t.name}</TextTag>
+            {sections.map(([section, _products]) => (
+              <TextTag key={section}>{section}</TextTag>
             ))}
           </div>
 
@@ -283,10 +283,10 @@ export function RestaurantClient({ restaurant }: RestaurantClientProps) {
               gap: '2'
             })}
           >
-            <NonInteractiveDialogMap
+            {/* <NonInteractiveDialogMap
               coordinates={restaurant.coordinates}
               address={restaurant.address}
-            />
+            /> */}
             <span>{restaurant.address}</span>
           </div>
 
@@ -311,8 +311,8 @@ export function RestaurantClient({ restaurant }: RestaurantClientProps) {
             })}
           >
             <NextImage
-              src={restaurant.image}
-              alt={restaurant.name}
+              src={restaurant.image_url!}
+              alt={restaurant.name!}
               fill
               className={css({ objectFit: 'cover' })}
               placeholder="blur"
@@ -320,15 +320,18 @@ export function RestaurantClient({ restaurant }: RestaurantClientProps) {
               sizes="(max-width: 768px) 70vw, (min-width: 769px) 30vw"
             />
           </div>
-          <RedirectWithDialogMap
+          {/* <RedirectWithDialogMap
             restaurantId={restaurant.id}
-            restaurantPlace={restaurant.place}
+            restaurantPlace={restaurant.neighborhood}
             deliveryTime={priceDistanceAndTime?.time}
-          />
+          /> */}
         </div>
       </div>
 
-      <RestaurantSections tags={tags} restaurant={restaurant} />
+      <RestaurantSections
+        tags={sections.map(([section, _products]) => section)}
+        restaurant={restaurant}
+      />
     </div>
   )
 }

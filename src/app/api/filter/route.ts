@@ -3,6 +3,7 @@ import { createClient } from '@/src/lib/supabase/server'
 import { TFoodRating, TFoods, TRestaurant, TTag } from '@/src/types'
 import { getRouteTimeAndDistance } from '@/src/utils/directionsMapBox'
 import { overallRatingRestaurant } from '@/src/utils/overallRatingRestaurant'
+import { parsePoint } from '@/src/utils/parse-point'
 
 type TSupabaseResponseData = Omit<
   TRestaurant,
@@ -31,7 +32,7 @@ type TDeliveryData = {
 } & TSupabaseResponseData
 
 type TQueryFilters = {
-  tag: string[] | undefined
+  categories: string[] | undefined
   price: number | undefined
   delivery: 'delivery' | 'pickup'
   sort: 'rating' | 'delivery time' | undefined
@@ -62,12 +63,14 @@ async function getDeliveryInfos(
   if (!filters.lng || !filters.lat) return []
 
   return Promise.all(
-    data.map(item =>
-      getRouteTimeAndDistance(
+    data.map(item => {
+      const { lng, lat } = parsePoint(item.coordinates)
+
+      return getRouteTimeAndDistance(
         { lng: filters.lng!, lat: filters.lat! },
-        { lng: item.coordinates.lng, lat: item.coordinates.lat }
+        { lng: lng!, lat: lat! }
       )
-    )
+    })
   )
 }
 
@@ -75,9 +78,9 @@ function filterByTags<T extends { foods: Array<{ tag: { name: string } }> }>(
   data: T[],
   tags: string[] | undefined
 ): T[] {
-  if (!tags) return data
-  return data.filter(restaurant =>
-    restaurant.foods.some(food => tags.includes(food.tag.name))
+  if (tags.length === 0 || tags === undefined) return data
+  return data.filter(store =>
+    store.categories.some(food => tags.includes(food))
   )
 }
 
@@ -100,18 +103,15 @@ async function dataForPickUp(
   const deliveryInfos = await getDeliveryInfos(data, filters)
 
   const withRating: TPickUpData[] = data.map((item, index) => {
-    const { overallRating, numberRatings } = overallRatingRestaurant([
-      ...item.foods
-    ])
     return {
       ...item,
-      rating: overallRating,
-      reviews: numberRatings,
+      rating: item.average_rating,
+      reviews: item.total_reviews,
       delivery_time: deliveryInfos[index]?.duration
     }
   })
 
-  return sortData(filterByTags(withRating, filters.tag), filters.sort)
+  return sortData(filterByTags(withRating, filters.categories), filters.sort)
 }
 
 async function dataForDelivery(
@@ -121,19 +121,16 @@ async function dataForDelivery(
   const deliveryInfos = await getDeliveryInfos(data, filters)
 
   const withInfos: TDeliveryData[] = data.map((item, index) => {
-    const { overallRating, numberRatings } = overallRatingRestaurant([
-      ...item.foods
-    ])
     return {
       ...item,
-      rating: overallRating,
-      reviews: numberRatings,
+      rating: item.average_rating,
+      reviews: item.total_reviews,
       delivery_time: deliveryInfos[index]?.duration,
       delivery_price: deliveryFreight(deliveryInfos[index]?.distance)
     }
   })
 
-  const filteredByTags = filterByTags(withInfos, filters.tag)
+  const filteredByTags = filterByTags(withInfos, filters.categories)
 
   const filteredByPrice =
     filters.price !== undefined
@@ -151,23 +148,18 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient()
 
   const { data, error } = await supabase
-    .from('restaurants')
+    .from('stores_ratings_summary')
     .select(
-      `
-      id, name, coordinates, image, created_at,
-      foods ( tag ( * ), food_rating ( * ) ),
-      place
-    `
+      'id, name, image_url, coordinates, average_rating, total_reviews, categories'
     )
-    .filter('place', 'eq', searchParams.get('place'))
+    .filter('neighborhood', 'eq', searchParams.get('place'))
     .order('created_at', { ascending: true })
 
   if (error) return NextResponse.json(error, { status: 400 })
   if (!data) return NextResponse.json([])
 
-  const tagParam = searchParams.getAll('tag')
   const parameters: TQueryFilters = {
-    tag: tagParam.length ? tagParam : undefined,
+    categories: searchParams.getAll('categories'),
     price: searchParams.get('price')
       ? Number(searchParams.get('price'))
       : undefined,

@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import NextImage from 'next/image'
-import { Minus, Plus, ShoppingCartSimple, X } from 'phosphor-react'
+import { Minus, Plus, X } from 'phosphor-react'
 import { shimmerBase64 } from '../utils/blurDataURL'
 import { TFoodRating, TFoods, TRestaurant, TTag } from '../types'
 import { useCart } from '../contexts/cart-context'
 import { formatNumber } from '../utils/formatNumber'
 import { Dialog } from './dialog'
 import { css, cx } from '@/styled-system/css'
+import dynamic from 'next/dynamic'
+import { Product } from '../app/restaurant/[id]/page'
+const Badge = dynamic(() => import('./badge'), { ssr: false })
 
 const cartButton = css.raw({
   display: 'flex',
@@ -33,31 +36,17 @@ const ratingBgToken = (rating: number) => {
 }
 
 type FoodProps = {
-  restaurant: Pick<TRestaurant, 'id' | 'name' | 'image'>
-  food: Omit<TFoods, 'created_at' | 'updated_at'> & {
-    food_rating: Array<Omit<TFoodRating, 'created_at' | 'updated_at'>>
-  } & {
-    tag: Omit<TTag, 'created_at' | 'updated_at'>
-  }
+  restaurant: { id: string; name: string; imageURL: string }
+  food: Product
 }
 
 export function FoodCard({ food, restaurant }: FoodProps) {
   const [open, setOpen] = useState(false)
-  const {
-    addFood,
-    removeFood,
-    thereIsASpecificFoodInTheCart,
-    numberOfSpecificFoodInTheCart,
-    priceOfSpecificFoodAccumulatedInTheCart
-  } = useCart()
+  const { addFood, removeFood, amountProduct, accPrice } = useCart()
 
-  const hasFood = thereIsASpecificFoodInTheCart(food.id)
-  const qtyFood = numberOfSpecificFoodInTheCart(food.id)
-  const priceFood = priceOfSpecificFoodAccumulatedInTheCart(food.id)
-  const rating = food.food_rating.length
-    ? food.food_rating.reduce((acc, r) => acc + r.rating, 0) /
-      food.food_rating.length
-    : undefined
+  const amount = amountProduct(food.id, restaurant.id)
+  const acc = accPrice(food.id, restaurant.id)
+  const rating = food.ratings ? food.average_rating : undefined
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
@@ -83,7 +72,8 @@ export function FoodCard({ food, restaurant }: FoodProps) {
             _hover: { transform: 'translateY(-0.5rem)', shadow: 'xl' }
           })}
         >
-          {hasFood && (
+          <Badge presence={!!amount} />
+          {/* {!!amount && (
             <div
               className={css({
                 position: 'absolute',
@@ -101,7 +91,7 @@ export function FoodCard({ food, restaurant }: FoodProps) {
                 weight="fill"
               />
             </div>
-          )}
+          )} */}
           <div
             className={`group ${css({
               display: 'flex',
@@ -154,7 +144,7 @@ export function FoodCard({ food, restaurant }: FoodProps) {
               })}
             >
               <NextImage
-                src={food.image}
+                src={food.image_url}
                 alt={food.name}
                 fill
                 className={css({ objectFit: 'cover' })}
@@ -210,7 +200,10 @@ export function FoodCard({ food, restaurant }: FoodProps) {
               </span>
             </div>
             <span className={css({ fontWeight: 'medium' })}>
-              R$ {food.price}
+              {formatNumber({
+                options: { currency: 'BRL' },
+                numberToBeFormatted: food.price_cents / 100
+              })}
             </span>
           </div>
         </button>
@@ -262,7 +255,7 @@ export function FoodCard({ food, restaurant }: FoodProps) {
             })}
           >
             <NextImage
-              src={food.image}
+              src={food.image_url}
               alt={food.name}
               fill
               className={css({ objectFit: 'cover' })}
@@ -292,12 +285,14 @@ export function FoodCard({ food, restaurant }: FoodProps) {
         >
           <div className={css({ display: 'flex', gap: '4' })}>
             <button
-              disabled={!hasFood}
-              onClick={() => removeFood({ id: food.id })}
+              disabled={!amount}
+              onClick={() =>
+                removeFood({ productId: food.id, storeId: restaurant.id })
+              }
               className={css([
                 cartButton,
                 {
-                  ...(!hasFood && { cursor: 'not-allowed', opacity: '0.25' })
+                  ...(!amount && { cursor: 'not-allowed', opacity: '0.25' })
                 }
               ])}
             >
@@ -306,7 +301,21 @@ export function FoodCard({ food, restaurant }: FoodProps) {
               />
             </button>
             <button
-              onClick={() => addFood({ restaurant, food })}
+              onClick={() =>
+                addFood({
+                  store: {
+                    id: restaurant.id,
+                    name: restaurant.name,
+                    imageURL: restaurant.imageURL
+                  },
+                  product: {
+                    id: food.id,
+                    name: food.name,
+                    imageURL: food.image_url,
+                    priceCents: food.price_cents
+                  }
+                })
+              }
               className={css(cartButton)}
             >
               <Plus
@@ -335,13 +344,13 @@ export function FoodCard({ food, restaurant }: FoodProps) {
                 bg: 'light.gray.300'
               })}
             >
-              {qtyFood && <span>{qtyFood > 99 ? '+99' : qtyFood}</span>}
+              {amount && <span>{amount > 99 ? '+99' : amount}</span>}
             </div>
             <div className={css({ display: 'flex' })}>
               <span>
                 {formatNumber({
                   options: { currency: 'BRL' },
-                  numberToBeFormatted: priceFood
+                  numberToBeFormatted: acc / 100
                 })}
               </span>
             </div>

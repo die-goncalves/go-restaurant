@@ -6,7 +6,6 @@ import { Bag, Car, Star } from 'phosphor-react'
 import { shimmerBase64 } from '../utils/blurDataURL'
 import { TFoodRating, TFoods, TRestaurant, TTag } from '../types'
 import { useFilter } from '../contexts/filter-context'
-import { useMemo } from 'react'
 import { css } from '@/styled-system/css'
 
 type RestaurantCardProps = {
@@ -65,24 +64,6 @@ const ratingLabel = (rating?: number) => {
 export function RestaurantCard({ restaurant }: RestaurantCardProps) {
   const { state } = useFilter()
 
-  const tags = useMemo(() => {
-    const removeDuplicateTags = restaurant.foods.reduce(
-      (acc, currentValue) => {
-        if (acc[currentValue.tag.id]) {
-          return acc
-        } else {
-          return { ...acc, ...{ [currentValue.tag.id]: currentValue.tag } }
-        }
-      },
-      {} as { [key: string]: TTag }
-    )
-    return Object.values(removeDuplicateTags).sort(function (a, b) {
-      if (a.name > b.name) return 1
-      if (a.name < b.name) return -1
-      return 0
-    })
-  }, [restaurant.foods])
-
   const time = deliveryTime(restaurant.delivery_time)
   const price = restaurant.delivery_price
     ? restaurant.delivery_price.toFixed(2)
@@ -136,7 +117,7 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
         })}
       >
         <NextImage
-          src={restaurant.image}
+          src={restaurant.image_url}
           alt={restaurant.name}
           fill
           className={css({ objectFit: 'cover' })}
@@ -168,7 +149,7 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
           <h1 className={css({ fontWeight: 'bold', fontSize: 'lg' })}>
             {restaurant.name}
           </h1>
-          {tags && (
+          {restaurant.categories && (
             <div
               className={css({
                 display: 'flex',
@@ -177,9 +158,9 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
                 alignItems: 'center'
               })}
             >
-              {tags.map((tag, index) => (
+              {restaurant.categories.map((tag, index) => (
                 <div
-                  key={tag.id}
+                  key={tag}
                   className={css({ display: 'flex', alignItems: 'center' })}
                 >
                   <span
@@ -192,9 +173,9 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
                       px: '1'
                     })}
                   >
-                    {tag.name}
+                    {tag}
                   </span>
-                  {index !== tags.length - 1 && (
+                  {index !== restaurant.categories.length - 1 && (
                     <span
                       className={css({
                         w: '1',
@@ -241,7 +222,7 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
 
             <div className={css({ display: 'flex', gap: '1' })}>
               <p>
-                {restaurant.rating && <span>{restaurant.rating} </span>}
+                {restaurant.rating && <span>{restaurant.rating}</span>}{' '}
                 <span className={css({ fontWeight: 'medium' })}>
                   {ratingLabel(restaurant.rating)}
                 </span>

@@ -1,10 +1,10 @@
 import { CopySimple } from 'phosphor-react'
 import toast from 'react-hot-toast'
 import { useMediaQuery } from 'react-responsive'
-import { TOrder } from '../types'
 import { formatNumber } from '../utils/formatNumber'
 import { Accordion } from './accordion'
 import { css } from '@/styled-system/css'
+import { Json } from '../types/supabase'
 
 const tableStyle = css.raw({
   w: 'full',
@@ -39,62 +39,70 @@ const dateRow = css({
 })
 
 type PaymentProps = {
-  payment: Omit<TOrder, 'line_items' | 'shipping_options'> & {
-    line_items: Array<{
-      food_id: string
+  payment: {
+    id: string
+    status: 'open' | 'complete' | 'expired' | null
+    payment_status: 'paid' | 'unpaid' | 'no_payment_required' | null
+    shipping_amount: number | null
+    shipping_address: Json
+    created_at: string | null
+    updated_at: string | null
+    order_products: {
+      id: string
       quantity: number
-      food: { name: string; price: number; restaurant: { name: string } }
-    }> | null
-    shipping_options: {
-      shipping_amount: number
-      shipping_rate: string
-      shipping_address: string
-      shipping_geohash: string
-    } | null
+      price_cents: number
+      product: {
+        id: string
+        name: string
+        image_url: string | null
+        price_cents: number
+      }
+      store: {
+        id: string
+        name: string
+        image_url: string | null
+      }
+    }[]
   }
 }
 export function Payment({ payment }: PaymentProps) {
   const isPaid = payment.payment_status === 'paid'
   const isAtLeast640 = useMediaQuery({ minWidth: 640 })
 
-  const totalPrice = payment.line_items?.reduce(
-    (acc, currentItem) =>
-      (acc += currentItem.quantity * currentItem.food.price),
-    0
-  )
+  const totalPrice =
+    (payment.shipping_amount ?? 0) +
+    payment.order_products.reduce(
+      (acc, item) => acc + item.price_cents * item.quantity,
+      0
+    )
 
-  const groupPayment = payment.line_items?.reduce(
-    (acc, currentValue) => {
-      if (acc[currentValue.food.restaurant.name]) {
-        acc[currentValue.food.restaurant.name] = [
-          ...acc[currentValue.food.restaurant.name],
-          currentValue
-        ]
-        return acc
-      }
-      return {
-        ...acc,
-        [currentValue.food.restaurant.name]: [currentValue]
-      }
-    },
-    {} as {
-      [key: string]: {
-        food_id: string
+  const productsByStore = payment.order_products.reduce<
+    Record<
+      string,
+      {
+        id: string
         quantity: number
-        food: {
+        price_cents: number
+        product: {
+          id: string
           name: string
-          price: number
-          restaurant: {
-            name: string
-          }
+          image_url: string | null
+          price_cents: number
         }
+        store: { id: string; name: string; image_url: string | null }
       }[]
-    }
-  )
+    >
+  >((acc, item) => {
+    const storeId = item.store.id
+    acc[storeId] ??= []
+    acc[storeId].push(item)
+    return acc
+  }, {})
+  console.log(productsByStore)
 
   async function copy(event: React.MouseEvent<HTMLButtonElement>) {
     event.stopPropagation()
-    await navigator.clipboard.writeText(payment.payment_intent_id ?? '')
+    await navigator.clipboard.writeText(payment.id ?? '')
     toast('Identificação do pagamento copiado')
   }
 
@@ -158,9 +166,7 @@ export function Payment({ payment }: PaymentProps) {
                   Pagamento
                 </p>
                 {isAtLeast640 ? (
-                  <p className={css({ fontSize: 'sm' })}>
-                    {payment.payment_intent_id}
-                  </p>
+                  <p className={css({ fontSize: 'sm' })}>{payment.id}</p>
                 ) : (
                   <div
                     className={css({ display: 'flex', alignItems: 'center' })}
@@ -175,7 +181,7 @@ export function Payment({ payment }: PaymentProps) {
                         xs: { maxW: 'none' }
                       })}
                     >
-                      {payment.payment_intent_id}
+                      {payment.id}
                     </p>
                     <button
                       onClick={copy}
@@ -243,7 +249,7 @@ export function Payment({ payment }: PaymentProps) {
                   Criado em
                 </p>
                 <p className={css({ fontSize: 'sm', textAlign: 'right' })}>
-                  {formatDate(payment.created_at, isAtLeast640)}
+                  {formatDate(payment.created_at ?? '', isAtLeast640)}
                 </p>
               </div>
 
@@ -289,75 +295,72 @@ export function Payment({ payment }: PaymentProps) {
                 gap: '4'
               })}
             >
-              {groupPayment &&
-                Object.entries(groupPayment).map(([name, items]) => (
-                  <div
-                    key={name}
-                    className={css({
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4'
-                    })}
-                  >
-                    <p className={css({ textAlign: 'center' })}>
-                      Comida pedida no restaurante&nbsp;
-                      <span
-                        className={css({
-                          color: 'light.gray.800',
-                          fontWeight: 'medium'
-                        })}
-                      >
-                        {name}
-                      </span>
-                    </p>
-                    <div className={css({ w: 'full', overflow: 'auto' })}>
-                      <table className={tableNowrap}>
-                        <thead className={css({ bg: 'light.gray.100' })}>
-                          <tr>
-                            <th className={css({ textAlign: 'left' })}>
-                              Comida
-                            </th>
-                            <th className={css({ textAlign: 'right' })}>
-                              Preço
-                            </th>
-                            <th className={css({ textAlign: 'right' })}>
-                              Quantidade
-                            </th>
-                            <th className={css({ textAlign: 'right' })}>
-                              Total
-                            </th>
+              {Object.entries(productsByStore).map(([storeId, items]) => (
+                <div
+                  key={storeId}
+                  className={css({
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4'
+                  })}
+                >
+                  <p className={css({ textAlign: 'center' })}>
+                    Comida pedida no restaurante&nbsp;
+                    <span
+                      className={css({
+                        color: 'light.gray.800',
+                        fontWeight: 'medium'
+                      })}
+                    >
+                      {items[0].store.name}
+                    </span>
+                  </p>
+                  <div className={css({ w: 'full', overflow: 'auto' })}>
+                    <table className={tableNowrap}>
+                      <thead className={css({ bg: 'light.gray.100' })}>
+                        <tr>
+                          <th className={css({ textAlign: 'left' })}>
+                            Produto
+                          </th>
+                          <th className={css({ textAlign: 'right' })}>Preço</th>
+                          <th className={css({ textAlign: 'right' })}>
+                            Quantidade
+                          </th>
+                          <th className={css({ textAlign: 'right' })}>Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {items?.map(item => (
+                          <tr key={item.id}>
+                            <td className={css({ textAlign: 'left' })}>
+                              {item.product.name}
+                            </td>
+                            <td className={css({ textAlign: 'right' })}>
+                              {formatNumber({
+                                options: { currency: 'BRL' },
+                                numberToBeFormatted:
+                                  Number(item.product.price_cents) / 100
+                              })}
+                            </td>
+                            <td className={css({ textAlign: 'right' })}>
+                              {item.quantity}
+                            </td>
+                            <td className={css({ textAlign: 'right' })}>
+                              {formatNumber({
+                                options: { currency: 'BRL' },
+                                numberToBeFormatted:
+                                  (Number(item.quantity) *
+                                    Number(item.product.price_cents)) /
+                                  100
+                              })}
+                            </td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {items?.map(item => (
-                            <tr key={item.food_id}>
-                              <td className={css({ textAlign: 'left' })}>
-                                {item.food.name}
-                              </td>
-                              <td className={css({ textAlign: 'right' })}>
-                                {formatNumber({
-                                  options: { currency: 'BRL' },
-                                  numberToBeFormatted: Number(item.food.price)
-                                })}
-                              </td>
-                              <td className={css({ textAlign: 'right' })}>
-                                {item.quantity}
-                              </td>
-                              <td className={css({ textAlign: 'right' })}>
-                                {formatNumber({
-                                  options: { currency: 'BRL' },
-                                  numberToBeFormatted:
-                                    Number(item.quantity) *
-                                    Number(item.food.price)
-                                })}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                ))}
+                </div>
+              ))}
             </div>
             <div
               className={css({
@@ -379,19 +382,22 @@ export function Payment({ payment }: PaymentProps) {
                   <tbody>
                     <tr>
                       <td className={css({ textAlign: 'left' })}>
-                        {payment.shipping_options?.shipping_address}
+                        {
+                          (payment.shipping_address as { address: string })
+                            ?.address
+                        }
                       </td>
                       <td className={css({ textAlign: 'right' })}>
-                        {payment.shipping_options?.shipping_geohash}
+                        {
+                          (payment.shipping_address as { geohash: string })
+                            ?.geohash
+                        }
                       </td>
                       <td className={css({ textAlign: 'right' })}>
-                        {payment.shipping_options &&
-                          formatNumber({
-                            options: { currency: 'BRL' },
-                            numberToBeFormatted: Number(
-                              payment.shipping_options.shipping_amount
-                            )
-                          })}
+                        {formatNumber({
+                          options: { currency: 'BRL' },
+                          numberToBeFormatted: Number(payment.shipping_amount)
+                        })}
                       </td>
                     </tr>
                   </tbody>
@@ -409,13 +415,10 @@ export function Payment({ payment }: PaymentProps) {
                 <tbody>
                   <tr>
                     <td className={css({ textAlign: 'right' })}>
-                      {payment.shipping_options &&
-                        totalPrice &&
+                      {totalPrice &&
                         formatNumber({
                           options: { currency: 'BRL' },
-                          numberToBeFormatted:
-                            Number(payment.shipping_options.shipping_amount) +
-                            totalPrice
+                          numberToBeFormatted: totalPrice / 100
                         })}
                     </td>
                   </tr>

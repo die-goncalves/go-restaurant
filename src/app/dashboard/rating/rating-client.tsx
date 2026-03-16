@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { TFoods, TRestaurant } from '@/src/types'
 import { SignedUser } from '@/src/components/signed-user'
 import { Skeleton } from '@/src/components/skeleton'
 import { RatingCard } from '@/src/components/rating/rating-card'
@@ -29,13 +28,36 @@ type ProfileProps = {
   user: User
 }
 export function RatingClient({ user }: ProfileProps) {
-  const [foodsAvailableForRating, setFoodsAvailableForRating] = useState<
-    Array<
-      Pick<TFoods, 'id' | 'name' | 'image'> & {
-        restaurant: Pick<TRestaurant, 'name'>
-      }
-    >
-  >()
+  const [products, setProducts] = useState<
+    | {
+        id: string
+        quantity: number
+        price_cents: number
+        order: {
+          id: string
+          payment_status: 'paid' | 'unpaid' | 'no_payment_required' | null
+          created_at: string | null
+        }
+        product: {
+          id: string
+          name: string
+          image_url: string | null
+        }
+        store: {
+          id: string
+          name: string
+          image_url: string | null
+        }
+        product_ratings: {
+          id: string
+          stars: number
+          comment: string | null
+          created_at: string
+          updated_at: string | null
+        } | null
+      }[]
+    | null
+  >(null)
   const [loadingData, setLoadingData] = useState(false)
 
   useEffect(() => {
@@ -43,54 +65,23 @@ export function RatingClient({ user }: ProfileProps) {
       setLoadingData(true)
       const supabase = createClient()
 
-      const { data: stripe_customer } = await supabase
-        .from('stripe_customer')
-        .select('stripe_customer_id')
-        .eq('customer_id', user.id)
-        .single()
-
-      const { data: ordersCustomer } = await supabase
-        .from('checkout_session')
-        .select('*')
-        .eq('customer_id', stripe_customer?.stripe_customer_id)
+      const { data: orderProducts } = await supabase
+        .from('order_products')
+        .select(
+          `
+            id,
+            quantity,
+            price_cents,
+            order:orders ( id, payment_status, created_at ),
+            product:products ( id, name, image_url ),
+            store:stores ( id, name, image_url ),
+            product_ratings ( id, stars, comment, created_at, updated_at )
+          `
+        )
+        .eq('orders.user_id', user.id)
+        .eq('orders.payment_status', 'paid')
         .order('created_at', { ascending: false })
-
-      if (ordersCustomer) {
-        const foodPayments = ordersCustomer.reduce((acc, current) => {
-          const foodWithPaymentCompleted = current.line_items.map(
-            (item: { food_id: string }) => {
-              if (current.payment_status === 'paid') return item.food_id
-            }
-          )
-          if (foodWithPaymentCompleted[0] !== undefined)
-            acc.push(foodWithPaymentCompleted)
-
-          return acc
-        }, [])
-
-        const setWithoutRepeatedFood = new Set(foodPayments.flat())
-        const arrayFoods = Array.from(setWithoutRepeatedFood)
-
-        let infoFoods: (Pick<TFoods, 'id' | 'name' | 'image'> & {
-          restaurant: Pick<TRestaurant, 'name'>
-        })[] = []
-        for (const foodId of arrayFoods) {
-          const { data } = await supabase
-            .from('foods')
-            .select(
-              `
-                *, 
-                restaurant: restaurants ( * )
-              `
-            )
-            .eq('stripe_food_id', foodId)
-            .single()
-          if (data) {
-            infoFoods = [...infoFoods, data]
-          }
-        }
-        setFoodsAvailableForRating(infoFoods)
-      }
+      setProducts(orderProducts)
 
       setLoadingData(false)
     }
@@ -156,7 +147,7 @@ export function RatingClient({ user }: ProfileProps) {
                 />
               ))}
             </div>
-          ) : foodsAvailableForRating && !foodsAvailableForRating.length ? (
+          ) : products?.length === 0 ? (
             <div
               className={css({
                 display: 'flex',
@@ -172,8 +163,8 @@ export function RatingClient({ user }: ProfileProps) {
             </div>
           ) : (
             <div className={ratingGrid}>
-              {foodsAvailableForRating?.map(food => (
-                <RatingCard key={food.id} food={food} clientId={user.id} />
+              {products?.map(p => (
+                <RatingCard key={p.id} product={p} clientId={user.id} />
               ))}
             </div>
           )}

@@ -10,6 +10,35 @@ import { Logo } from '@/src/components/logo'
 import { User } from '@supabase/supabase-js'
 import { createClient } from '@/src/lib/supabase/client'
 import { css } from '@/styled-system/css'
+import { Json } from '@/src/types/supabase'
+
+export type Orders =
+  | {
+      id: string
+      status: 'open' | 'complete' | 'expired' | null
+      payment_status: 'paid' | 'unpaid' | 'no_payment_required' | null
+      shipping_amount: number | null
+      shipping_address: Json
+      created_at: string | null
+      updated_at: string | null
+      order_products: {
+        id: string
+        quantity: number
+        price_cents: number
+        product: {
+          id: string
+          name: string
+          image_url: string | null
+          price_cents: number
+        }
+        store: {
+          id: string
+          name: string
+          image_url: string | null
+        }
+      }[]
+    }[]
+  | null
 
 type TPayment = Omit<TOrder, 'line_items' | 'shipping_options'> & {
   line_items: Array<{
@@ -30,7 +59,7 @@ type ProfileProps = {
 }
 
 export function OrderClient({ user }: ProfileProps) {
-  const [payments, setPayments] = useState<TPayment[] | undefined>(undefined)
+  const [orders, setOrders] = useState<Orders>(null)
   const [loadData, setLoadData] = useState(false)
 
   useEffect(() => {
@@ -38,35 +67,30 @@ export function OrderClient({ user }: ProfileProps) {
       setLoadData(true)
       const supabase = createClient()
 
-      const { data: stripe_customer } = await supabase
-        .from('stripe_customer')
-        .select('stripe_customer_id')
-        .eq('customer_id', user.id)
-        .single()
-
-      const { data: ordersCustomer } = await supabase
-        .from('checkout_session')
-        .select('*')
-        .eq('customer_id', stripe_customer?.stripe_customer_id)
+      const { data: orders } = await supabase
+        .from('orders')
+        .select(
+          `
+            id,
+            status,
+            payment_status,
+            shipping_amount,
+            shipping_address,
+            created_at,
+            updated_at,
+            order_products (
+              id,
+              quantity,
+              price_cents,
+              product:products ( id, name, image_url, price_cents ),
+              store:stores ( id, name, image_url )
+            )
+          `
+        )
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
+      setOrders(orders)
 
-      if (ordersCustomer) {
-        const newPayments = ordersCustomer as TPayment[]
-        for (const payment of ordersCustomer) {
-          if (!!payment.line_items?.length)
-            for (const food of payment.line_items) {
-              const { data: foods } = await supabase
-                .from('foods')
-                .select(`name, price, restaurant: restaurants ( name )`)
-                .eq('stripe_food_id', food.food_id)
-                .single()
-
-              if (foods) food.food = foods
-            }
-        }
-
-        setPayments(newPayments)
-      }
       setLoadData(false)
     }
 
@@ -143,8 +167,8 @@ export function OrderClient({ user }: ProfileProps) {
                     })}
                   />
                 ))
-              : payments?.map(payment => (
-                  <Payment key={payment.payment_intent_id} payment={payment} />
+              : orders?.map(order => (
+                  <Payment key={order.id} payment={order} />
                 ))}
           </div>
         </div>
