@@ -19,7 +19,7 @@ const starColorTokens = (value?: number): StarColorTokens => {
   return { fill: 'light-green-700', stroke: 'light-green-700' }
 }
 
-type FoodRatingCardProps = {
+type RatingCardProps = {
   product: {
     id: string
     quantity: number
@@ -45,14 +45,14 @@ type FoodRatingCardProps = {
       comment: string | null
       created_at: string
       updated_at: string | null
-    } | null
+    }[]
   }
-  clientId: string
+  profileId: string
 }
-export function RatingCard({ product, clientId }: FoodRatingCardProps) {
+export function RatingCard({ product, profileId }: RatingCardProps) {
   const supabase = useMemo(() => createClient(), [])
 
-  const existingRating = product.product_ratings
+  const existingRating = product.product_ratings[0]
   const [stars, setStars] = useState<number | undefined>(
     existingRating?.stars ?? undefined
   )
@@ -60,6 +60,10 @@ export function RatingCard({ product, clientId }: FoodRatingCardProps) {
     saved: boolean
     loading: boolean
   }>({ saved: false, loading: false })
+
+  const [currentRatingId, setCurrentRatingId] = useState<string | undefined>(
+    product.product_ratings[0]?.id
+  )
 
   const handleStarClick = async (value: number) => {
     const clickLog = log.child({
@@ -72,17 +76,19 @@ export function RatingCard({ product, clientId }: FoodRatingCardProps) {
     setStars(value)
     setSaveStatus({ saved: false, loading: false })
 
-    const { error } = await supabase.from('product_ratings').upsert(
-      {
+    const { data, error } = await supabase
+      .from('product_ratings')
+      .upsert({
+        id: currentRatingId,
         order_product_id: product.id,
         product_id: product.product.id,
         store_id: product.store.id,
-        user_id: clientId,
+        profile_id: profileId,
         stars: value,
         updated_at: new Date().toISOString()
-      },
-      { onConflict: 'order_product_id' }
-    )
+      })
+      .select('id')
+      .single()
 
     if (error) {
       clickLog.error({ error }, 'Error saving rating')
@@ -90,6 +96,9 @@ export function RatingCard({ product, clientId }: FoodRatingCardProps) {
       return
     }
 
+    if (data) {
+      setCurrentRatingId(data.id)
+    }
     setSaveStatus({ saved: true, loading: false })
   }
 

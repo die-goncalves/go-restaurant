@@ -67,22 +67,33 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          profile_id: string
           stripe_customer_id: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string
-          id: string
+          id?: string
+          profile_id: string
           stripe_customer_id: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string
           id?: string
+          profile_id?: string
           stripe_customer_id?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'customers_profile_fkey'
+            columns: ['profile_id']
+            isOneToOne: true
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
       }
       operating_hours: {
         Row: {
@@ -108,21 +119,21 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'operating_hours_store_id_fkey'
+            foreignKeyName: 'operating_hours_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'store_details_view'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'operating_hours_store_id_fkey'
+            foreignKeyName: 'operating_hours_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'stores'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'operating_hours_store_id_fkey'
+            foreignKeyName: 'operating_hours_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'stores_ratings_summary'
@@ -271,11 +282,11 @@ export type Database = {
           payment_status:
             | Database['public']['Enums']['checkout_payment_status']
             | null
+          profile_id: string
           shipping_address: Json | null
           shipping_amount: number | null
           status: Database['public']['Enums']['checkout_status'] | null
           updated_at: string | null
-          user_id: string
         }
         Insert: {
           created_at?: string | null
@@ -286,11 +297,11 @@ export type Database = {
           payment_status?:
             | Database['public']['Enums']['checkout_payment_status']
             | null
+          profile_id: string
           shipping_address?: Json | null
           shipping_amount?: number | null
           status?: Database['public']['Enums']['checkout_status'] | null
           updated_at?: string | null
-          user_id: string
         }
         Update: {
           created_at?: string | null
@@ -301,53 +312,61 @@ export type Database = {
           payment_status?:
             | Database['public']['Enums']['checkout_payment_status']
             | null
+          profile_id?: string
           shipping_address?: Json | null
           shipping_amount?: number | null
           status?: Database['public']['Enums']['checkout_status'] | null
           updated_at?: string | null
-          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'orders_profile_fkey'
+            columns: ['profile_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          }
+        ]
       }
       product_ratings: {
         Row: {
           comment: string | null
           created_at: string
           id: string
-          order_product_id: string
+          order_product_id: string | null
           product_id: string
+          profile_id: string
           stars: number
           store_id: string
           updated_at: string | null
-          user_id: string
         }
         Insert: {
           comment?: string | null
           created_at?: string
           id?: string
-          order_product_id: string
+          order_product_id?: string | null
           product_id: string
+          profile_id: string
           stars: number
           store_id: string
           updated_at?: string | null
-          user_id: string
         }
         Update: {
           comment?: string | null
           created_at?: string
           id?: string
-          order_product_id?: string
+          order_product_id?: string | null
           product_id?: string
+          profile_id?: string
           stars?: number
           store_id?: string
           updated_at?: string | null
-          user_id?: string
         }
         Relationships: [
           {
             foreignKeyName: 'product_ratings_order_product_fkey'
             columns: ['order_product_id']
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: 'order_products'
             referencedColumns: ['id']
           },
@@ -359,21 +378,28 @@ export type Database = {
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'product_ratings_store_id_fkey'
+            foreignKeyName: 'product_ratings_profile_fkey'
+            columns: ['profile_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'product_ratings_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'store_details_view'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'product_ratings_store_id_fkey'
+            foreignKeyName: 'product_ratings_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'stores'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'product_ratings_store_id_fkey'
+            foreignKeyName: 'product_ratings_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'stores_ratings_summary'
@@ -396,14 +422,14 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'product_sections_product_id_fkey'
+            foreignKeyName: 'product_sections_product_fkey'
             columns: ['product_id']
             isOneToOne: false
             referencedRelation: 'products'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'product_sections_section_id_fkey'
+            foreignKeyName: 'product_sections_section_fkey'
             columns: ['section_id']
             isOneToOne: false
             referencedRelation: 'sections'
@@ -438,6 +464,45 @@ export type Database = {
           name?: string
           price_cents?: number
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          deleted_at: string | null
+          full_name: string | null
+          id: string
+          is_deleted: boolean
+          phone_number: string | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          full_name?: string | null
+          id?: string
+          is_deleted?: boolean
+          phone_number?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          full_name?: string | null
+          id?: string
+          is_deleted?: boolean
+          phone_number?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
         }
         Relationships: []
       }
@@ -498,28 +563,28 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'store_categories_category_id_fkey'
+            foreignKeyName: 'store_categories_category_fkey'
             columns: ['category_id']
             isOneToOne: false
             referencedRelation: 'categories'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'store_categories_store_id_fkey'
+            foreignKeyName: 'store_categories_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'store_details_view'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'store_categories_store_id_fkey'
+            foreignKeyName: 'store_categories_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'stores'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'store_categories_store_id_fkey'
+            foreignKeyName: 'store_categories_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'stores_ratings_summary'
@@ -548,28 +613,28 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: 'store_products_product_id_fkey'
+            foreignKeyName: 'store_products_product_fkey'
             columns: ['product_id']
             isOneToOne: false
             referencedRelation: 'products'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'store_products_store_id_fkey'
+            foreignKeyName: 'store_products_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'store_details_view'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'store_products_store_id_fkey'
+            foreignKeyName: 'store_products_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'stores'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'store_products_store_id_fkey'
+            foreignKeyName: 'store_products_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'stores_ratings_summary'
@@ -659,21 +724,21 @@ export type Database = {
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'product_ratings_store_id_fkey'
+            foreignKeyName: 'product_ratings_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'store_details_view'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'product_ratings_store_id_fkey'
+            foreignKeyName: 'product_ratings_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'stores'
             referencedColumns: ['id']
           },
           {
-            foreignKeyName: 'product_ratings_store_id_fkey'
+            foreignKeyName: 'product_ratings_store_fkey'
             columns: ['store_id']
             isOneToOne: false
             referencedRelation: 'stores_ratings_summary'

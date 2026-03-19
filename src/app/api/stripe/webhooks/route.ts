@@ -65,16 +65,18 @@ export async function POST(request: NextRequest) {
           }
           const splits = sessionSplits?.splits as SplitItem[]
 
-          const userId = session.metadata!.userId
-          if (!userId) {
-            throw new Error(`userId missing in session metadata ${session.id}`)
+          const profileId = session.metadata!.profileId
+          if (!profileId) {
+            throw new Error(
+              `profileId missing in session metadata ${session.id}`
+            )
           }
 
           // 2. Salvar o pedido
           const { error: orderError } = await supabase.from('orders').upsert(
             {
               id: session.id,
-              user_id: userId,
+              profile_id: profileId,
               customer_id: session.customer as string,
               payment_intent: session.payment_intent as string,
               status: session.status,

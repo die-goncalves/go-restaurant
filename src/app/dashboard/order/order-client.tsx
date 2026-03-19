@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { TOrder } from '@/src/types'
 import { Skeleton } from '@/src/components/skeleton'
 import { DashboardNavigation } from '@/src/components/dashboard-navigation'
 import { Payment } from '@/src/components/payment'
@@ -11,6 +10,9 @@ import { User } from '@supabase/supabase-js'
 import { createClient } from '@/src/lib/supabase/client'
 import { css } from '@/styled-system/css'
 import { Json } from '@/src/types/supabase'
+import { logger } from '@/src/lib/logger'
+
+const log = logger.child({ module: 'client', component: 'OrderClient' })
 
 export type Orders =
   | {
@@ -40,20 +42,6 @@ export type Orders =
     }[]
   | null
 
-type TPayment = Omit<TOrder, 'line_items' | 'shipping_options'> & {
-  line_items: Array<{
-    food_id: string
-    quantity: number
-    food: { name: string; price: number; restaurant: { name: string } }
-  }> | null
-  shipping_options: {
-    shipping_amount: number
-    shipping_rate: string
-    shipping_address: string
-    shipping_geohash: string
-  } | null
-}
-
 type ProfileProps = {
   user: User
 }
@@ -63,38 +51,60 @@ export function OrderClient({ user }: ProfileProps) {
   const [loadData, setLoadData] = useState(false)
 
   useEffect(() => {
-    async function fetchPayments() {
+    async function fetchOrders() {
+      const effectLog = log.child({ effect: 'fetchOrders', userId: user.id })
       setLoadData(true)
       const supabase = createClient()
 
-      const { data: orders } = await supabase
-        .from('orders')
-        .select(
-          `
-            id,
-            status,
-            payment_status,
-            shipping_amount,
-            shipping_address,
-            created_at,
-            updated_at,
-            order_products (
-              id,
-              quantity,
-              price_cents,
-              product:products ( id, name, image_url, price_cents ),
-              store:stores ( id, name, image_url )
-            )
-          `
-        )
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-      setOrders(orders)
+      try {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .single()
 
-      setLoadData(false)
+        if (profileError || !profile) {
+          effectLog.error({ err: profileError }, 'Profile not found')
+          return
+        }
+
+        const { data: orders, error: ordersError } = await supabase
+          .from('orders')
+          .select(
+            `
+              id,
+              status,
+              payment_status,
+              shipping_amount,
+              shipping_address,
+              created_at,
+              updated_at,
+              order_products (
+                id,
+                quantity,
+                price_cents,
+                product:products ( id, name, image_url, price_cents ),
+                store:stores ( id, name, image_url )
+              )
+            `
+          )
+          .eq('profile_id', profile.id)
+          .order('created_at', { ascending: false })
+
+        if (ordersError) {
+          effectLog.error({ err: ordersError }, 'Error fetching orders')
+          return
+        }
+
+        setOrders(orders)
+      } catch (error) {
+        effectLog.error({ error }, 'Unexpected error fetching orders')
+      } finally {
+        setLoadData(false)
+      }
     }
 
-    fetchPayments()
+    fetchOrders()
   }, [user.id])
 
   return (

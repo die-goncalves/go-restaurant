@@ -1,14 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { css } from '@/styled-system/css'
 import { SignedUser } from '@/src/components/signed-user'
-import { Skeleton } from '@/src/components/skeleton'
 import { RatingCard } from '@/src/components/rating/rating-card'
 import { DashboardNavigation } from '@/src/components/dashboard-navigation'
 import { Logo } from '@/src/components/logo'
-import { User } from '@supabase/supabase-js'
-import { createClient } from '@/src/lib/supabase/client'
-import { css } from '@/styled-system/css'
 
 const ratingGrid = css({
   display: 'grid',
@@ -24,71 +20,37 @@ const ratingGrid = css({
   '2xl': { gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }
 })
 
-type ProfileProps = {
-  user: User
-}
-export function RatingClient({ user }: ProfileProps) {
-  const [products, setProducts] = useState<
-    | {
-        id: string
-        quantity: number
-        price_cents: number
-        order: {
-          id: string
-          payment_status: 'paid' | 'unpaid' | 'no_payment_required' | null
-          created_at: string | null
-        }
-        product: {
-          id: string
-          name: string
-          image_url: string | null
-        }
-        store: {
-          id: string
-          name: string
-          image_url: string | null
-        }
-        product_ratings: {
-          id: string
-          stars: number
-          comment: string | null
-          created_at: string
-          updated_at: string | null
-        } | null
-      }[]
-    | null
-  >(null)
-  const [loadingData, setLoadingData] = useState(false)
-
-  useEffect(() => {
-    async function fetchPayments() {
-      setLoadingData(true)
-      const supabase = createClient()
-
-      const { data: orderProducts } = await supabase
-        .from('order_products')
-        .select(
-          `
-            id,
-            quantity,
-            price_cents,
-            order:orders ( id, payment_status, created_at ),
-            product:products ( id, name, image_url ),
-            store:stores ( id, name, image_url ),
-            product_ratings ( id, stars, comment, created_at, updated_at )
-          `
-        )
-        .eq('orders.user_id', user.id)
-        .eq('orders.payment_status', 'paid')
-        .order('created_at', { ascending: false })
-      setProducts(orderProducts)
-
-      setLoadingData(false)
+type RatingClientProps = {
+  products: {
+    id: string
+    quantity: number
+    price_cents: number
+    order: {
+      id: string
+      payment_status: 'paid' | 'unpaid' | 'no_payment_required' | null
+      created_at: string | null
     }
-
-    fetchPayments()
-  }, [user.id])
-
+    product: {
+      id: string
+      name: string
+      image_url: string | null
+    }
+    store: {
+      id: string
+      name: string
+      image_url: string | null
+    }
+    product_ratings: {
+      id: string
+      stars: number
+      comment: string | null
+      created_at: string
+      updated_at: string | null
+    }[]
+  }[]
+  profileId: string
+}
+export function RatingClient({ products, profileId }: RatingClientProps) {
   return (
     <div
       className={css({
@@ -138,16 +100,7 @@ export function RatingClient({ user }: ProfileProps) {
             <DashboardNavigation />
           </div>
 
-          {loadingData ? (
-            <div className={ratingGrid}>
-              {Array.from({ length: 6 }).map((_, index) => (
-                <Skeleton
-                  key={index}
-                  className={css({ rounded: 'sm', w: 'full', h: '56' })}
-                />
-              ))}
-            </div>
-          ) : products?.length === 0 ? (
+          {products?.length === 0 ? (
             <div
               className={css({
                 display: 'flex',
@@ -164,7 +117,7 @@ export function RatingClient({ user }: ProfileProps) {
           ) : (
             <div className={ratingGrid}>
               {products?.map(p => (
-                <RatingCard key={p.id} product={p} clientId={user.id} />
+                <RatingCard key={p.id} product={p} profileId={profileId} />
               ))}
             </div>
           )}

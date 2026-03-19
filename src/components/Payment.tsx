@@ -395,7 +395,8 @@ export function Payment({ payment }: PaymentProps) {
                       <td className={css({ textAlign: 'right' })}>
                         {formatNumber({
                           options: { currency: 'BRL' },
-                          numberToBeFormatted: Number(payment.shipping_amount)
+                          numberToBeFormatted:
+                            Number(payment.shipping_amount) / 100
                         })}
                       </td>
                     </tr>
