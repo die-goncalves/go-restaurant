@@ -9,6 +9,12 @@ import slotRecipes from './src/theme/slot-recipes'
 import tokens from './src/theme/tokens'
 
 export default defineConfig({
+  conditions: {
+    // These conditions allow you to write rules that depend on the color mode
+    light: '[data-color-mode=light] &',
+    dark: '[data-color-mode=dark] &'
+  },
+
   // Whether to use css reset
   preflight: true,
 
