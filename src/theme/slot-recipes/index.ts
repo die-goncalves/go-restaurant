@@ -1,6 +1,8 @@
 import { dialogSlotRecipe } from './dialog'
+import { drawerSlotRecipe } from './drawer'
 
 const slotRecipes = {
-  dialogSlotRecipe
+  dialogSlotRecipe,
+  drawerSlotRecipe
 }
 export default slotRecipes
