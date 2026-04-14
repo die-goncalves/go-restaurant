@@ -1,21 +1,20 @@
 import { defineGlobalStyles } from '@pandacss/dev'
 
 export const globalCss = defineGlobalStyles({
-  '*': { boxSizing: 'border-box', padding: 0, margin: 0 },
+  '*, *::before, *::after': { boxSizing: 'border-box', padding: 0, margin: 0 },
   'html, body': {
-    maxWidth: '100dvw'
-  },
-  html: {
-    overflowX: 'hidden'
+    width: '100%',
+    minHeight: '100dvh'
   },
   body: {
-    // color: "var(--colors-fg)",
-    // bg: "var(--colors-bg)",
+    color: 'surface.on',
+    background: 'surface',
     fontFamily: 'sans',
     fontWeight: '400',
     textStyle: 'md',
     '-webkit-font-smoothing': 'antialiased',
-    '-moz-osx-font-smoothing': 'grayscale'
+    '-moz-osx-font-smoothing': 'grayscale',
+    textRendering: 'optimizeLegibility'
   },
   'h1, h2, h3, h4, h5, h6': { fontFamily: 'serif' },
   'code, samp, kbd, var, pre': { fontFamily: 'mono' }
