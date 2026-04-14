@@ -5,6 +5,7 @@ import { globalCss } from './src/theme/global-styles'
 import { keyframes } from './src/theme/keyframes'
 import recipes from './src/theme/recipes'
 import semanticTokens from './src/theme/semantic-tokens'
+import slotRecipes from './src/theme/slot-recipes'
 import tokens from './src/theme/tokens'
 
 export default defineConfig({
@@ -31,6 +32,9 @@ export default defineConfig({
       },
       semanticTokens: {
         colors: semanticTokens.colors
+      },
+      slotRecipes: {
+        dialog: slotRecipes.dialogSlotRecipe
       },
       tokens: {
         easings: tokens.easings,
