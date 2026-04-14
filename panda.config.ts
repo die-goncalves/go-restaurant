@@ -27,6 +27,7 @@ export default defineConfig({
         colors: semanticTokens.colors
       },
       tokens: {
+        easings: tokens.easings,
         fonts: tokens.fonts,
         gradients: {
           skeleton: {
