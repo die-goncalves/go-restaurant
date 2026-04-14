@@ -1,4 +1,5 @@
 import { defineConfig } from '@pandacss/dev'
+import { breakpoints } from './src/theme/breakpoints'
 import { globalCss } from './src/theme/global-styles'
 import { keyframes } from './src/theme/keyframes'
 import semanticTokens from './src/theme/semantic-tokens'
@@ -20,17 +21,7 @@ export default defineConfig({
   // Useful for theme customization
   theme: {
     extend: {
-      breakpoints: {
-        '3xs': '320px',
-        '2xs': '360px',
-        xs: '412px',
-        sm: '640px',
-        md: '768px',
-        lg: '1024px',
-        xl: '1280px',
-        '2xl': '1366px',
-        '3xl': '1440px'
-      },
+      breakpoints,
       keyframes,
       semanticTokens: {
         colors: semanticTokens.colors
