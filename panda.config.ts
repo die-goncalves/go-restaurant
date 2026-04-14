@@ -3,6 +3,7 @@ import { animationStyles } from './src/theme/animation-styles'
 import { breakpoints } from './src/theme/breakpoints'
 import { globalCss } from './src/theme/global-styles'
 import { keyframes } from './src/theme/keyframes'
+import recipes from './src/theme/recipes'
 import semanticTokens from './src/theme/semantic-tokens'
 import tokens from './src/theme/tokens'
 
@@ -25,6 +26,9 @@ export default defineConfig({
       animationStyles,
       breakpoints,
       keyframes,
+      recipes: {
+        button: recipes.buttonRecipe
+      },
       semanticTokens: {
         colors: semanticTokens.colors
       },
