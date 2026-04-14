@@ -12,7 +12,14 @@ export default defineConfig({
   conditions: {
     // These conditions allow you to write rules that depend on the color mode
     light: '[data-color-mode=light] &',
-    dark: '[data-color-mode=dark] &'
+    dark: '[data-color-mode=dark] &',
+
+    extend: {
+      notDisabled:
+        '&:not(:is(:disabled, [disabled], [data-disabled], [aria-disabled=true]))',
+      iconLeft: '&:is([data-icon-placement=left])',
+      iconRight: '&:is([data-icon-placement=right])'
+    }
   },
 
   // Whether to use css reset
