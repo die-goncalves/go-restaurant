@@ -28,7 +28,8 @@ export default defineConfig({
       breakpoints,
       keyframes,
       recipes: {
-        button: recipes.buttonRecipe
+        button: recipes.buttonRecipe,
+        link: recipes.linkRecipe
       },
       semanticTokens: {
         colors: semanticTokens.colors
