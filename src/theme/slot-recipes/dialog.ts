@@ -10,7 +10,7 @@ export const dialogSlotRecipe = defineSlotRecipe({
       height: '100dvh',
       width: '100dvw',
       inset: 0,
-      background: 'token(colors.blackAlpha.500)',
+      background: 'token(colors.black.alpha.500)',
       WebkitBackdropFilter: 'blur(0px)',
       backdropFilter: 'blur(0px)',
       zIndex: 'var(--z-index-modal)',

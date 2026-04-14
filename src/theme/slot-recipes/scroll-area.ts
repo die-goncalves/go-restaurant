@@ -45,14 +45,13 @@ export const scrollAreaSlotRecipe = defineSlotRecipe({
       userSelect: 'none',
       touchAction: 'none',
       borderRadius: 'unset',
-      colorPalette: 'gray',
       transition: 'opacity 150ms 300ms',
       position: 'relative',
       margin: 'var(--scrollbar-margin)',
       '&:not([data-overflow-x], [data-overflow-y])': {
         display: 'none'
       },
-      background: 'blackAlpha.50',
+      background: 'black.alpha.50',
       '--thumb-bg': 'var(--colors-black-alpha-500)',
       '&:is(:hover, :active)': {
         '--thumb-bg': 'var(--colors-black-alpha-700)'
