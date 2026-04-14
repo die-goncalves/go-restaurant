@@ -22,7 +22,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="eng" className={`${gambarino.variable} ${figtree.variable}`}>
+    <html
+      lang="eng"
+      data-color-mode={'light'}
+      className={`${gambarino.variable} ${figtree.variable}`}
+    >
       <body>
         <RootProvider>{children}</RootProvider>
       </body>
