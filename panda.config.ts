@@ -55,6 +55,7 @@ export default defineConfig({
         scrollArea: slotRecipes.scrollAreaSlotRecipe
       },
       tokens: {
+        colors: tokens.colors,
         easings: tokens.easings,
         fonts: tokens.fonts,
         gradients: {
