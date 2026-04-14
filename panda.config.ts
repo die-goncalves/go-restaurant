@@ -43,7 +43,8 @@ export default defineConfig({
           shimmer: { value: 'shimmer 1.2s infinite linear' },
           fade: { value: 'fade 150ms ease-in' },
           heartbeat: { value: 'heartbeat 2s ease-in alternate' }
-        }
+        },
+        zIndex: tokens.zIndexes
       }
     }
   },
