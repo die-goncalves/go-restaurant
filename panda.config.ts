@@ -35,7 +35,8 @@ export default defineConfig({
       },
       slotRecipes: {
         dialog: slotRecipes.dialogSlotRecipe,
-        drawer: slotRecipes.drawerSlotRecipe
+        drawer: slotRecipes.drawerSlotRecipe,
+        scrollArea: slotRecipes.scrollAreaSlotRecipe
       },
       tokens: {
         easings: tokens.easings,
