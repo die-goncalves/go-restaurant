@@ -35,6 +35,7 @@ export default defineConfig({
         colors: semanticTokens.colors
       },
       slotRecipes: {
+        breadcrumb: slotRecipes.breadcrumbSlotRecipe,
         dialog: slotRecipes.dialogSlotRecipe,
         drawer: slotRecipes.drawerSlotRecipe,
         scrollArea: slotRecipes.scrollAreaSlotRecipe
