@@ -321,6 +321,7 @@ create or replace view stores_ratings_summary as
 select
   s.id,
   s.name,
+  s.description,
   s.image_url,
   s.coordinates,
   s.neighborhood,
@@ -334,6 +335,44 @@ from stores s
   left join categories c        on c.id        = sc.category_id
 group by s.id, s.name, s.image_url, s.coordinates, s.neighborhood, s.created_at;
 
+create or replace view store_categories_view as
+select
+  sc.store_id,
+  jsonb_agg(
+    jsonb_build_object('id', c.id, 'name', c.name, 'slug', c.slug)
+    order by c.name
+  ) as categories
+from store_categories sc
+  join categories c on c.id = sc.category_id
+group by sc.store_id;
+
+create or replace view store_products_view as
+select
+  sp.store_id,
+  jsonb_agg(
+    jsonb_build_object(
+      'id',             p.id,
+      'name',           p.name,
+      'description',    p.description,
+      'price_cents',    p.price_cents,
+      'image_url',      p.image_url,
+      'is_available',   sp.is_available,
+      'average_rating', coalesce(r.average_rating, 0),
+      'total_reviews',  coalesce(r.total_reviews, 0),
+      'sections', (
+        select jsonb_agg(sec.name)
+        from product_sections ps
+          join sections sec on sec.id = ps.section_id
+        where ps.product_id = p.id
+      )
+    )
+  ) as products
+from store_products sp
+  join products p on p.id = sp.product_id
+  left join product_store_ratings_summary r
+    on r.product_id = sp.product_id and r.store_id = sp.store_id
+group by sp.store_id;
+
 create or replace view store_details_view as
 select
   s.id,
@@ -344,19 +383,8 @@ select
   s.address,
   s.coordinates,
   s.neighborhood,
-  coalesce(
-    (
-      select round(avg(pr.stars), 1)
-      from product_ratings pr
-      where pr.store_id = s.id
-    ),
-    0
-  ) as average_rating,
-  (
-    select count(pr.stars)
-    from product_ratings pr
-    where pr.store_id = s.id
-  ) as total_reviews,
+  coalesce(sr.average_rating, 0) as average_rating,
+  coalesce(sr.total_reviews,  0) as total_reviews,
   coalesce(
     exists (
       select 1
@@ -379,51 +407,12 @@ select
     from operating_hours oh
     where oh.store_id = s.id
   ) as operating_hours,
-  (
-    select jsonb_agg(
-      jsonb_build_object(
-        'id',           p.id,
-        'name',         p.name,
-        'description',  p.description,
-        'price_cents',  p.price_cents,
-        'image_url',    p.image_url,
-        'is_available', sp.is_available,
-        'sections',
-        (
-          select jsonb_agg(sec.name)
-          from product_sections ps
-            join sections sec on sec.id = ps.section_id
-          where ps.product_id = p.id
-        ),
-        'ratings',
-        (
-          select jsonb_agg(
-            jsonb_build_object(
-              'id',         pr.id,
-              'profile_id', pr.profile_id,
-              'stars',      pr.stars,
-              'comment',    pr.comment,
-              'created_at', pr.created_at
-            )
-          )
-          from product_ratings pr
-          where pr.product_id = p.id
-            and pr.store_id = s.id
-        ),
-        'average_rating',
-        (
-          select coalesce(round(avg(pr.stars), 1), 0)
-          from product_ratings pr
-          where pr.product_id = p.id
-            and pr.store_id = s.id
-        )
-      )
-    )
-    from store_products sp
-      join products p on p.id = sp.product_id
-    where sp.store_id = s.id
-  ) as products
-from stores s;
+  sc.categories,
+  sp.products
+from stores s
+  left join stores_ratings_summary sr on sr.id       = s.id
+  left join store_categories_view  sc on sc.store_id = s.id
+  left join store_products_view    sp on sp.store_id = s.id;
 
 -- =============================================================================
 -- STUDY

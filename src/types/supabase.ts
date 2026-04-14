@@ -746,10 +746,40 @@ export type Database = {
           }
         ]
       }
+      store_categories_view: {
+        Row: {
+          categories: Json | null
+          store_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'store_categories_store_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'store_details_view'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'store_categories_store_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'store_categories_store_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores_ratings_summary'
+            referencedColumns: ['id']
+          }
+        ]
+      }
       store_details_view: {
         Row: {
           address: string | null
           average_rating: number | null
+          categories: Json | null
           coordinates: string | null
           description: string | null
           id: string | null
@@ -762,37 +792,36 @@ export type Database = {
           products: Json | null
           total_reviews: number | null
         }
-        Insert: {
-          address?: string | null
-          average_rating?: never
-          coordinates?: string | null
-          description?: string | null
-          id?: string | null
-          image_url?: string | null
-          is_open?: never
-          name?: string | null
-          neighborhood?: string | null
-          operating_hours?: never
-          phone_number?: string | null
-          products?: never
-          total_reviews?: never
-        }
-        Update: {
-          address?: string | null
-          average_rating?: never
-          coordinates?: string | null
-          description?: string | null
-          id?: string | null
-          image_url?: string | null
-          is_open?: never
-          name?: string | null
-          neighborhood?: string | null
-          operating_hours?: never
-          phone_number?: string | null
-          products?: never
-          total_reviews?: never
-        }
         Relationships: []
+      }
+      store_products_view: {
+        Row: {
+          products: Json | null
+          store_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'store_products_store_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'store_details_view'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'store_products_store_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'store_products_store_fkey'
+            columns: ['store_id']
+            isOneToOne: false
+            referencedRelation: 'stores_ratings_summary'
+            referencedColumns: ['id']
+          }
+        ]
       }
       stores_ratings_summary: {
         Row: {
@@ -800,6 +829,7 @@ export type Database = {
           categories: string[] | null
           coordinates: string | null
           created_at: string | null
+          description: string | null
           id: string | null
           image_url: string | null
           name: string | null
