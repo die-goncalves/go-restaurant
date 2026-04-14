@@ -1,7 +1,8 @@
 import { defineConfig } from '@pandacss/dev'
 import { globalCss } from './src/theme/global-styles'
-import tokens from './src/theme/tokens'
 import { keyframes } from './src/theme/keyframes'
+import semanticTokens from './src/theme/semantic-tokens'
+import tokens from './src/theme/tokens'
 
 export default defineConfig({
   // Whether to use css reset
@@ -31,43 +32,10 @@ export default defineConfig({
         '3xl': '1440px'
       },
       keyframes,
+      semanticTokens: {
+        colors: semanticTokens.colors
+      },
       tokens: {
-        colors: {
-          light: {
-            gray: {
-              100: { value: '#f5f5f4' },
-              200: { value: '#e7e5e4' },
-              300: { value: '#d6d3d1' },
-              400: { value: '#a8a29e' },
-              500: { value: '#78716c' },
-              800: { value: '#292524' },
-              900: { value: '#1c1917' }
-            },
-            green: {
-              200: { value: '#a7f3d0' },
-              300: { value: '#6ee7b7' },
-              400: { value: '#34d399' },
-              500: { value: '#10b981' },
-              700: { value: '#047857' }
-            },
-            red: {
-              200: { value: '#fecdd3' },
-              300: { value: '#fda4af' },
-              400: { value: '#fb7185' },
-              500: { value: '#f43f5e' },
-              700: { value: '#be123c' }
-            },
-            orange: {
-              200: { value: '#fde68a' },
-              300: { value: '#fcd34d' },
-              400: { value: '#fbbf24' },
-              500: { value: '#f59e0b' }
-            },
-            indigo: {
-              300: { value: '#a5b4fc' }
-            }
-          }
-        },
         fonts: tokens.fonts,
         gradients: {
           skeleton: {
