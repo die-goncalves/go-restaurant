@@ -29,7 +29,8 @@ export default defineConfig({
       keyframes,
       recipes: {
         button: recipes.buttonRecipe,
-        link: recipes.linkRecipe
+        link: recipes.linkRecipe,
+        textInput: recipes.textInputRecipe
       },
       semanticTokens: {
         colors: semanticTokens.colors
