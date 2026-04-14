@@ -2,11 +2,12 @@ import { defineTokens } from '@pandacss/dev'
 
 export const fonts = defineTokens.fonts({
   serif: {
-    value: 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'
+    value:
+      'var(--font-gambarino), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif'
   },
   sans: {
     value:
-      'var(--font-barlow-semi-condensed), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"'
+      'var(--font-figtree), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"'
   },
   mono: {
     value:
