@@ -50,6 +50,7 @@ export default defineConfig({
       },
       slotRecipes: {
         breadcrumb: slotRecipes.breadcrumbSlotRecipe,
+        checkbox: slotRecipes.checkboxSlotRecipe,
         dialog: slotRecipes.dialogSlotRecipe,
         drawer: slotRecipes.drawerSlotRecipe,
         scrollArea: slotRecipes.scrollAreaSlotRecipe
