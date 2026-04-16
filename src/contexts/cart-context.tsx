@@ -8,24 +8,38 @@ import {
   useEffect,
   useReducer
 } from 'react'
-import { parseCookies, setCookie } from 'nookies'
-import { TRestaurant, TFoods, TFoodRating } from '../types'
+import { logger } from '@/src/lib/logger'
+import { getCookie, setCookie } from '../utils/cookies'
 
-type Food = Omit<TFoods, 'created_at' | 'updated_at'> & {
-  amount: number
-  restaurant: Pick<TRestaurant, 'id' | 'name' | 'image'>
-  food_rating: Array<Pick<TFoodRating, 'food_id' | 'customer_id' | 'rating'>>
-}
+const log = logger.child({
+  module: 'client',
+  provider: 'CartProvider'
+})
 
-enum Actions {
-  'add',
-  'remove'
-}
-type TActions = {
-  type: keyof typeof Actions
-  payload?: any
-}
-type Cart = {
+type Action =
+  | {
+      type: 'addProduct'
+      payload: {
+        product: {
+          id: string
+          name: string
+          imageURL: string
+          priceCents: number
+          amount?: number
+        }
+        store: { id: string; name: string; imageURL: string }
+      }
+    }
+  | {
+      type: 'decrementProduct'
+      payload: { product: { id: string }; store: { id: string } }
+    }
+  | {
+      type: 'removeProduct'
+      payload: { product: { id: string }; store: { id: string } }
+    }
+
+export type Cart = {
   productId: string
   productName: string
   productImageURL: string
@@ -35,13 +49,24 @@ type Cart = {
   priceCents: number
   amount: number
 }[]
-type TData = {
+
+type State = {
   cart: Cart
 }
 
-function reducer(state: TData, action: TActions) {
+function parseCart(raw: string): Cart {
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? (parsed as Cart) : []
+  } catch (error) {
+    log.error({ error }, 'Failed to parse cart cookie — resetting')
+    return []
+  }
+}
+
+function reducer(state: State, action: Action) {
   switch (action.type) {
-    case 'add': {
+    case 'addProduct': {
       const index = state.cart.findIndex(
         item =>
           item.productId === action.payload.product.id &&
@@ -51,7 +76,8 @@ function reducer(state: TData, action: TActions) {
         const newCart = [...state.cart]
         newCart[index] = {
           ...newCart[index],
-          amount: newCart[index].amount + 1
+          // amount: newCart[index].amount + 1
+          amount: newCart[index].amount + (action.payload.product.amount ?? 1)
         }
         return {
           ...state,
@@ -70,13 +96,14 @@ function reducer(state: TData, action: TActions) {
               storeId: action.payload.store.id,
               storeName: action.payload.store.name,
               storeImageURL: action.payload.store.imageURL,
-              amount: 1
+              // amount: 1
+              amount: action.payload.product.amount ?? 1
             }
           ]
         }
       }
     }
-    case 'remove': {
+    case 'decrementProduct': {
       const index = state.cart.findIndex(
         item =>
           item.productId === action.payload.product.id &&
@@ -86,27 +113,39 @@ function reducer(state: TData, action: TActions) {
 
       const newCart = [...state.cart]
       const item = newCart[index]
-      if (item.amount > 1) {
-        newCart[index] = {
-          ...item,
-          amount: item.amount - 1
-        }
-      } else {
-        newCart.splice(index, 1)
+
+      if (item.amount <= 1) return state
+
+      newCart[index] = {
+        ...item,
+        amount: item.amount - 1
       }
+
       return {
         ...state,
         cart: newCart
       }
     }
+    case 'removeProduct': {
+      return {
+        ...state,
+        cart: state.cart.filter(
+          item =>
+            !(
+              item.productId === action.payload.product.id &&
+              item.storeId === action.payload.store.id
+            )
+        )
+      }
+    }
     default:
-      throw Error('Ação desconhecida: ' + action.type)
+      throw Error('Ação desconhecida')
   }
 }
 
 type CartContextData = {
-  state: TData
-  addFood: ({
+  state: State
+  addProduct: ({
     store,
     product
   }: {
@@ -119,20 +158,37 @@ type CartContextData = {
       amount?: number
     }
   }) => void
-  removeFood: ({
+  decrementProduct: ({
     storeId,
     productId
   }: {
     storeId: string
     productId: string
   }) => void
-  amountProduct: (productId: string, storeId: string) => number
-  accPrice: (productId: string, storeId: string) => number
-  qtyItemsInTheCart: () => number
-  separateFoodByRestaurant: () => {
-    [key: string]: Food[]
-  }
-  totalPrice: () => number
+  removeProduct: ({
+    storeId,
+    productId
+  }: {
+    storeId: string
+    productId: string
+  }) => void
+  getProductQuantity: ({
+    storeId,
+    productId
+  }: {
+    storeId: string
+    productId: string
+  }) => number
+  getProductTotal: ({
+    storeId,
+    productId
+  }: {
+    storeId: string
+    productId: string
+  }) => number
+  getCartCount: () => number
+  getProductsByStore: () => Record<string, Cart>
+  getCartTotal: () => number
 }
 const CartContext = createContext({} as CartContextData)
 
@@ -141,20 +197,24 @@ type CartProviderProps = {
 }
 export function CartProvider({ children }: CartProviderProps) {
   const [state, dispatch] = useReducer(reducer, { cart: [] }, () => {
-    const cart = parseCookies()['@gorestaurant-v0.1.0:cart']
-      ? JSON.parse(parseCookies()['@gorestaurant-v0.1.0:cart'])
-      : []
+    const raw = getCookie('@gorestaurant-v0.1.0:cart')
+    const cart = raw ? parseCart(raw) : []
+
     return { cart }
   })
 
   useEffect(() => {
-    setCookie(null, '@gorestaurant-v0.1.0:cart', JSON.stringify(state.cart), {
-      maxAge: 60 * 60 * 24 * 365,
-      path: '/'
-    })
+    try {
+      setCookie('@gorestaurant-v0.1.0:cart', JSON.stringify(state.cart), {
+        maxAge: 60 * 60 * 24 * 365,
+        path: '/'
+      })
+    } catch (error) {
+      log.error({ error }, 'Failed to persist cart to cookie')
+    }
   }, [state.cart])
 
-  const addFood = useCallback(
+  const addProduct = useCallback(
     ({
       store,
       product
@@ -169,13 +229,14 @@ export function CartProvider({ children }: CartProviderProps) {
       }
     }) => {
       dispatch({
-        type: 'add',
+        type: 'addProduct',
         payload: {
           product: {
             id: product.id,
             name: product.name,
             imageURL: product.imageURL,
-            priceCents: product.priceCents
+            priceCents: product.priceCents,
+            amount: product.amount
           },
           store: {
             id: store.id,
@@ -188,25 +249,34 @@ export function CartProvider({ children }: CartProviderProps) {
     []
   )
 
-  const removeFood = useCallback(
+  const decrementProduct = useCallback(
     ({ storeId, productId }: { storeId: string; productId: string }) => {
       dispatch({
-        type: 'remove',
+        type: 'decrementProduct',
         payload: {
-          product: {
-            id: productId
-          },
-          store: {
-            id: storeId
-          }
+          product: { id: productId },
+          store: { id: storeId }
         }
       })
     },
     []
   )
 
-  const amountProduct = useCallback(
-    (productId: string, storeId: string) => {
+  const removeProduct = useCallback(
+    ({ storeId, productId }: { storeId: string; productId: string }) => {
+      dispatch({
+        type: 'removeProduct',
+        payload: {
+          product: { id: productId },
+          store: { id: storeId }
+        }
+      })
+    },
+    []
+  )
+
+  const getProductQuantity = useCallback(
+    ({ storeId, productId }: { storeId: string; productId: string }) => {
       const product = state.cart.find(
         item => item.productId === productId && item.storeId === storeId
       )
@@ -215,8 +285,8 @@ export function CartProvider({ children }: CartProviderProps) {
     [state.cart]
   )
 
-  const accPrice = useCallback(
-    (productId: string, storeId: string) => {
+  const getProductTotal = useCallback(
+    ({ storeId, productId }: { storeId: string; productId: string }) => {
       const product = state.cart.find(
         item => item.productId === productId && item.storeId === storeId
       )
@@ -225,13 +295,13 @@ export function CartProvider({ children }: CartProviderProps) {
     [state.cart]
   )
 
-  const qtyItemsInTheCart = useCallback(() => {
+  const getCartCount = useCallback(() => {
     return state.cart.reduce((acc, currentItem) => {
       return (acc += currentItem.amount)
     }, 0)
   }, [state.cart])
 
-  const separateFoodByRestaurant = useCallback(() => {
+  const getProductsByStore = useCallback(() => {
     return state.cart.reduce<Record<string, typeof state.cart>>((acc, item) => {
       const key = item.storeId
 
@@ -245,7 +315,7 @@ export function CartProvider({ children }: CartProviderProps) {
     }, {})
   }, [state.cart])
 
-  const totalPrice = useCallback(() => {
+  const getCartTotal = useCallback(() => {
     return state.cart.reduce(
       (acc, currentItem) =>
         (acc += currentItem.amount * currentItem.priceCents),
@@ -257,13 +327,14 @@ export function CartProvider({ children }: CartProviderProps) {
     <CartContext.Provider
       value={{
         state,
-        addFood,
-        removeFood,
-        amountProduct,
-        accPrice,
-        qtyItemsInTheCart,
-        separateFoodByRestaurant,
-        totalPrice
+        addProduct,
+        decrementProduct,
+        removeProduct,
+        getProductQuantity,
+        getProductTotal,
+        getCartCount,
+        getProductsByStore,
+        getCartTotal
       }}
     >
       {children}
