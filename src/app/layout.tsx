@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import { RootProvider } from '../providers/root-providers'
 import { figtree, gambarino } from './fonts'
 

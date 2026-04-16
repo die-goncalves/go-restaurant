@@ -1,11 +1,17 @@
 export const dynamicParams = true
 
 import { redirect } from 'next/navigation'
-import { RestaurantClient } from './restaurant-client'
-import { createStaticClient } from '@/src/lib/supabase/static'
+import { logger } from '@/src/lib/logger'
 import { createClient } from '@/src/lib/supabase/server'
-import { parsePoint } from '@/src/utils/parse-point'
+import { createStaticClient } from '@/src/lib/supabase/static'
 import { Tables } from '@/src/types/supabase'
+import { parsePoint } from '@/src/utils/parse-point'
+import { StoreContent } from './_components/store-content'
+
+const log = logger.child({
+  module: 'server',
+  route: '/store/[id]'
+})
 
 type Rating = {
   id: string
@@ -26,18 +32,28 @@ export type Product = {
   ratings: Rating[] | null
 }
 
+export type Categories = {
+  id: string
+  name: string
+  slug: string
+}
+
 export type Store = Omit<
   Tables<'store_details_view'>,
-  'coordinates' | 'products'
+  'coordinates' | 'products' | 'categories'
 > & {
-  coordinates: { lat: null; lng: null } | { lat: number; lng: number }
+  categories: Categories[]
+  coordinates: {
+    lat: number
+    lng: number
+  } | null
   products: Product[]
 }
 
-type RestaurantPageProps = {
+type StorePageProps = {
   params: Promise<{ id: string }>
 }
-export async function generateMetadata({ params }: RestaurantPageProps) {
+export async function generateMetadata({ params }: StorePageProps) {
   const { id } = await params
   const supabase = await createClient()
 
@@ -48,20 +64,18 @@ export async function generateMetadata({ params }: RestaurantPageProps) {
     .single()
 
   return {
-    title: data
-      ? `Restaurante ${data.name} | GoRestaurant`
-      : 'Restaurante | GoRestaurant'
+    title: data ? `Loja ${data.name} | GoRestaurant` : 'Loja | GoRestaurant'
   }
 }
 
 export async function generateStaticParams() {
   const supabase = await createStaticClient()
   const { data } = await supabase.from('stores').select('id')
-
   return (data ?? []).map(store => ({ id: store.id }))
 }
 
-export default async function RestaurantPage({ params }: RestaurantPageProps) {
+export default async function StorePage({ params }: StorePageProps) {
+  const reqLog = log.child({ id: crypto.randomUUID() })
   const { id } = await params
   const supabase = await createClient()
 
@@ -71,14 +85,22 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
     .eq('id', id)
     .single()
 
-  if (!data) redirect('/')
+  if (error) {
+    reqLog.error({ error }, 'Error fetching store data')
+  }
+
+  if (!data) {
+    reqLog.warn({ storeId: id }, 'Store not found')
+    redirect('/')
+  }
 
   const products = data.products as Product[]
   const store: Store = {
     id: data.id,
     name: data.name,
     phone_number: data.phone_number,
-    coordinates: parsePoint(data.coordinates!),
+    coordinates: parsePoint(data.coordinates),
+    categories: data.categories as Categories[],
     address: data.address,
     image_url: data.image_url,
     neighborhood: data.neighborhood,
@@ -99,5 +121,6 @@ export default async function RestaurantPage({ params }: RestaurantPageProps) {
       is_available: p.is_available
     }))
   }
-  return <RestaurantClient restaurant={store} />
+
+  return <StoreContent store={store} />
 }
