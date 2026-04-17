@@ -43,6 +43,7 @@ export default defineConfig({
       recipes: {
         button: recipes.buttonRecipe,
         link: recipes.linkRecipe,
+        radioGroup: recipes.radioGroupRecipe,
         textInput: recipes.textInputRecipe
       },
       semanticTokens: {
