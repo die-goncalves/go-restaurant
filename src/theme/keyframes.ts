@@ -1,6 +1,14 @@
 export const keyframes = {
   'fade-in': { from: { opacity: 0 }, to: { opacity: 1 } },
   'fade-out': { from: { opacity: 1 }, to: { opacity: 0 } },
+  'collapse-height': {
+    from: { height: 'var(--height)' },
+    to: { height: '0' }
+  },
+  'expand-height': {
+    from: { height: '0' },
+    to: { height: 'var(--height)' }
+  },
   'slide-from-left-full': {
     from: { translate: '-100% 0' },
     to: { translate: '0 0' }

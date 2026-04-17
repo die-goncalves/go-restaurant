@@ -41,6 +41,7 @@ export default defineConfig({
       breakpoints,
       keyframes,
       recipes: {
+        accordion: recipes.accordionRecipe,
         button: recipes.buttonRecipe,
         link: recipes.linkRecipe,
         radioGroup: recipes.radioGroupRecipe,

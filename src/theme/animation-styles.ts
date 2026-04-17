@@ -140,5 +140,21 @@ export const animationStyles = defineAnimationStyles({
       animationTimingFunction:
         'token(easings.expressive-fast-spatial), token(easings.expressive-fast-effects)'
     }
+  },
+  'expand-height-fade-in': {
+    value: {
+      animationName: 'expand-height, fade-in',
+      animationDuration: '500ms, 200ms',
+      animationTimingFunction:
+        'token(easings.expressive-default-spatial), token(easings.expressive-default-effects)'
+    }
+  },
+  'collapse-height-fade-out': {
+    value: {
+      animationName: 'collapse-height, fade-out',
+      animationDuration: '350ms, 150ms',
+      animationTimingFunction:
+        'token(easings.expressive-fast-spatial), token(easings.expressive-fast-effects)'
+    }
   }
 })
