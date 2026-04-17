@@ -9,10 +9,10 @@ export const ScrollAreaContext = createContext({} as Api<PropTypes>)
 type ScrollAreaProviderProps = Api<PropTypes> & { children: React.ReactNode }
 export function ScrollAreaProvider({
   children,
-  ...drawerProps
+  ...scrollAreaProps
 }: ScrollAreaProviderProps) {
   return (
-    <ScrollAreaContext.Provider value={drawerProps}>
+    <ScrollAreaContext.Provider value={scrollAreaProps}>
       {children}
     </ScrollAreaContext.Provider>
   )

@@ -32,7 +32,7 @@ const RootInner = forwardRef<HTMLLabelElement, RootInnerProps>(
     )
   }
 )
-RootInner.displayName = 'ScrollArea.RootInner'
+RootInner.displayName = 'Checkbox.RootInner'
 
 type RootProps = Partial<checkbox.Props> & { children: ReactNode }
 export const Root = forwardRef<HTMLLabelElement, RootProps>(
