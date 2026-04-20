@@ -45,6 +45,7 @@ export default defineConfig({
         button: recipes.buttonRecipe,
         link: recipes.linkRecipe,
         radioGroup: recipes.radioGroupRecipe,
+        slider: recipes.sliderRecipe,
         textInput: recipes.textInputRecipe
       },
       semanticTokens: {
