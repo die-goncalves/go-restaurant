@@ -43,6 +43,7 @@ export default defineConfig({
       recipes: {
         accordion: recipes.accordionRecipe,
         button: recipes.buttonRecipe,
+        chip: recipes.chipRecipe,
         link: recipes.linkRecipe,
         radioGroup: recipes.radioGroupRecipe,
         slider: recipes.sliderRecipe,
