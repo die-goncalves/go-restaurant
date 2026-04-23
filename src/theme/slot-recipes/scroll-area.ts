@@ -12,7 +12,7 @@ export const scrollAreaSlotRecipe = defineSlotRecipe({
       height: '100%',
       position: 'relative',
       overflow: 'hidden',
-      '--scrollbar-margin': '2px',
+      '--scrollbar-margin': '0px',
       '--scrollbar-click-area':
         'calc(var(--scrollbar-size) + calc(var(--scrollbar-margin) * 2))'
     },
@@ -21,11 +21,10 @@ export const scrollAreaSlotRecipe = defineSlotRecipe({
       outlineWidth: '2px',
       outlineOffset: '-2px',
       outlineColor: 'transparent',
-      _focus: {
+      _focusVisible: {
         outlineStyle: 'solid',
-        outlineColor: 'fg'
+        outlineColor: 'outline'
       },
-
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
@@ -45,16 +44,23 @@ export const scrollAreaSlotRecipe = defineSlotRecipe({
       userSelect: 'none',
       touchAction: 'none',
       borderRadius: 'unset',
-      transition: 'opacity 150ms 300ms',
       position: 'relative',
       margin: 'var(--scrollbar-margin)',
       '&:not([data-overflow-x], [data-overflow-y])': {
         display: 'none'
       },
-      background: 'black.alpha.50',
+      background: 'var(--colors-black-alpha-100)',
       '--thumb-bg': 'var(--colors-black-alpha-500)',
+      '--thumb-transition-property': 'background',
+      '--thumb-transition-duration': '150ms',
+      '--thumb-transition-timing-function':
+        'token(easings.expressive-fast-effects)',
       '&:is(:hover, :active)': {
-        '--thumb-bg': 'var(--colors-black-alpha-700)'
+        '--thumb-bg': 'var(--colors-black-alpha-600)',
+        '--thumb-transition-property': 'background',
+        '--thumb-transition-duration': '200ms',
+        '--thumb-transition-timing-function':
+          'token(easings.expressive-default-effects)'
       },
       _before: {
         content: '""',
@@ -62,6 +68,7 @@ export const scrollAreaSlotRecipe = defineSlotRecipe({
       },
       _vertical: {
         width: 'var(--scrollbar-size)',
+        paddingInline: 'var(--scrollbar-padding)',
         flexDirection: 'column',
         '&::before': {
           width: 'var(--scrollbar-click-area)',
@@ -71,6 +78,7 @@ export const scrollAreaSlotRecipe = defineSlotRecipe({
       },
       _horizontal: {
         height: 'var(--scrollbar-size)',
+        paddingBlock: 'var(--scrollbar-padding)',
         flexDirection: 'row',
         '&::before': {
           height: 'var(--scrollbar-click-area)',
@@ -82,9 +90,10 @@ export const scrollAreaSlotRecipe = defineSlotRecipe({
     thumb: {
       borderRadius: 'inherit',
       background: 'var(--thumb-bg)',
-      transitionProperty: 'background',
-      transitionDuration: '200ms',
-      transitionTimingFunction: 'linear',
+      transitionProperty: 'var(--thumb-transition-property)',
+      transitionDuration: 'var(--thumb-transition-duration)',
+      transitionTimingFunction: 'var(--thumb-transition-timing-function)',
+      flexShrink: 0,
       _vertical: {
         width: '100%'
       },
@@ -93,14 +102,16 @@ export const scrollAreaSlotRecipe = defineSlotRecipe({
       }
     },
     corner: {
-      background: 'var(--colors-black-alpha-500)',
+      background: 'var(--colors-black-alpha-100)',
       margin: 'var(--scrollbar-margin)',
-      transitionProperty: 'opacity',
-      transitionDuration: '200ms',
-      transitionTimingFunction: 'linear',
-      opacity: 0,
+      transitionProperty: 'background',
+      transitionDuration: '150ms',
+      transitionTimingFunction: 'token(easings.expressive-fast-effects)',
       '&[data-hover]': {
-        opacity: 1
+        background: 'var(--colors-black-alpha-500)',
+        transitionProperty: 'background',
+        transitionDuration: '200ms',
+        transitionTimingFunction: 'token(easings.expressive-default-effects)'
       }
     }
   },
@@ -108,39 +119,37 @@ export const scrollAreaSlotRecipe = defineSlotRecipe({
     variant: {
       hover: {
         scrollbar: {
-          opacity: '0',
+          opacity: 0,
+          transitionProperty: 'opacity',
+          transitionDuration: '150ms',
+          transitionTimingFunction: 'token(easings.expressive-fast-effects)',
           '&[data-hover], &[data-scrolling]': {
-            opacity: '1',
-            transitionDuration: 'faster',
+            opacity: 1,
+            transitionProperty: 'opacity',
+            transitionDuration: '200ms',
+            transitionTimingFunction:
+              'token(easings.expressive-default-effects)',
             transitionDelay: '0ms'
           }
         }
       },
       always: {
         scrollbar: {
-          opacity: '1'
+          opacity: 1
         }
       }
     },
     size: {
-      xs: {
-        root: {
-          '--scrollbar-size': 'sizes.1'
-        }
-      },
       sm: {
         root: {
-          '--scrollbar-size': 'sizes.1.5'
+          '--scrollbar-size': 'sizes.3',
+          '--scrollbar-padding': '3px'
         }
       },
       md: {
         root: {
-          '--scrollbar-size': 'sizes.2'
-        }
-      },
-      lg: {
-        root: {
-          '--scrollbar-size': 'sizes.3'
+          '--scrollbar-size': 'sizes.5',
+          '--scrollbar-padding': 'sizes.1'
         }
       }
     }
