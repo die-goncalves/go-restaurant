@@ -1,7 +1,7 @@
 import { defineParts, defineRecipe } from '@pandacss/dev'
 import { anatomy } from '@zag-js/accordion'
 
-export const anatomyPart = anatomy.build()
+export const anatomyPart = anatomy.extendWith('itemContentInner').build()
 
 export const parts = defineParts(anatomyPart)
 
@@ -23,6 +23,7 @@ export const accordionRecipe = defineRecipe({
       justifyContent: 'space-between',
       height: '10',
       width: '100%',
+      paddingInline: '4',
       outlineStyle: 'none',
       outlineWidth: '2px',
       outlineOffset: '2px',
@@ -34,6 +35,7 @@ export const accordionRecipe = defineRecipe({
       }
     },
     itemContent: {
+      position: 'relative',
       overflow: 'hidden',
       _open: {
         animationStyle: 'expand-height-fade-in'
@@ -41,6 +43,10 @@ export const accordionRecipe = defineRecipe({
       _closed: {
         animationStyle: 'collapse-height-fade-out'
       }
+    },
+    itemContentInner: {
+      paddingInline: '4',
+      paddingBlock: '4'
     },
     itemIndicator: {
       position: 'relative',
@@ -51,19 +57,21 @@ export const accordionRecipe = defineRecipe({
       minWidth: '10',
       transformOrigin: 'center',
       color: 'surface.on',
-      transitionProperty: 'rotate',
-      transitionDuration: '350ms',
-      transitionTimingFunction: 'token(easings.expressive-fast-spatial)',
-      rotate: '-90deg',
       _open: {
-        transitionProperty: 'rotate',
-        transitionDuration: '500ms',
-        transitionTimingFunction: 'token(easings.expressive-default-spatial)',
-        rotate: '-270deg'
+        _icon: {
+          transitionProperty: 'rotate',
+          transitionDuration: '500ms',
+          transitionTimingFunction: 'token(easings.expressive-default-spatial)',
+          rotate: '-270deg'
+        }
       },
       _icon: {
         width: '5',
-        height: '5'
+        height: '5',
+        transitionProperty: 'rotate',
+        transitionDuration: '350ms',
+        transitionTimingFunction: 'token(easings.expressive-fast-spatial)',
+        rotate: '-90deg'
       }
     }
   }),
