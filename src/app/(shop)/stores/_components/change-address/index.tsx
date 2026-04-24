@@ -2,7 +2,7 @@
 
 import { Portal } from '@zag-js/react'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { CloseIcon } from '@/src/components/icons/close'
 import { MovedLocationIcon } from '@/src/components/icons/moved-location'
@@ -17,20 +17,21 @@ import { Map } from './map'
 
 const log = logger.child({ module: 'client', component: 'ChangeAddress' })
 
-type ChangeAddressProps = {
-  id: string | null
-  neighborhood: string | null
-  coord: {
-    lat: number
-    lng: number
-  } | null
-}
-export function ChangeAddress({ id, neighborhood, coord }: ChangeAddressProps) {
+export function ChangeAddress() {
   const router = useRouter()
   const [mapReady, setMapReady] = useState(false)
   const [node, setNode] = useState<HTMLDivElement | null>(null)
-  const { state, setPending, confirmPending } = usePosition()
+  const { state: position, setPending, confirmPending } = usePosition()
   const abortRef = useRef<AbortController | null>(null)
+
+  const coord = useMemo(() => {
+    return position.currentPosition
+      ? {
+          lat: position.currentPosition.coordinates.latitude,
+          lng: position.currentPosition.coordinates.longitude
+        }
+      : null
+  }, [position.currentPosition])
 
   const handleContentRef = useCallback((n: HTMLDivElement | null) => {
     setNode(n)
@@ -78,19 +79,19 @@ export function ChangeAddress({ id, neighborhood, coord }: ChangeAddressProps) {
   )
 
   function handleSubmit(onSuccess: () => void) {
-    const pos = state.pendingPosition
+    const pos = position.pendingPosition
     if (!pos) {
       toast.error(
         'Não conseguimos obter as coordenadas do endereço, por favor indique no mapa.'
       )
       return
     }
-    if (neighborhood !== pos.place) {
-      toast.error('Região fora dos limites de entrega para este restaurante.')
-      return
-    }
     if (pos.place && pos.geohash) {
-      router.push(`/store/${id}?geohash=${pos.geohash}`)
+      const params = new URLSearchParams({
+        place: pos.place,
+        geohash: pos.geohash
+      })
+      router.push(`/stores?${params.toString()}`)
       confirmPending()
       onSuccess()
     } else {
@@ -128,7 +129,7 @@ export function ChangeAddress({ id, neighborhood, coord }: ChangeAddressProps) {
             variant="solid"
             icon={<MovedLocationIcon />}
             iconPlacement="left"
-            className={css({ paddingInlineStart: '2.5', gap: '4.5' })}
+            className={css({ width: { base: 'unset', expanded: '100%' } })}
           >
             Mude seu endereço
           </Button>
@@ -209,7 +210,7 @@ export function ChangeAddress({ id, neighborhood, coord }: ChangeAddressProps) {
                     })}
                   >
                     <div className={css({ height: '10' })}>
-                      <p>{state.pendingPosition?.place_name ?? ''}</p>
+                      <p>{position.pendingPosition?.place_name ?? ''}</p>
                     </div>
 
                     <div

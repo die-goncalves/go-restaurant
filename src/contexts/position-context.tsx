@@ -5,108 +5,97 @@ import {
   useContext,
   useReducer
 } from 'react'
-import { TGeographicFeatureWithCoordinates } from '../types'
+import { logger } from '@/src/lib/logger'
 
-enum Actions {
-  'position',
-  'temp_position',
-  'changed_position'
-}
-type TActions = {
-  type: keyof typeof Actions
-  payload?: any
-}
-type TPositions = {
-  currentPosition: TGeographicFeatureWithCoordinates | undefined
-  temporaryPosition: TGeographicFeatureWithCoordinates | undefined
-}
-function reducer(state: TPositions, action: TActions) {
-  switch (action.type) {
-    case 'position': {
-      return {
-        ...state,
-        currentPosition: action.payload.position
-      }
-    }
-    case 'temp_position': {
-      return {
-        ...state,
-        temporaryPosition: action.payload.position
-      }
-    }
-    case 'changed_position': {
-      return {
-        currentPosition: state.temporaryPosition,
-        temporaryPosition: undefined
-      }
-    }
-    default:
-      throw Error('Ação desconhecida: ' + action.type)
+const log = logger.child({
+  module: 'client',
+  provider: 'PositionProvider'
+})
+
+export type Position = {
+  coordinates: {
+    latitude: number
+    longitude: number
   }
+  geohash: string
+  place_name: string | undefined
+  granular: { id: string; text: string } | undefined
+  place: string | undefined
 }
-const initialState: TPositions = {
+
+export type State = {
+  currentPosition: Position | undefined
+  pendingPosition: Position | undefined
+}
+
+type Action =
+  | { type: 'setPosition'; payload: { position: Position | undefined } }
+  | { type: 'setPending'; payload: { position: Position | undefined } }
+  | { type: 'confirmPending' }
+
+const initialState: State = {
   currentPosition: undefined,
-  temporaryPosition: undefined
+  pendingPosition: undefined
+}
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'setPosition': {
+      const { position } = action.payload
+      return { ...state, currentPosition: position }
+    }
+    case 'setPending': {
+      const { position } = action.payload
+      return { ...state, pendingPosition: position }
+    }
+    case 'confirmPending': {
+      if (!state.pendingPosition) {
+        log.warn('confirmPending dispatched but pendingPosition is undefined')
+        return state
+      }
+      return {
+        currentPosition: state.pendingPosition,
+        pendingPosition: undefined
+      }
+    }
+    default: {
+      const _exhaustive: never = action
+      throw new Error(`Unknown action: ${(_exhaustive as Action).type}`)
+    }
+  }
 }
 
 type PositionContextData = {
-  state: {
-    currentPosition: TGeographicFeatureWithCoordinates | undefined
-    temporaryPosition: TGeographicFeatureWithCoordinates | undefined
-  }
-  handleChangePosition: () => void
-  handleAddPosition: (
-    position: TGeographicFeatureWithCoordinates | undefined
-  ) => void
-  handleTempPosition: (
-    position: TGeographicFeatureWithCoordinates | undefined
-  ) => void
+  state: State
+  setPosition: (position: Position | undefined) => void
+  setPending: (position: Position | undefined) => void
+  confirmPending: () => void
 }
-const PositionContext = createContext({} as PositionContextData)
+const PositionContext = createContext<PositionContextData | null>(null)
 
-type PositionProviderProps = {
-  children: ReactNode
-}
+type PositionProviderProps = { children: ReactNode }
 export function PositionProvider({ children }: PositionProviderProps) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  const handleChangePosition = useCallback(() => {
-    dispatch({
-      type: 'changed_position'
-    })
+  const setPosition = useCallback((position: Position | undefined) => {
+    dispatch({ type: 'setPosition', payload: { position } })
   }, [])
 
-  const handleTempPosition = useCallback(
-    (position: TGeographicFeatureWithCoordinates | undefined) => {
-      dispatch({
-        type: 'temp_position',
-        payload: {
-          position
-        }
-      })
-    },
-    []
-  )
+  const setPending = useCallback((position: Position | undefined) => {
+    dispatch({ type: 'setPending', payload: { position } })
+  }, [])
 
-  const handleAddPosition = useCallback(
-    (position: TGeographicFeatureWithCoordinates | undefined) => {
-      dispatch({
-        type: 'position',
-        payload: {
-          position
-        }
-      })
-    },
-    []
-  )
+  const confirmPending = useCallback(() => {
+    dispatch({ type: 'confirmPending' })
+  }, [])
 
   return (
     <PositionContext.Provider
       value={{
         state,
-        handleAddPosition,
-        handleTempPosition,
-        handleChangePosition
+        setPosition,
+        setPending,
+        confirmPending
       }}
     >
       {children}
@@ -114,7 +103,10 @@ export function PositionProvider({ children }: PositionProviderProps) {
   )
 }
 
-export const usePosition = () => {
+export function usePosition(): PositionContextData {
   const ctx = useContext(PositionContext)
+  if (!ctx) {
+    throw new Error('usePosition must be used inside a <PositionProvider>')
+  }
   return ctx
 }

@@ -22,6 +22,8 @@ export function PositionSync() {
       )
       const data = await response.json()
 
+      console.log({ geohash, latitude, longitude, data })
+
       const feature = data.features?.[0]
       if (!feature) return
       const { granular, place, place_name } = geographicInformation(

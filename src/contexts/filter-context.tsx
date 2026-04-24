@@ -5,205 +5,109 @@ import {
   useContext,
   useReducer
 } from 'react'
-import { TGeographicFeatureWithCoordinates } from '../types'
 
-enum Actions {
-  'categories',
-  'price',
-  'sort',
-  'delivery',
-  'position',
-  'temp_position',
-  'changed_position'
-}
-type TActions = {
-  type: keyof typeof Actions
-  payload?: any
-}
-type TFilter = {
+export type SortOption = 'rating' | 'delivery_time'
+export type DeliveryMode = 'delivery' | 'pickup'
+
+export type State = {
   categories: string[]
-  price: number[] | undefined
-  sort: string
-  delivery: string
-  currentPosition: TGeographicFeatureWithCoordinates | undefined
-  temporaryPosition: TGeographicFeatureWithCoordinates | undefined
+  priceRange: number[] | undefined
+  sort: SortOption | null
+  deliveryMode: DeliveryMode
 }
-function reducer(state: TFilter, action: TActions) {
-  switch (action.type) {
-    case 'categories': {
-      const has = state.categories.find(t => t === action.payload.categories)
-      if (has) {
-        const newArray = state.categories.filter(
-          t => t !== action.payload.categories
-        )
-        return {
-          ...state,
-          categories: newArray
-        }
-      } else {
-        return {
-          ...state,
-          categories: [...state.categories, action.payload.categories]
-        }
-      }
-    }
-    case 'price': {
-      return {
-        ...state,
-        price: action.payload.price
-      }
-    }
-    case 'sort': {
-      return {
-        ...state,
-        sort: action.payload.sort
-      }
-    }
-    case 'delivery': {
-      if (action.payload.delivery === 'pickup') {
-        return {
-          ...state,
-          delivery: action.payload.delivery,
-          price: undefined
-        }
-      } else {
-        return {
-          ...state,
-          delivery: action.payload.delivery
-        }
-      }
-    }
-    case 'position': {
-      return {
-        ...state,
-        currentPosition: action.payload.position
-      }
-    }
-    case 'temp_position': {
-      return {
-        ...state,
-        temporaryPosition: action.payload.position
-      }
-    }
-    case 'changed_position': {
-      return {
-        ...state,
-        currentPosition: state.temporaryPosition,
-        temporaryPosition: undefined
-      }
-    }
-    default:
-      throw Error('Ação desconhecida: ' + action.type)
-  }
-}
-const initialState: TFilter = {
+
+type Action =
+  | { type: 'toggleCategory'; payload: { category: string } }
+  | { type: 'setPriceRange'; payload: { priceRange: number[] | undefined } }
+  | { type: 'setSort'; payload: { sort: SortOption | null } }
+  | { type: 'setDeliveryMode'; payload: { deliveryMode: DeliveryMode } }
+  | { type: 'clearFilters' }
+
+const initialState: State = {
   categories: [],
-  price: undefined,
-  sort: '',
-  delivery: 'delivery',
-  currentPosition: undefined,
-  temporaryPosition: undefined
+  priceRange: undefined,
+  sort: null,
+  deliveryMode: 'delivery'
+}
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'toggleCategory': {
+      const { category } = action.payload
+      const isActive = state.categories.includes(category)
+      const categories = isActive
+        ? state.categories.filter(c => c !== category)
+        : [...state.categories, category]
+      return { ...state, categories }
+    }
+    case 'setPriceRange': {
+      const { priceRange } = action.payload
+      return { ...state, priceRange }
+    }
+    case 'setSort': {
+      const { sort } = action.payload
+      return { ...state, sort }
+    }
+    case 'setDeliveryMode': {
+      const { deliveryMode } = action.payload
+      const priceRange =
+        deliveryMode === 'pickup' ? undefined : state.priceRange
+      return { ...state, deliveryMode, priceRange }
+    }
+    case 'clearFilters': {
+      return initialState
+    }
+    default: {
+      const _exhaustive: never = action
+      throw new Error(`Unknown action: ${(_exhaustive as Action).type}`)
+    }
+  }
 }
 
 type FilterContextData = {
-  handleTag: (tag: string) => void
-  handlePrice: (price: number[] | undefined) => void
-  handleSort: (sort: string) => void
-  handleDelivery(delivery: string): void
-  handleAddPosition: (
-    position: TGeographicFeatureWithCoordinates | undefined
-  ) => void
-  handleChangePosition: () => void
-  handleTempPosition: (
-    position: TGeographicFeatureWithCoordinates | undefined
-  ) => void
-  isCheckedTag: (tag: string) => boolean
-  state: TFilter
+  state: State
+  toggleCategory: (category: string) => void
+  setPriceRange: (priceRange: number[] | undefined) => void
+  setSort: (sort: SortOption | null) => void
+  setDeliveryMode: (deliveryMode: DeliveryMode) => void
+  clearFilters: () => void
+  isCategoryActive: (category: string) => boolean
 }
-export const FilterContext = createContext({} as FilterContextData)
+const FilterContext = createContext<FilterContextData | null>(null)
 
-type FilterProviderProps = {
-  children: ReactNode
-}
+type FilterProviderProps = { children: ReactNode }
 export function FilterProvider({ children }: FilterProviderProps) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  const handleTag = useCallback((categories: string) => {
-    dispatch({
-      type: 'categories',
-      payload: {
-        categories
-      }
-    })
+  const toggleCategory = useCallback((category: string) => {
+    dispatch({ type: 'toggleCategory', payload: { category } })
   }, [])
-  const handlePrice = useCallback((price: number[] | undefined) => {
-    dispatch({
-      type: 'price',
-      payload: {
-        price
-      }
-    })
+  const setPriceRange = useCallback((priceRange: number[] | undefined) => {
+    dispatch({ type: 'setPriceRange', payload: { priceRange } })
   }, [])
-  const handleSort = useCallback((sort: string) => {
-    dispatch({
-      type: 'sort',
-      payload: {
-        sort
-      }
-    })
+  const setSort = useCallback((sort: SortOption | null) => {
+    dispatch({ type: 'setSort', payload: { sort } })
   }, [])
-  const handleDelivery = useCallback((delivery: string) => {
-    dispatch({
-      type: 'delivery',
-      payload: {
-        delivery
-      }
-    })
+  const setDeliveryMode = useCallback((deliveryMode: DeliveryMode) => {
+    dispatch({ type: 'setDeliveryMode', payload: { deliveryMode } })
   }, [])
-  const handleAddPosition = useCallback(
-    (position: TGeographicFeatureWithCoordinates | undefined) => {
-      dispatch({
-        type: 'position',
-        payload: {
-          position
-        }
-      })
-    },
-    []
+  const clearFilters = useCallback(() => {
+    dispatch({ type: 'clearFilters' })
+  }, [])
+  const isCategoryActive = useCallback(
+    (category: string) => state.categories.includes(category),
+    [state.categories]
   )
-  const handleChangePosition = useCallback(() => {
-    dispatch({
-      type: 'changed_position'
-    })
-  }, [])
-  const handleTempPosition = useCallback(
-    (position: TGeographicFeatureWithCoordinates | undefined) => {
-      dispatch({
-        type: 'temp_position',
-        payload: {
-          position
-        }
-      })
-    },
-    []
-  )
-  function isCheckedTag(tag: string): boolean {
-    const founded = state.categories.find(t => t === tag)
-    return !founded
-  }
 
   return (
     <FilterContext.Provider
       value={{
-        handleTag,
-        handlePrice,
-        handleSort,
-        handleDelivery,
-        handleAddPosition,
-        handleChangePosition,
-        handleTempPosition,
-        isCheckedTag,
-        state
+        state,
+        toggleCategory,
+        setPriceRange,
+        setSort,
+        setDeliveryMode,
+        clearFilters,
+        isCategoryActive
       }}
     >
       {children}
@@ -211,7 +115,10 @@ export function FilterProvider({ children }: FilterProviderProps) {
   )
 }
 
-export function useFilter() {
+export function useFilter(): FilterContextData {
   const ctx = useContext(FilterContext)
+  if (!ctx) {
+    throw new Error('useFilter must be used inside a <FilterProvider>')
+  }
   return ctx
 }
