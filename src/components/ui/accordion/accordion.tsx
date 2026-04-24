@@ -12,6 +12,7 @@ import {
   useId
 } from 'react'
 import { PresenceProvider, usePresence } from '@/src/hooks/use-presence-context'
+import { anatomyPart as parts } from '@/src/theme/recipes/accordion'
 import { mergeRefs } from '@/src/utils/merge-refs'
 import { cx } from '@/styled-system/css'
 import { accordion as accordionRecipe } from '@/styled-system/recipes/accordion'
@@ -116,7 +117,7 @@ export const ItemTrigger = forwardRef<HTMLButtonElement, ItemTriggerProps>(
 ItemTrigger.displayName = 'Accordion.ItemTrigger'
 
 type ContentProps = ComponentPropsWithoutRef<'div'>
-export const Content = forwardRef<HTMLDivElement, ContentProps>(
+export const ItemContent = forwardRef<HTMLDivElement, ContentProps>(
   ({ children, ...props }, forwardedRef) => {
     const { getItemContentProps } = useAccordionContext()
     const { getContentProps } = useContext(CollapsiblePropsContext)
@@ -137,7 +138,16 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
     )
   }
 )
-Content.displayName = 'Accordion.Content'
+ItemContent.displayName = 'Accordion.ItemContent'
+
+type ItemContentInnerProps = ComponentPropsWithoutRef<'div'>
+export const ItemContentInner = forwardRef<
+  HTMLDivElement,
+  ItemContentInnerProps
+>((props, forwardedRef) => {
+  return <div {...props} {...parts.itemContentInner.attrs} ref={forwardedRef} />
+})
+ItemContentInner.displayName = 'Accordion.ItemContentInner'
 
 type ItemIndicatorProps = ComponentPropsWithoutRef<'div'>
 export const ItemIndicator = forwardRef<HTMLDivElement, ItemIndicatorProps>(
