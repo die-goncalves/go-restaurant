@@ -59,7 +59,8 @@ export default defineConfig({
         checkbox: slotRecipes.checkboxSlotRecipe,
         dialog: slotRecipes.dialogSlotRecipe,
         drawer: slotRecipes.drawerSlotRecipe,
-        scrollArea: slotRecipes.scrollAreaSlotRecipe
+        scrollArea: slotRecipes.scrollAreaSlotRecipe,
+        select: slotRecipes.selectSlotRecipe
       },
       tokens: {
         colors: tokens.colors,

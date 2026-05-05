@@ -31,6 +31,7 @@
     "@zag-js/rating-group": "^1.40.0",
     "@zag-js/react": "^1.40.0",
     "@zag-js/scroll-area": "^1.40.0",
+    "@zag-js/select": "^1.40.0",
     "@zag-js/slider": "^1.40.0",
     "@zag-js/toggle-group": "^1.40.0",
     "lodash.debounce": "^4.0.8",
