@@ -3,6 +3,7 @@ import { buttonRecipe } from './button'
 import { chipRecipe } from './chip'
 import { linkRecipe } from './link'
 import { radioGroupRecipe } from './radio-group'
+import { ratingGroupRecipe } from './rating-group'
 import { sliderRecipe } from './slider'
 import { textInputRecipe } from './text-input'
 
@@ -12,6 +13,7 @@ const recipes = {
   chipRecipe,
   linkRecipe,
   radioGroupRecipe,
+  ratingGroupRecipe,
   sliderRecipe,
   textInputRecipe
 }

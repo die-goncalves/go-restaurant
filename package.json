@@ -28,6 +28,7 @@
     "@zag-js/dialog": "^1.40.0",
     "@zag-js/presence": "^1.40.0",
     "@zag-js/radio-group": "^1.40.0",
+    "@zag-js/rating-group": "^1.40.0",
     "@zag-js/react": "^1.40.0",
     "@zag-js/scroll-area": "^1.40.0",
     "@zag-js/slider": "^1.40.0",

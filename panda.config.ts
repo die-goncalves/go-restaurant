@@ -46,6 +46,7 @@ export default defineConfig({
         chip: recipes.chipRecipe,
         link: recipes.linkRecipe,
         radioGroup: recipes.radioGroupRecipe,
+        ratingGroup: recipes.ratingGroupRecipe,
         slider: recipes.sliderRecipe,
         textInput: recipes.textInputRecipe
       },
