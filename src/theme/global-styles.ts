@@ -17,5 +17,11 @@ export const globalCss = defineGlobalStyles({
     textRendering: 'optimizeLegibility'
   },
   'h1, h2, h3, h4, h5, h6': { fontFamily: 'serif' },
-  'code, samp, kbd, var, pre': { fontFamily: 'mono' }
+  'code, samp, kbd, var, pre': { fontFamily: 'mono' },
+
+  '@media (prefers-reduced-motion: reduce)': {
+    html: {
+      scrollBehavior: 'auto !important'
+    }
+  }
 })
