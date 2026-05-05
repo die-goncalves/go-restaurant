@@ -156,5 +156,63 @@ export const animationStyles = defineAnimationStyles({
       animationTimingFunction:
         'token(easings.expressive-fast-spatial), token(easings.expressive-fast-effects)'
     }
+  },
+  'floating-slide-fade-in': {
+    value: {
+      transformOrigin: 'var(--transform-origin)',
+      '&[data-placement^=top]': {
+        animationName: 'slide-from-bottom, fade-in',
+        animationDuration: '500ms, 200ms',
+        animationTimingFunction:
+          'token(easings.expressive-default-spatial), token(easings.expressive-default-effects)'
+      },
+      '&[data-placement^=bottom]': {
+        animationName: 'slide-from-top, fade-in',
+        animationDuration: '500ms, 200ms',
+        animationTimingFunction:
+          'token(easings.expressive-default-spatial), token(easings.expressive-default-effects)'
+      },
+      '&[data-placement^=left]': {
+        animationName: 'slide-from-right, fade-in',
+        animationDuration: '500ms, 200ms',
+        animationTimingFunction:
+          'token(easings.expressive-default-spatial), token(easings.expressive-default-effects)'
+      },
+      '&[data-placement^=right]': {
+        animationName: 'slide-from-left, fade-in',
+        animationDuration: '500ms, 200ms',
+        animationTimingFunction:
+          'token(easings.expressive-default-spatial), token(easings.expressive-default-effects)'
+      }
+    }
+  },
+  'floating-slide-fade-out': {
+    value: {
+      transformOrigin: 'var(--transform-origin)',
+      '&[data-placement^=top]': {
+        animationName: 'slide-to-bottom, fade-out',
+        animationDuration: '350ms, 150ms',
+        animationTimingFunction:
+          'token(easings.expressive-fast-spatial), token(easings.expressive-fast-effects)'
+      },
+      '&[data-placement^=bottom]': {
+        animationName: 'slide-to-top, fade-out',
+        animationDuration: '350ms, 150ms',
+        animationTimingFunction:
+          'token(easings.expressive-fast-spatial), token(easings.expressive-fast-effects)'
+      },
+      '&[data-placement^=left]': {
+        animationName: 'slide-to-right, fade-out',
+        animationDuration: '350ms, 150ms',
+        animationTimingFunction:
+          'token(easings.expressive-fast-spatial), token(easings.expressive-fast-effects)'
+      },
+      '&[data-placement^=right]': {
+        animationName: 'slide-to-left, fade-out',
+        animationDuration: '350ms, 150ms',
+        animationTimingFunction:
+          'token(easings.expressive-fast-spatial), token(easings.expressive-fast-effects)'
+      }
+    }
   }
 })
