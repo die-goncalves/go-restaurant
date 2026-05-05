@@ -6,6 +6,7 @@ import { radioGroupRecipe } from './radio-group'
 import { ratingGroupRecipe } from './rating-group'
 import { sliderRecipe } from './slider'
 import { textInputRecipe } from './text-input'
+import { toggleGroupRecipe } from './toggle-group'
 
 const recipes = {
   accordionRecipe,
@@ -15,6 +16,7 @@ const recipes = {
   radioGroupRecipe,
   ratingGroupRecipe,
   sliderRecipe,
-  textInputRecipe
+  textInputRecipe,
+  toggleGroupRecipe
 }
 export default recipes

@@ -32,6 +32,7 @@
     "@zag-js/react": "^1.40.0",
     "@zag-js/scroll-area": "^1.40.0",
     "@zag-js/slider": "^1.40.0",
+    "@zag-js/toggle-group": "^1.40.0",
     "lodash.debounce": "^4.0.8",
     "mapbox-gl": "^3.21.0",
     "micro": "^10.0.1",

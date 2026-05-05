@@ -48,7 +48,8 @@ export default defineConfig({
         radioGroup: recipes.radioGroupRecipe,
         ratingGroup: recipes.ratingGroupRecipe,
         slider: recipes.sliderRecipe,
-        textInput: recipes.textInputRecipe
+        textInput: recipes.textInputRecipe,
+        toggleGroup: recipes.toggleGroupRecipe
       },
       semanticTokens: {
         colors: semanticTokens.colors
