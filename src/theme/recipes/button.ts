@@ -9,7 +9,7 @@ export const buttonRecipe = defineRecipe({
     userSelect: 'none',
     cursor: 'pointer',
     display: 'inline-flex',
-    width: 'fit',
+    width: 'fit-content',
     alignItems: 'center',
     justifyContent: 'center',
     whiteSpace: 'nowrap',
@@ -93,16 +93,8 @@ export const buttonRecipe = defineRecipe({
           }
         },
         _notDisabled: {
-          _hover: {
-            _after: {
-              background: 'white/8'
-            }
-          },
-          _focusVisible: {
-            _after: {
-              background: 'white/10'
-            }
-          }
+          _hover: { _after: { background: 'primary.on/8' } },
+          _focusVisible: { _after: { background: 'primary.on/10' } }
         }
       },
       ghost: {
