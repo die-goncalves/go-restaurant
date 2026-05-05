@@ -1,36 +1,25 @@
 'use client'
 
-import { createContext, useContext, useMemo } from 'react'
+import { createContext, useContext } from 'react'
 import {
   ScrollAreaRecipe,
-  ScrollAreaVariantProps,
-  scrollArea
+  ScrollAreaSlot
 } from '@/styled-system/recipes/scroll-area'
-
-export type ScrollAreaVariant = ScrollAreaVariantProps
+import { Pretty } from '@/styled-system/types'
 
 type ScrollAreaStyleContextProps = ReturnType<ScrollAreaRecipe>
 export const ScrollAreaStyleContext =
   createContext<ScrollAreaStyleContextProps | null>(null)
 
-type ScrollAreaStyleProviderProps = ScrollAreaVariant & {
+type ScrollAreaStyleProviderProps = Pretty<Record<ScrollAreaSlot, string>> & {
   children: React.ReactNode
 }
 export function ScrollAreaStyleProvider({
   children,
   ...scrollAreaStyleProps
 }: ScrollAreaStyleProviderProps) {
-  const style = useMemo(
-    () =>
-      scrollArea({
-        variant: scrollAreaStyleProps.variant,
-        size: scrollAreaStyleProps.size
-      }),
-    [scrollAreaStyleProps.variant, scrollAreaStyleProps.size]
-  )
-
   return (
-    <ScrollAreaStyleContext.Provider value={style}>
+    <ScrollAreaStyleContext.Provider value={scrollAreaStyleProps}>
       {children}
     </ScrollAreaStyleContext.Provider>
   )

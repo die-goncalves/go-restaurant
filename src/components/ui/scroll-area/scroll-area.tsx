@@ -1,10 +1,18 @@
 'use client'
 
-import { mergeProps, normalizeProps, useMachine } from '@zag-js/react'
+import {
+  mergeProps,
+  normalizeProps,
+  PropTypes,
+  useMachine
+} from '@zag-js/react'
 import * as scrollArea from '@zag-js/scroll-area'
 import { ComponentPropsWithoutRef, forwardRef, useId } from 'react'
 import { cx } from '@/styled-system/css'
-import { ScrollAreaVariantProps } from '@/styled-system/recipes/scroll-area'
+import {
+  ScrollAreaVariantProps,
+  scrollArea as scrollAreaRecipe
+} from '@/styled-system/recipes/scroll-area'
 import {
   ScrollAreaProvider,
   useScrollAreaContext
@@ -14,51 +22,63 @@ import {
   useScrollAreaStyleContext
 } from './use-scroll-area-style-context'
 
-type RootInnerProps = ComponentPropsWithoutRef<'div'>
-const RootInner = forwardRef<HTMLDivElement, RootInnerProps>(
-  ({ children, ...props }, forwardedRef) => {
-    const { getRootProps } = useScrollAreaContext()
-    const style = useScrollAreaStyleContext()
-    const { className, ...mergedProps } = mergeProps(getRootProps(), props)
-    const mergedClassName = cx(style?.root, className)
-
-    return (
-      <div {...mergedProps} className={mergedClassName} ref={forwardedRef}>
-        {children}
-      </div>
-    )
-  }
-)
-RootInner.displayName = 'ScrollArea.RootInner'
-
 type RootProps = ComponentPropsWithoutRef<'div'> &
   Partial<scrollArea.Props> &
   ScrollAreaVariantProps
 export const Root = forwardRef<HTMLDivElement, RootProps>(
-  ({ id, ids, dir, getRootNode, size, variant, ...props }, forwardRef) => {
-    const clientId = useId()
-    const rootId = id ?? clientId
+  ({ size, variant, ...props }, forwardedRef) => {
+    const [scrollAreaProps, localProps] = scrollArea.splitProps(props)
 
     const machineProps = {
-      id: rootId,
-      ids,
-      dir,
-      getRootNode
+      id: useId(),
+      ...scrollAreaProps
     } as scrollArea.Props
 
     const service = useMachine(scrollArea.machine, machineProps)
     const api = scrollArea.connect(service, normalizeProps)
 
+    const style = scrollAreaRecipe({ size, variant })
+    const { className, ...mergedProps } = mergeProps(
+      api.getRootProps(),
+      localProps
+    )
+    const mergedClassName = cx(style.root, className)
+
     return (
       <ScrollAreaProvider {...api}>
-        <ScrollAreaStyleProvider size={size} variant={variant}>
-          <RootInner {...props} ref={forwardRef} />
+        <ScrollAreaStyleProvider {...style}>
+          <div
+            {...mergedProps}
+            className={mergedClassName}
+            ref={forwardedRef}
+          />
         </ScrollAreaStyleProvider>
       </ScrollAreaProvider>
     )
   }
 )
 Root.displayName = 'ScrollArea.Root'
+
+type RootProviderProps = ComponentPropsWithoutRef<'div'> &
+  ScrollAreaVariantProps & {
+    api: scrollArea.Api<PropTypes>
+  }
+export const RootProvider = forwardRef<HTMLDivElement, RootProviderProps>(
+  ({ size, variant, api, ...props }, forwardRef) => {
+    const style = scrollAreaRecipe({ size, variant })
+    const { className, ...mergedProps } = mergeProps(api.getRootProps(), props)
+    const mergedClassName = cx(style.root, className)
+
+    return (
+      <ScrollAreaProvider {...api}>
+        <ScrollAreaStyleProvider {...style}>
+          <div {...mergedProps} className={mergedClassName} ref={forwardRef} />
+        </ScrollAreaStyleProvider>
+      </ScrollAreaProvider>
+    )
+  }
+)
+RootProvider.displayName = 'ScrollArea.RootProvider'
 
 type ViewportProps = ComponentPropsWithoutRef<'div'>
 export const Viewport = forwardRef<HTMLDivElement, ViewportProps>(
