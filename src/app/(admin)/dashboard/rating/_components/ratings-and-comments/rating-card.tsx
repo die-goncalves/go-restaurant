@@ -251,6 +251,7 @@ export function RatingCard({
             className={css({
               display: 'flex',
               alignItems: 'center',
+              width: '100%',
               gap: '3',
               marginBlockEnd: '3',
               paddingBlockEnd: '3',
@@ -303,6 +304,7 @@ export function RatingCard({
             className={css({
               display: 'flex',
               alignItems: 'center',
+              width: '100%',
               gap: '3',
               marginBlockEnd: product.product_ratings[0]?.comment
                 ? '3'

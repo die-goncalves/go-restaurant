@@ -536,7 +536,9 @@ export function RatingsAndComments({ products, profileId }: RatingClientProps) {
                     ? 'calc(calc(40px * 5) + calc(4px * 4))'
                     : pages.length === 2
                       ? 'calc(calc(40px * 6) + calc(4px * 5))'
-                      : 'calc(calc(40px * 7) + calc(4px * 6))'
+                      : pages.length === 3
+                        ? 'calc(calc(40px * 7) + calc(4px * 6))'
+                        : 'calc(calc(40px * 4) + calc(4px * 3))'
               }}
               className={css({
                 display: 'flex',
