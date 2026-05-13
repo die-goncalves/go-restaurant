@@ -3,7 +3,7 @@
  * Source: https://www.chakra-ui.com/docs/theming/colors#semantic-tokens
  * Builder: https://material-foundation.github.io/material-theme-builder/
  * Base colors: #ffe9d6 \ #1d1024
- * Star base colors: #FE0000 \ #007F00 \ #FEA400
+ * Status colors: #FF0000 \ #00FF00 \ #FFFF00 \ #0000FF
  */
 
 import { defineSemanticTokens } from '@pandacss/dev'
@@ -65,11 +65,35 @@ export const colors = defineSemanticTokens.colors({
     }
   },
   error: {
-    DEFAULT: { value: 'oklch(0.506 0.1927 27.7)' },
+    DEFAULT: { value: 'oklch(0.4945 0.0954 30.3)' },
     on: { value: 'oklch(1 0 0)' },
     container: {
-      DEFAULT: { value: 'oklch(0.9183 0.041771 25.2259)' },
-      on: { value: 'oklch(0.4171 0.170153 27.3788)' }
+      DEFAULT: { value: 'oklch(0.9177 0.0422 28.78)' },
+      on: { value: 'oklch(0.4075 0.0913 30.69)' }
+    }
+  },
+  info: {
+    DEFAULT: { value: 'oklch(0.4865 0.091 279.38)' },
+    on: { value: '#ffffff' },
+    container: {
+      DEFAULT: { value: 'oklch(0.9163 0.042 285.54)' },
+      on: { value: 'oklch(0.4028 0.09 278.34)' }
+    }
+  },
+  warning: {
+    DEFAULT: { value: 'oklch(0.4781 0.0923 109.44)' },
+    on: { value: 'oklch(1 0 0)' },
+    container: {
+      DEFAULT: { value: 'oklch(0.9094 0.11 107.84)' },
+      on: { value: 'oklch(0.3924 0.0855 109.77)' }
+    }
+  },
+  success: {
+    DEFAULT: { value: 'oklch(0.4743 0.0891 139.54)' },
+    on: { value: 'oklch(1 0 0)' },
+    container: {
+      DEFAULT: { value: 'oklch(0.9035 0.097 137.86)' },
+      on: { value: 'oklch(0.3893 0.0884 140.39)' }
     }
   },
   shadow: { DEFAULT: { value: 'oklch(0 0 0)' } },
@@ -77,7 +101,7 @@ export const colors = defineSemanticTokens.colors({
   star: {
     terrible: { value: 'oklch(0.4075 0.0913 30.69)' },
     bad: { value: 'oklch(0.4945 0.0954 30.3)' },
-    ok: { value: 'oklch(0.4881 0.0975 70.98)' },
+    ok: { value: 'oklch(0.4781 0.0923 109.44)' },
     good: { value: 'oklch(0.4743 0.0891 139.54)' },
     excellent: { value: 'oklch(0.3893 0.0884 140.39)' }
   }
