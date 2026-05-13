@@ -49,6 +49,7 @@ export default defineConfig({
         ratingGroup: recipes.ratingGroupRecipe,
         slider: recipes.sliderRecipe,
         textInput: recipes.textInputRecipe,
+        toast: recipes.toastRecipe,
         toggleGroup: recipes.toggleGroupRecipe
       },
       semanticTokens: {
