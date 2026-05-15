@@ -24,6 +24,7 @@
     "@tanstack/react-query-devtools": "^5.91.3",
     "@tanstack/react-table": "^8.21.3",
     "@zag-js/accordion": "^1.40.0",
+    "@zag-js/async-list": "^1.40.0",
     "@zag-js/checkbox": "^1.40.0",
     "@zag-js/collapsible": "^1.40.0",
     "@zag-js/combobox": "^1.40.0",
