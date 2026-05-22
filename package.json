@@ -29,6 +29,7 @@
     "@zag-js/collapsible": "^1.40.0",
     "@zag-js/combobox": "^1.40.0",
     "@zag-js/dialog": "^1.40.0",
+    "@zag-js/marquee": "^1.40.0",
     "@zag-js/presence": "^1.40.0",
     "@zag-js/radio-group": "^1.40.0",
     "@zag-js/rating-group": "^1.40.0",

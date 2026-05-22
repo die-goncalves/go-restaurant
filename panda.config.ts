@@ -45,6 +45,7 @@ export default defineConfig({
         button: recipes.buttonRecipe,
         chip: recipes.chipRecipe,
         link: recipes.linkRecipe,
+        marquee: recipes.marqueeRecipe,
         radioGroup: recipes.radioGroupRecipe,
         ratingGroup: recipes.ratingGroupRecipe,
         slider: recipes.sliderRecipe,

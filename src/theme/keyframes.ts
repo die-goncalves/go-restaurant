@@ -66,24 +66,8 @@ export const keyframes = {
   'slide-to-right': { '0%': { translate: '0' }, to: { translate: '0.5rem 0' } },
   'scale-in': { from: { scale: '0.95' }, to: { scale: '1' } },
   'scale-out': { from: { scale: '1' }, to: { scale: '0.95' } },
-  heartbeat: {
-    '0%': {
-      animationTimingFunction: 'ease-out',
-      transform: 'scale(1)',
-      transformOrigin: 'center center'
-    },
-    '10%': {
-      animationTimingFunction: 'ease-in',
-      transform: 'scale(1.09)'
-    },
-    '17%': {
-      animationTimingFunction: 'ease-out',
-      transform: 'scale(1.02)'
-    },
-    '33%': {
-      animationTimingFunction: 'ease-in',
-      transform: 'scale(1.13)'
-    },
-    '45%': { animationTimingFunction: 'ease-out', transform: 'scale(1)' }
+  marqueeX: {
+    '0%': { transform: 'translateX(0%)' },
+    '100%': { transform: 'translateX(var(--marquee-translate))' }
   }
 }
