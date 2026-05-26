@@ -5,7 +5,9 @@ import { mergeProps, normalizeProps, useMachine } from '@zag-js/react'
 import {
   ComponentPropsWithoutRef,
   forwardRef,
+  startTransition,
   useCallback,
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -113,17 +115,19 @@ Viewport.displayName = 'Marquee.Viewport'
 type ContentProps = ComponentPropsWithoutRef<'div'>
 export const Content = forwardRef<HTMLDivElement, ContentProps>(
   ({ children, ...props }, forwardedRef) => {
+    const [mounted, setMounted] = useState(false)
     const { getContentProps, contentCount } = useMarqueeContext()
 
-    const [initialCount] = useState(() => contentCount)
-    const ready = contentCount !== initialCount
+    useEffect(() => {
+      startTransition(() => setMounted(true))
+    }, [])
 
     const middleIndex = Math.floor(contentCount / 2)
 
     const cloneElements = useMemo(() => {
-      if (!ready) return []
+      if (!mounted) return []
 
-      return Array.from({ length: contentCount }).map((_, index) => {
+      return Array.from({ length: contentCount }, (_, index) => {
         const cloneIndex = index + 1
 
         const { className, ...mergedProps } = mergeProps(
@@ -143,7 +147,7 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
           </div>
         )
       })
-    }, [contentCount, children, getContentProps, props, ready])
+    }, [mounted, contentCount, getContentProps, props, children])
 
     const original = useMemo(() => {
       const { className, ...mergedProps } = mergeProps(
@@ -155,12 +159,12 @@ export const Content = forwardRef<HTMLDivElement, ContentProps>(
           {...mergedProps}
           className={className}
           ref={forwardedRef}
-          data-ready={ready ? '' : undefined}
+          data-ready={mounted ? '' : undefined}
         >
           {children}
         </div>
       )
-    }, [children, forwardedRef, getContentProps, props, ready])
+    }, [children, forwardedRef, getContentProps, props, mounted])
 
     return (
       <>
