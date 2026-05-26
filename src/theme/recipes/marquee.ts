@@ -11,9 +11,8 @@ export const marqueeRecipe = defineRecipe({
     root: {
       position: 'relative',
       width: '100%',
-      maxWidth: 'breakpoint-large',
       '--marquee-edge-color': 'var(--colors-surface)',
-      '--marquee-edge-size': '20%',
+      '--marquee-edge-size': { base: '10%', medium: '20%' },
       '&[data-paused]': {
         animationPlayState: 'paused !important',
         '& *': {
@@ -59,25 +58,17 @@ export const marqueeRecipe = defineRecipe({
         insetY: '0',
         insetInlineStart: '0',
         background:
-          'linear-gradient(to right, var(--marquee-edge-color), transparent)',
-        _rtl: {
-          background:
-            'linear-gradient(to left, var(--marquee-edge-color), transparent)'
-        }
+          'linear-gradient(to right, var(--marquee-edge-color), transparent)'
       },
       "&[data-side='end']": {
         width: 'var(--marquee-edge-size)',
         insetY: '0',
         insetInlineEnd: '0',
         background:
-          'linear-gradient(to left, var(--marquee-edge-color), transparent)',
-        _rtl: {
-          background:
-            'linear-gradient(to right, var(--marquee-edge-color), transparent)'
-        }
+          'linear-gradient(to left, var(--marquee-edge-color), transparent)'
       }
     },
-    item: {}
+    item: { marginBlock: 'calc(var(--marquee-spacing) / 2)' }
   }),
   jsx: [/\bMarquee\.\w+\b/]
 })
