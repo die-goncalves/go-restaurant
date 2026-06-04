@@ -6,6 +6,10 @@ import {
   useReducer
 } from 'react'
 import { logger } from '@/src/lib/logger'
+import {
+  GeocodingFeature,
+  GeocodingFeatureContext
+} from '@mapbox/search-js-core'
 
 const log = logger.child({
   module: 'client',
@@ -13,14 +17,10 @@ const log = logger.child({
 })
 
 export type Position = {
-  coordinates: {
-    latitude: number
-    longitude: number
-  }
+  coordinates: GeocodingFeature['properties']['coordinates']
+  fullAddress: GeocodingFeature['properties']['full_address']
   geohash: string
-  place_name: string | undefined
-  granular: { id: string; text: string } | undefined
-  place: string | undefined
+  place: GeocodingFeatureContext['place']['name']
 }
 
 export type State = {

@@ -66,6 +66,10 @@ export const keyframes = {
   'slide-to-right': { '0%': { translate: '0' }, to: { translate: '0.5rem 0' } },
   'scale-in': { from: { scale: '0.95' }, to: { scale: '1' } },
   'scale-out': { from: { scale: '1' }, to: { scale: '0.95' } },
+  shimmer: {
+    '0%': { backgroundPosition: '100% 100%' },
+    '100%': { backgroundPosition: '0 0' }
+  },
   marqueeX: {
     '0%': { transform: 'translateX(0%)' },
     '100%': { transform: 'translateX(var(--marquee-translate))' }

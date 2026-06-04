@@ -7,9 +7,7 @@ import { figtree, gambarino } from './fonts'
 export const metadata: Metadata = {
   title: 'GoRestaurant',
   description: 'App',
-  icons: {
-    icon: '/favicon-32x32.png'
-  }
+  icons: { icon: '/favicon-32x32.png' }
 }
 
 export const viewport: Viewport = {
@@ -24,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="eng"
+      lang="pt-BR"
       data-color-mode={'light'}
       className={`${gambarino.variable} ${figtree.variable}`}
     >

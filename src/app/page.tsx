@@ -1,167 +1,405 @@
-'use client'
-
-import Head from 'next/head'
-import NextImage from 'next/image'
-import { shimmerBase64 } from '../utils/blurDataURL'
-import { Account } from '../components/account'
-import { SignedUser } from '../components/signed-user'
-import { DrawerMap } from '../components/drawer-map'
-import { Typewriter } from '../components/typewriter'
-import { Searchbox } from '../components/search-box'
-import { Skeleton } from '../components/skeleton'
-import { useAuth } from '../contexts/auth-context'
-import { Partners } from '../components/partner'
-import { Footer } from '../components/footer'
-import { Help } from '../components/help'
-import { Presentation } from '../components/presentation'
-import { Logo } from '../components/logo'
+import { Metadata } from 'next'
 import { css } from '@/styled-system/css'
+import { Footer } from '../components/common/footer'
+import { HeaderAuth } from '../components/common/header-auth'
+import { Logo } from '../components/common/logo'
+import { DirectionsBikeIcon } from '../components/icons/directions-bike'
+import { HandshakeIcon } from '../components/icons/handshake'
+import { PartnerStores } from './_components/partner-stores'
+import { Button } from '../components/ui/button'
+import { AddressSelector } from './_components/address-selector'
+import { BackgroundAnimation } from './_components/background-animation'
+import { Help } from './_components/help'
+import { HowItWorks } from './_components/how-it-works'
+import { Searchbox } from './_components/searchbox'
+import { CustomerTestimonial } from './_components/testimonial/customer-testimonial'
+import { OwnerTestimonial } from './_components/testimonial/owner-testimonial'
+import { Welcome } from './_components/welcome'
 
-export default function Home() {
-  const { isLoading, session } = useAuth()
+export const metadata: Metadata = {
+  title: 'Página inicial | GoRestaurant'
+}
 
+export default async function Home() {
   return (
     <div
       className={css({
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        bg: 'light.gray.100',
-        mx: 'auto',
-        maxW: '1920px',
-        pb: '8'
+        maxWidth: 'breakpoint-xlarge',
+        marginInline: 'auto',
+        minHeight: '100vh',
+        background: 'surface'
       })}
     >
-      <Head>
-        <title>Página inicial | GoRestaurant</title>
-      </Head>
+      <header
+        className={css({
+          display: 'flex',
+          width: '100%',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingBlock: '4',
+          paddingInline: { base: '4', medium: '6', expanded: '8' }
+        })}
+      >
+        <Logo withText />
 
-      <Presentation />
+        <div
+          suppressHydrationWarning
+          className={css({ display: 'flex', gap: '4' })}
+        >
+          <Welcome />
+
+          <HeaderAuth />
+        </div>
+      </header>
 
       <div
         className={css({
-          display: 'flex',
-          flexDirection: 'column',
-          h: 'screen',
-          '2xs': { h: '80vh' },
-          xs: { h: '60vh' },
-          sm: { h: 'screen' },
-          md: { h: '60vh' },
-          lg: { h: 'screen', flexDirection: 'row' }
+          position: 'relative',
+          width: '100%',
+          height: 'calc(100dvh - 72px)',
+          background: 'surface'
+        })}
+      >
+        <BackgroundAnimation />
+
+        <div
+          className={css({
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '4',
+            width: 'inherit',
+            height: 'inherit'
+          })}
+        >
+          <h1
+            className={css({
+              fontSize: { base: '5xl', medium: '7xl' },
+              maxWidth: 'breakpoint-medium',
+              textAlign: 'center',
+              textWrap: 'pretty',
+              fontWeight: 500,
+              lineHeight: 1.25
+            })}
+          >
+            Alimentamos o seu dia a dia.
+          </h1>
+
+          <p
+            className={css({
+              textAlign: 'center',
+              fontSize: 'lg',
+              color: 'surface.on.variant'
+            })}
+          >
+            Mais tempo para você. Simplifique a sua rotina.
+          </p>
+
+          <div
+            className={css({
+              position: 'relative',
+              display: 'flex',
+              width: '100%',
+              flexDirection: 'column',
+              gap: '2',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'primary.surface.on.variant'
+            })}
+          >
+            <AddressSelector />
+
+            <div className={css({ width: '52' })}>
+              <span
+                className={css({
+                  display: 'flex',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  textStyle: 'sm',
+                  color: 'surface.on.variant',
+                  _before: {
+                    content: '""',
+                    flex: 1,
+                    marginInlineEnd: '2',
+                    borderColor: 'surface.on.variant',
+                    borderWidth: '1px',
+                    borderStyle: 'solid'
+                  },
+                  _after: {
+                    content: '""',
+                    flex: 1,
+                    marginInlineStart: '2',
+                    borderColor: 'surface.on.variant',
+                    borderWidth: '1px',
+                    borderStyle: 'solid'
+                  }
+                })}
+              >
+                ou
+              </span>
+            </div>
+
+            <Searchbox />
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={css({
+          position: 'relative',
+          width: '100%',
+          paddingInline: { base: '4', medium: '6', expanded: '8' },
+          marginBlockEnd: { base: '4', medium: '6', expanded: '8' },
+          marginBlockStart: '20'
+        })}
+      >
+        <HowItWorks />
+      </div>
+
+      <div
+        className={css({
+          position: 'relative',
+          display: 'grid',
+          gridTemplateColumns: {
+            base: 'repeat(1, minmax(0, 1fr))',
+            expanded: 'repeat(2, minmax(0, 1fr))'
+          },
+          gridTemplateRows: {
+            base: 'repeat(2, minmax(0, 1fr))',
+            expanded: 'minmax(0, 1fr)'
+          },
+          height: { base: '200dvh', expanded: '100dvh' },
+          marginBlockStart: '20',
+          '& > div': {
+            _first: {
+              _after: {
+                clipPath: {
+                  base: 'polygon(0 100%,100% 0,100% 0)',
+                  expanded: 'polygon(0 0,0 100%,100% 100%)'
+                }
+              }
+            },
+            _last: {
+              _before: {
+                clipPath: {
+                  base: 'polygon(0 100%,100% 0,100% 0)',
+                  expanded: 'polygon(0 0,100% 0%,100% 100%)'
+                }
+              }
+            },
+            _before: {
+              content: '""',
+              height: '5',
+              width: '100%',
+              top: 0,
+              position: 'absolute',
+              background: 'primary',
+              clipPath: {
+                base: 'polygon(0 0,100% 0%,100% 100%)',
+                expanded: 'polygon(0 100%,100% 0,100% 0)'
+              }
+            },
+            _after: {
+              content: '""',
+              height: '5',
+              width: '100%',
+              bottom: 0,
+              position: 'absolute',
+              background: 'primary',
+              clipPath: {
+                base: 'polygon(0 0,0 100%,100% 100%)',
+                expanded: 'polygon(0 100%,100% 0,100% 0)'
+              }
+            }
+          }
         })}
       >
         <div
           className={css({
-            w: 'full',
-            lg: { w: '60%' }
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10',
+            textAlign: 'center',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 1)), url('https://images.pexels.com/photos/17364662/pexels-photo-17364662.jpeg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            color: 'surface.inverse.on'
           })}
         >
-          <header
-            className={css({
-              display: 'flex',
-              p: '4',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              bg: 'light.gray.100',
-              sm: { px: '6' },
-              lg: { px: '8' }
-            })}
-          >
-            <Logo named />
-
-            {isLoading ? (
-              <Skeleton className={css({ h: '10', w: '48' })} />
-            ) : session ? (
-              <SignedUser />
-            ) : (
-              <Account />
-            )}
-          </header>
-
+          <div className={css({ width: '14', height: '14' })}>
+            <DirectionsBikeIcon />
+          </div>
           <div
             className={css({
               display: 'flex',
               flexDirection: 'column',
-              px: '4',
-              mt: '4',
-              sm: { px: '6', mt: '6' },
-              lg: { px: '8', mt: '8' }
+              gap: '5',
+              alignItems: 'center',
+              justifyContent: 'center'
             })}
           >
-            <div
+            <h3
               className={css({
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '4',
-                alignItems: 'start'
+                textStyle: '3xl',
+                maxWidth: '64',
+                textWrap: 'pretty'
               })}
             >
-              <Typewriter />
-
-              <p
-                className={css({
-                  fontSize: '2xl',
-                  fontWeight: 'regular'
-                })}
-              >
-                Faça pedidos de suas comidas favoritas em restaurantes perto de
-                você
-              </p>
-            </div>
-
-            <div
-              className={css({
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'row',
-                mt: '8',
-                mb: '2',
-                gap: '1',
-                sm: { gap: '2' }
-              })}
-            >
-              <Searchbox />
-              <DrawerMap />
-            </div>
+              Faça entregas na sua região
+            </h3>
+            <p className={css({ maxWidth: '64', textWrap: 'pretty' })}>
+              Seja o dono do seu tempo e aumente seus ganhos entregando com a
+              gente.
+            </p>
+            <Button variant="solid">Torne-se um entregador</Button>
           </div>
         </div>
 
         <div
           className={css({
             position: 'relative',
-            w: 'full',
-            h: 'full',
-            opacity: '0.9',
-            lg: { w: '40%', h: 'screen' }
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10',
+            textAlign: 'center',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 1)), url('https://images.pexels.com/photos/6205775/pexels-photo-6205775.jpeg')`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            color: 'surface.inverse.on'
           })}
         >
+          <div className={css({ width: '14', height: '14' })}>
+            <HandshakeIcon />
+          </div>
           <div
             className={css({
-              position: 'absolute',
-              w: 'full',
-              h: '1/3',
-              bg: 'white/10',
-              zIndex: '1',
-              backgroundImage:
-                'linear-gradient(to bottom, token(colors.light.gray.100), transparent)',
-              lg: { display: 'none' }
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '5',
+              alignItems: 'center',
+              justifyContent: 'center'
             })}
-          />
-
-          <NextImage
-            className={css({ objectFit: 'cover' })}
-            src="https://images.unsplash.com/photo-1493770348161-369560ae357d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"
-            alt="Frutas"
-            fill
-            placeholder="blur"
-            blurDataURL={shimmerBase64}
-            sizes="(max-width: 768px) 100vw, (min-width: 769px) 80vw"
-          />
+          >
+            <h3
+              className={css({
+                textStyle: '3xl',
+                maxWidth: '64',
+                textWrap: 'pretty'
+              })}
+            >
+              Seu negócio merece mais clientes
+            </h3>
+            <p className={css({ maxWidth: '64', textWrap: 'pretty' })}>
+              Aumente seu volume de pedidos e impulsione suas vendas locais com
+              a nossa ajuda.
+            </p>
+            <Button variant="solid">Torne-se um parceiro</Button>
+          </div>
         </div>
       </div>
 
-      <Partners />
-      <Footer />
+      <div
+        className={css({
+          position: 'relative',
+          width: '100%',
+          marginBlockStart: '10'
+        })}
+      >
+        <div className={css({ position: 'relative' })}>
+          <PartnerStores />
+        </div>
+      </div>
+
+      <div
+        className={css({
+          position: 'relative',
+          width: '100%',
+          minHeight: '100dvh',
+          paddingInline: { base: '4', medium: '6', expanded: '8' },
+          marginBlockEnd: { base: '4', medium: '6', expanded: '8' },
+          marginBlockStart: '20'
+        })}
+      >
+        <div className={css({ position: 'relative' })}>
+          <div
+            className={css({
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4',
+              textAlign: 'center',
+              marginInline: 'auto'
+            })}
+          >
+            <h2
+              className={css({
+                textStyle: '4xl',
+                textWrap: 'pretty'
+              })}
+            >
+              A nossa rede apoia a nossa gente.
+            </h2>
+            <p
+              className={css({ textStyle: 'xl', color: 'surface.on.variant' })}
+            >
+              Cada compra aqui fortalece quem trabalha e vive na sua comunidade.
+            </p>
+          </div>
+
+          <div
+            className={css({
+              position: 'relative',
+              display: 'flex',
+              marginBlockStart: '10',
+              marginBlockEnd: '5',
+              marginInline: 'auto',
+              maxWidth: { base: '100%', medium: '75dvw' }
+            })}
+          >
+            <CustomerTestimonial />
+          </div>
+
+          <h3
+            className={css({
+              textStyle: '3xl',
+              textWrap: 'pretty',
+              textAlign: 'center',
+              marginInline: 'auto'
+            })}
+          >
+            Valorize o que é feito na sua rua.
+          </h3>
+
+          <div
+            className={css({
+              position: 'relative',
+              display: 'flex',
+              marginBlockStart: '10',
+              marginBlockEnd: '5',
+              marginInline: 'auto'
+            })}
+          >
+            <OwnerTestimonial />
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={css({
+          position: 'relative',
+          width: '100%',
+          marginBlockStart: '20'
+        })}
+      >
+        <Footer />
+      </div>
+
       <Help />
     </div>
   )

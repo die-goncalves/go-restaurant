@@ -10,7 +10,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "^5.2.2",
+    "@mapbox/search-js-core": "^1.5.1",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-popover": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.4",
@@ -39,6 +41,7 @@
     "@zag-js/slider": "^1.40.0",
     "@zag-js/toast": "^1.40.0",
     "@zag-js/toggle-group": "^1.40.0",
+    "gsap": "^3.15.0",
     "lodash.debounce": "^4.0.8",
     "mapbox-gl": "^3.21.0",
     "micro": "^10.0.1",
