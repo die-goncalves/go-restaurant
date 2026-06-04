@@ -1,48 +1,76 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { usePosition } from '@/src/contexts/position-context'
-import { geographicInformation } from '@/src/utils/geographic-information'
-import { decodeGeohash } from '@/src/utils/geohash'
+import { decodeGeohash, encodeGeohash } from '@/src/utils/geohash'
+import { GeocodingResponse } from '@mapbox/search-js-core'
+import { toaster } from '@/src/components/ui/toast/toast'
 
 export function PositionSync() {
   const searchParams = useSearchParams()
   const { setPosition } = usePosition()
+  const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
+    const geohash = searchParams.get('geohash')
+    if (!geohash) return
+
+    abortRef.current?.abort()
     const controller = new AbortController()
+    abortRef.current = controller
 
     async function getPositionCoordinates(geohash: string) {
       const { latitude, longitude } = decodeGeohash(geohash)
 
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?limit=1&access_token=${process.env.NEXT_PUBLIC_MAPBOX_GL_PUBLISHABLE_KEY}`,
-        { signal: controller.signal }
-      )
-      const data = await response.json()
-
-      console.log({ geohash, latitude, longitude, data })
-
-      const feature = data.features?.[0]
-      if (!feature) return
-      const { granular, place, place_name } = geographicInformation(
-        data.features[0]
+      const url = new URL('https://api.mapbox.com/search/geocode/v6/reverse')
+      url.searchParams.set('longitude', String(longitude))
+      url.searchParams.set('latitude', String(latitude))
+      url.searchParams.set('language', 'pt')
+      url.searchParams.set('limit', '1')
+      url.searchParams.set(
+        'access_token',
+        process.env.NEXT_PUBLIC_MAPBOX_GL_PUBLISHABLE_KEY ?? ''
       )
 
-      setPosition({
-        place_name,
-        granular,
-        geohash,
-        place,
-        coordinates: { latitude, longitude }
-      })
+      try {
+        const res = await fetch(url, { signal: controller.signal })
+
+        const json: GeocodingResponse = await res.json()
+
+        if (abortRef.current !== controller) return
+
+        if (json.features.length !== 0) {
+          const longitude = json.features[0].geometry.coordinates[0]
+          const latitude = json.features[0].geometry.coordinates[1]
+          const geohash = encodeGeohash({ latitude, longitude })
+          const place = json.features[0].properties.context.place?.name
+          const fullAddress = json.features[0].properties.full_address
+
+          if (!place || !geohash) {
+            toaster.error({
+              description: 'Falha ao processar a localização informada.'
+            })
+            return
+          }
+
+          setPosition({
+            coordinates: { latitude, longitude },
+            geohash,
+            fullAddress,
+            place
+          })
+        }
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return
+      }
     }
 
-    const geohash = searchParams.get('geohash')
-    if (geohash) getPositionCoordinates(geohash)
+    getPositionCoordinates(geohash)
 
-    return () => controller.abort()
+    return () => {
+      controller.abort()
+    }
   }, [setPosition, searchParams])
 
   return null

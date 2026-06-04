@@ -8,7 +8,10 @@ import { mesh } from '@/src/lib/mesh'
 import { css } from '@/styled-system/css'
 
 type MapProps = {
-  onChange: (coord: { lat: number; lng: number }) => void
+  onChange: (coordinates: {
+    latitude: number
+    longitude: number
+  }) => Promise<void>
   point: {
     lat: number
     lng: number
@@ -131,7 +134,8 @@ export function Map({ onChange, point }: MapProps) {
 
     mapRef.current.on('moveend', ({ target }) => {
       if (markerRef.current?.classList.contains('inside')) {
-        onChange(target.getCenter())
+        const { lat, lng } = target.getCenter()
+        onChange({ latitude: lat, longitude: lng })
       }
     })
   }, [onChange])

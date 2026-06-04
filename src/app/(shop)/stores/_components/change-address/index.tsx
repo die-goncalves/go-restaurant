@@ -1,104 +1,117 @@
 'use client'
 
+import { GeocodingResponse } from '@mapbox/search-js-core'
 import { Portal } from '@zag-js/react'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import toast from 'react-hot-toast'
 import { CloseIcon } from '@/src/components/icons/close'
 import { MovedLocationIcon } from '@/src/components/icons/moved-location'
 import { Button } from '@/src/components/ui/button'
 import { Dialog } from '@/src/components/ui/dialog/index'
+import { toaster } from '@/src/components/ui/toast/toast'
 import { usePosition } from '@/src/contexts/position-context'
 import { logger } from '@/src/lib/logger'
-import { geographicInformation } from '@/src/utils/geographic-information'
 import { encodeGeohash } from '@/src/utils/geohash'
 import { css } from '@/styled-system/css'
 import { Map } from './map'
 
-const log = logger.child({ module: 'client', component: 'ChangeAddress' })
+const log = logger.child({
+  module: 'client',
+  page: 'Stores',
+  component: 'ChangeAddress'
+})
 
 export function ChangeAddress() {
   const router = useRouter()
   const [mapReady, setMapReady] = useState(false)
   const [node, setNode] = useState<HTMLDivElement | null>(null)
-  const { state: position, setPending, confirmPending } = usePosition()
+  const { state, setPending, confirmPending } = usePosition()
   const abortRef = useRef<AbortController | null>(null)
 
-  const coord = useMemo(() => {
-    return position.currentPosition
+  const coordinates = useMemo(() => {
+    return state.currentPosition
       ? {
-          lat: position.currentPosition.coordinates.latitude,
-          lng: position.currentPosition.coordinates.longitude
+          lat: state.currentPosition.coordinates.latitude,
+          lng: state.currentPosition.coordinates.longitude
         }
       : null
-  }, [position.currentPosition])
+  }, [state.currentPosition])
 
   const handleContentRef = useCallback((n: HTMLDivElement | null) => {
     setNode(n)
   }, [])
 
   const handleChangeCoordinates = useCallback(
-    async (coord: { lat: number; lng: number }) => {
+    async (coordinates: { latitude: number; longitude: number }) => {
       abortRef.current?.abort()
       const controller = new AbortController()
       abortRef.current = controller
 
+      const url = new URL('https://api.mapbox.com/search/geocode/v6/reverse')
+      url.searchParams.set('longitude', String(coordinates.longitude))
+      url.searchParams.set('latitude', String(coordinates.latitude))
+      url.searchParams.set('language', 'pt')
+      url.searchParams.set('limit', '1')
+      url.searchParams.set(
+        'access_token',
+        process.env.NEXT_PUBLIC_MAPBOX_GL_PUBLISHABLE_KEY ?? ''
+      )
+
       try {
-        const response = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${coord.lng},${coord.lat}.json?limit=1&access_token=${process.env.NEXT_PUBLIC_MAPBOX_GL_PUBLISHABLE_KEY}`,
-          { signal: controller.signal }
-        )
-        const data = await response.json()
+        const res = await fetch(url, { signal: controller.signal })
+
+        const json: GeocodingResponse = await res.json()
 
         if (abortRef.current !== controller) return
 
-        if (data.features.length !== 0) {
-          const { granular, place, place_name } = geographicInformation(
-            data.features[0]
-          )
+        if (json.features.length !== 0) {
+          const longitude = json.features[0].geometry.coordinates[0]
+          const latitude = json.features[0].geometry.coordinates[1]
+          const geohash = encodeGeohash({ latitude, longitude })
+          const place = json.features[0].properties.context.place?.name
+          const fullAddress = json.features[0].properties.full_address
+
+          if (!place || !geohash) {
+            toaster.error({
+              description: 'Falha ao processar a localização informada.'
+            })
+            return
+          }
+
           setPending({
-            coordinates: {
-              latitude: data.features[0].geometry.coordinates[1],
-              longitude: data.features[0].geometry.coordinates[0]
-            },
-            geohash: encodeGeohash({
-              latitude: data.features[0].geometry.coordinates[1],
-              longitude: data.features[0].geometry.coordinates[0]
-            }),
-            granular,
-            place_name,
+            coordinates: { latitude, longitude },
+            geohash,
+            fullAddress,
             place
           })
         }
       } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') return
-        log.error({ error, coord }, 'Error fetching coordinates from Mapbox')
+        log.error(
+          { error, coordinates },
+          'Error fetching coordinates from Mapbox'
+        )
       }
     },
     [setPending]
   )
 
   function handleSubmit(onSuccess: () => void) {
-    const pos = position.pendingPosition
-    if (!pos) {
-      toast.error(
-        'Não conseguimos obter as coordenadas do endereço, por favor indique no mapa.'
-      )
+    const pending = state.pendingPosition
+    if (!pending) {
+      toaster.error({
+        description: 'Falha ao processar a localização informada.'
+      })
       return
     }
-    if (pos.place && pos.geohash) {
-      const params = new URLSearchParams({
-        place: pos.place,
-        geohash: pos.geohash
-      })
-      router.push(`/stores?${params.toString()}`)
-      confirmPending()
-      onSuccess()
-    } else {
-      toast.error(
-        'Não conseguimos obter as coordenadas do endereço, por favor indique no mapa.'
-      )
-    }
+
+    confirmPending()
+    const params = new URLSearchParams({
+      place: pending.place,
+      geohash: pending.geohash
+    }).toString()
+    router.push(`/stores?${params}`)
+    onSuccess()
   }
 
   useEffect(() => {
@@ -194,7 +207,10 @@ export function ChangeAddress() {
                       })}
                     >
                       {mapReady && (
-                        <Map onChange={handleChangeCoordinates} point={coord} />
+                        <Map
+                          onChange={handleChangeCoordinates}
+                          point={coordinates}
+                        />
                       )}
                     </div>
                   </main>
@@ -210,7 +226,7 @@ export function ChangeAddress() {
                     })}
                   >
                     <div className={css({ height: '10' })}>
-                      <p>{position.pendingPosition?.place_name ?? ''}</p>
+                      <p>{state.pendingPosition?.fullAddress ?? ''}</p>
                     </div>
 
                     <div

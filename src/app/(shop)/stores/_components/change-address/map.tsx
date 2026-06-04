@@ -8,7 +8,10 @@ import { mesh } from '@/src/lib/mesh'
 import { css } from '@/styled-system/css'
 
 type MapProps = {
-  onChange: (coord: { lat: number; lng: number }) => void
+  onChange: (coordinates: {
+    latitude: number
+    longitude: number
+  }) => Promise<void>
   point: {
     lat: number
     lng: number
@@ -131,7 +134,8 @@ export function Map({ onChange, point }: MapProps) {
 
     mapRef.current.on('moveend', ({ target }) => {
       if (markerRef.current?.classList.contains('inside')) {
-        onChange(target.getCenter())
+        const { lat, lng } = target.getCenter()
+        onChange({ latitude: lat, longitude: lng })
       }
     })
   }, [onChange])
@@ -176,8 +180,16 @@ export function Map({ onChange, point }: MapProps) {
             position: 'relative',
             marginTop: '3.333px',
             width: '10',
-            fill: 'surface.on',
-            '&:not(.inside)': { filter: 'grayscale(1)' }
+            _icon: { fill: 'primary' },
+            transitionProperty: 'opacity',
+            transitionDuration: '200ms',
+            transitionTimingFunction:
+              'token(easings.expressive-default-effects)',
+            '&:not(.inside)': {
+              opacity: 0.64,
+              transitionDuration: '150ms',
+              transitionTimingFunction: 'token(easings.expressive-fast-effects)'
+            }
           })}
           ref={markerRef}
         >
@@ -192,7 +204,7 @@ export function Map({ onChange, point }: MapProps) {
               position: 'relative',
               cursor: 'pointer',
               width: '10',
-              _icon: { fill: 'primary.container' }
+              _icon: { fill: 'primary', opacity: 0.64 }
             })}
           >
             <LocationOnIcon />

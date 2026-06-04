@@ -126,11 +126,7 @@ export function StoreContent({
             </div>
 
             <div className={css({ marginBlockStart: '2' })}>
-              <ChangeAddress
-                id={id}
-                neighborhood={neighborhood}
-                coord={coordinates}
-              />
+              <ChangeAddress id={id} coord={coordinates} />
             </div>
 
             <div className={css({ marginBlockStart: '2' })}>
