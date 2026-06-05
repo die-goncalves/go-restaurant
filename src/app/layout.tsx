@@ -6,8 +6,7 @@ import { figtree, gambarino } from './fonts'
 
 export const metadata: Metadata = {
   title: 'GoRestaurant',
-  description: 'App',
-  icons: { icon: '/favicon-32x32.png' }
+  description: 'App'
 }
 
 export const viewport: Viewport = {

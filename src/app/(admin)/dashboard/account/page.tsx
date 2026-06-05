@@ -9,10 +9,7 @@ import { logger } from '@/src/lib/logger'
 const log = logger.child({ module: 'server', route: '/dashboard/account' })
 
 export const metadata: Metadata = {
-  title: 'Dashboard | GoRestaurant',
-  icons: {
-    icon: '/favicon-32x32.png'
-  }
+  title: 'Conta | GoRestaurant'
 }
 
 export default async function AccountPage() {
