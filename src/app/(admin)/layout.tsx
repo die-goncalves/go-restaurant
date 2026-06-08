@@ -1,16 +1,28 @@
+import { redirect } from 'next/navigation'
 import { Footer } from '@/src/components/common/footer'
 import { Header } from '@/src/components/common/header'
+import { SignOut } from '@/src/components/common/header-auth/sign-out'
+import { createClient } from '@/src/lib/supabase/server'
 import { css } from '@/styled-system/css'
 import { DashboardNavigation } from './_components/dashboard-navigation'
 
-export default function StoreLayout({
+export default async function DashboardLayout({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const supabase = await createClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+
+  if (!user) redirect('/')
+
   return (
     <>
-      <Header />
+      <Header>
+        <SignOut />
+      </Header>
       <div
         className={css({
           maxWidth: 'breakpoint-xlarge',
