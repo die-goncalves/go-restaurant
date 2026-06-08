@@ -1,11 +1,11 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import toast from 'react-hot-toast'
 import { useAuth } from '@/src/contexts/auth-context'
 import { css } from '@/styled-system/css'
 import { LogoutIcon } from '../../icons/logout'
 import { Button } from '../../ui/button'
+import { toaster } from '../../ui/toast/toast'
 
 export function SignOut() {
   const router = useRouter()
@@ -16,7 +16,10 @@ export function SignOut() {
       await signOut()
       router.refresh()
     } catch {
-      toast.error('Erro ao sair da conta. Tente novamente.')
+      toaster.error({
+        description:
+          'Não foi possível sair da conta. Tente novamente em alguns instantes'
+      })
     }
   }
 
