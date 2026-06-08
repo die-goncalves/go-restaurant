@@ -5,12 +5,12 @@ export function Loading() {
     <div
       className={css({
         borderStyle: 'solid',
-        borderWidth: '2',
-        borderColor: 'light.gray.100',
-        borderTopColor: 'light.gray.800',
-        rounded: 'full',
-        w: '4',
-        h: '4',
+        borderWidth: '2px',
+        borderColor: 'transparent',
+        borderTopColor: 'currentColor',
+        borderRadius: '50%',
+        width: '5',
+        height: '5',
         animation: 'spin'
       })}
     />
