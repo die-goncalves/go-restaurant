@@ -48,12 +48,7 @@ type ErrorProps = ComponentPropsWithoutRef<'span'>
 export const Error = forwardRef<HTMLSpanElement, ErrorProps>(
   (props, forwardedRef) => {
     return (
-      <span
-        {...props}
-        {...parts.error.attrs}
-        aria-live="polite"
-        ref={forwardedRef}
-      />
+      <span {...props} {...parts.error.attrs} role="alert" ref={forwardedRef} />
     )
   }
 )
