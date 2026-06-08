@@ -1,8 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import toast from 'react-hot-toast'
 import { Button } from '@/src/components/ui/button'
+import { toaster } from '@/src/components/ui/toast/toast'
 import { css } from '@/styled-system/css'
 import { deleteAccount } from './actions'
 
@@ -13,11 +13,15 @@ export function DeleteAccountButton() {
     const result = await deleteAccount()
 
     if (result.error) {
-      toast.error('Erro ao tentar excluir a conta')
+      toaster.error({
+        description: 'Erro ao tentar excluir a conta.'
+      })
       return
     }
 
-    toast.success('Conta excluída')
+    toaster.success({
+      description: 'Conta excluída.'
+    })
     router.push('/')
   }
 
