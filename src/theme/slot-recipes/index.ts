@@ -5,6 +5,7 @@ import { dialogSlotRecipe } from './dialog'
 import { drawerSlotRecipe } from './drawer'
 import { scrollAreaSlotRecipe } from './scroll-area'
 import { selectSlotRecipe } from './select'
+import { tourSlotRecipe } from './tour'
 
 const slotRecipes = {
   breadcrumbSlotRecipe,
@@ -13,6 +14,7 @@ const slotRecipes = {
   dialogSlotRecipe,
   drawerSlotRecipe,
   scrollAreaSlotRecipe,
-  selectSlotRecipe
+  selectSlotRecipe,
+  tourSlotRecipe
 }
 export default slotRecipes

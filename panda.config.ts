@@ -63,7 +63,8 @@ export default defineConfig({
         dialog: slotRecipes.dialogSlotRecipe,
         drawer: slotRecipes.drawerSlotRecipe,
         scrollArea: slotRecipes.scrollAreaSlotRecipe,
-        select: slotRecipes.selectSlotRecipe
+        select: slotRecipes.selectSlotRecipe,
+        tour: slotRecipes.tourSlotRecipe
       },
       tokens: {
         colors: tokens.colors,
