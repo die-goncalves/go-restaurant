@@ -156,7 +156,7 @@ export function Help() {
                                         background: 'black.alpha.300'
                                       })}
                                     >
-                                      fulano@dominio.com
+                                      john.doe@domain.com
                                     </code>
                                   </span>
                                   <span>
@@ -167,7 +167,7 @@ export function Help() {
                                         background: 'black.alpha.300'
                                       })}
                                     >
-                                      123456
+                                      abcdefg
                                     </code>
                                   </span>
                                 </div>
@@ -258,7 +258,7 @@ export function Help() {
                                         background: 'black.alpha.300'
                                       })}
                                     >
-                                      Fulano
+                                      John
                                     </code>
                                     )
                                   </span>
