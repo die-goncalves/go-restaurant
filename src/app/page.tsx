@@ -154,8 +154,8 @@ export default async function Home() {
           position: 'relative',
           width: '100%',
           paddingInline: { base: '4', medium: '6', expanded: '8' },
-          marginBlockEnd: { base: '4', medium: '6', expanded: '8' },
-          marginBlockStart: '20'
+          paddingBlockStart: { base: '8', medium: '12', expanded: '16' },
+          paddingBlockEnd: { base: '4', medium: '6', expanded: '8' }
         })}
       >
         <HowItWorks />
@@ -163,147 +163,153 @@ export default async function Home() {
 
       <div
         className={css({
-          position: 'relative',
-          display: 'grid',
-          gridTemplateColumns: {
-            base: 'repeat(1, minmax(0, 1fr))',
-            expanded: 'repeat(2, minmax(0, 1fr))'
-          },
-          gridTemplateRows: {
-            base: 'repeat(2, minmax(0, 1fr))',
-            expanded: 'minmax(0, 1fr)'
-          },
-          height: { base: '200dvh', expanded: '100dvh' },
-          marginBlockStart: '20',
-          '& > div': {
-            _first: {
-              _after: {
-                clipPath: {
-                  base: 'polygon(0 100%,100% 0,100% 0)',
-                  expanded: 'polygon(0 0,0 100%,100% 100%)'
-                }
-              }
-            },
-            _last: {
-              _before: {
-                clipPath: {
-                  base: 'polygon(0 100%,100% 0,100% 0)',
-                  expanded: 'polygon(0 0,100% 0%,100% 100%)'
-                }
-              }
-            },
-            _before: {
-              content: '""',
-              height: '5',
-              width: '100%',
-              top: 0,
-              position: 'absolute',
-              background: 'primary',
-              clipPath: {
-                base: 'polygon(0 0,100% 0%,100% 100%)',
-                expanded: 'polygon(0 100%,100% 0,100% 0)'
-              }
-            },
-            _after: {
-              content: '""',
-              height: '5',
-              width: '100%',
-              bottom: 0,
-              position: 'absolute',
-              background: 'primary',
-              clipPath: {
-                base: 'polygon(0 0,0 100%,100% 100%)',
-                expanded: 'polygon(0 100%,100% 0,100% 0)'
-              }
-            }
-          }
+          paddingBlockStart: { base: '8', medium: '12', expanded: '16' },
+          paddingBlockEnd: { base: '4', medium: '6', expanded: '8' }
         })}
       >
         <div
           className={css({
             position: 'relative',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10',
-            textAlign: 'center',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 1)), url('https://images.pexels.com/photos/17364662/pexels-photo-17364662.jpeg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            color: 'surface.inverse.on'
+            display: 'grid',
+            gridTemplateColumns: {
+              base: 'repeat(1, minmax(0, 1fr))',
+              expanded: 'repeat(2, minmax(0, 1fr))'
+            },
+            gridTemplateRows: {
+              base: 'repeat(2, minmax(0, 1fr))',
+              expanded: 'minmax(0, 1fr)'
+            },
+            height: { base: '200dvh', expanded: '100dvh' },
+            '& > div': {
+              _first: {
+                _after: {
+                  clipPath: {
+                    base: 'polygon(0 100%,100% 0,100% 0)',
+                    expanded: 'polygon(0 0,0 100%,100% 100%)'
+                  }
+                }
+              },
+              _last: {
+                _before: {
+                  clipPath: {
+                    base: 'polygon(0 100%,100% 0,100% 0)',
+                    expanded: 'polygon(0 0,100% 0%,100% 100%)'
+                  }
+                }
+              },
+              _before: {
+                content: '""',
+                height: '5',
+                width: '100%',
+                top: 0,
+                position: 'absolute',
+                background: 'primary',
+                clipPath: {
+                  base: 'polygon(0 0,100% 0%,100% 100%)',
+                  expanded: 'polygon(0 100%,100% 0,100% 0)'
+                }
+              },
+              _after: {
+                content: '""',
+                height: '5',
+                width: '100%',
+                bottom: 0,
+                position: 'absolute',
+                background: 'primary',
+                clipPath: {
+                  base: 'polygon(0 0,0 100%,100% 100%)',
+                  expanded: 'polygon(0 100%,100% 0,100% 0)'
+                }
+              }
+            }
           })}
         >
-          <div className={css({ width: '14', height: '14' })}>
-            <DirectionsBikeIcon />
-          </div>
           <div
             className={css({
+              position: 'relative',
               display: 'flex',
               flexDirection: 'column',
-              gap: '5',
+              gap: '10',
+              textAlign: 'center',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 1)), url('https://images.pexels.com/photos/17364662/pexels-photo-17364662.jpeg')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              color: 'surface.inverse.on'
             })}
           >
-            <h3
+            <div className={css({ width: '14', height: '14' })}>
+              <DirectionsBikeIcon />
+            </div>
+            <div
               className={css({
-                textStyle: '3xl',
-                maxWidth: '64',
-                textWrap: 'pretty'
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '5',
+                alignItems: 'center',
+                justifyContent: 'center'
               })}
             >
-              Faça entregas na sua região
-            </h3>
-            <p className={css({ maxWidth: '64', textWrap: 'pretty' })}>
-              Seja o dono do seu tempo e aumente seus ganhos entregando com a
-              gente.
-            </p>
-            <Button variant="solid">Torne-se um entregador</Button>
+              <h3
+                className={css({
+                  textStyle: '3xl',
+                  maxWidth: '64',
+                  textWrap: 'pretty'
+                })}
+              >
+                Faça entregas na sua região
+              </h3>
+              <p className={css({ maxWidth: '64', textWrap: 'pretty' })}>
+                Seja o dono do seu tempo e aumente seus ganhos entregando com a
+                gente.
+              </p>
+              <Button variant="solid">Torne-se um entregador</Button>
+            </div>
           </div>
-        </div>
 
-        <div
-          className={css({
-            position: 'relative',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10',
-            textAlign: 'center',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 1)), url('https://images.pexels.com/photos/6205775/pexels-photo-6205775.jpeg')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            color: 'surface.inverse.on'
-          })}
-        >
-          <div className={css({ width: '14', height: '14' })}>
-            <HandshakeIcon />
-          </div>
           <div
             className={css({
+              position: 'relative',
               display: 'flex',
               flexDirection: 'column',
-              gap: '5',
+              gap: '10',
+              textAlign: 'center',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 1)), url('https://images.pexels.com/photos/6205775/pexels-photo-6205775.jpeg')`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              color: 'surface.inverse.on'
             })}
           >
-            <h3
+            <div className={css({ width: '14', height: '14' })}>
+              <HandshakeIcon />
+            </div>
+            <div
               className={css({
-                textStyle: '3xl',
-                maxWidth: '64',
-                textWrap: 'pretty'
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '5',
+                alignItems: 'center',
+                justifyContent: 'center'
               })}
             >
-              Seu negócio merece mais clientes
-            </h3>
-            <p className={css({ maxWidth: '64', textWrap: 'pretty' })}>
-              Aumente seu volume de pedidos e impulsione suas vendas locais com
-              a nossa ajuda.
-            </p>
-            <Button variant="solid">Torne-se um parceiro</Button>
+              <h3
+                className={css({
+                  textStyle: '3xl',
+                  maxWidth: '64',
+                  textWrap: 'pretty'
+                })}
+              >
+                Seu negócio merece mais clientes
+              </h3>
+              <p className={css({ maxWidth: '64', textWrap: 'pretty' })}>
+                Aumente seu volume de pedidos e impulsione suas vendas locais
+                com a nossa ajuda.
+              </p>
+              <Button variant="solid">Torne-se um parceiro</Button>
+            </div>
           </div>
         </div>
       </div>
@@ -312,7 +318,8 @@ export default async function Home() {
         className={css({
           position: 'relative',
           width: '100%',
-          marginBlockStart: '10'
+          paddingBlockStart: { base: '8', medium: '12', expanded: '16' },
+          paddingBlockEnd: { base: '4', medium: '6', expanded: '8' }
         })}
       >
         <div className={css({ position: 'relative' })}>
@@ -326,8 +333,8 @@ export default async function Home() {
           width: '100%',
           minHeight: '100dvh',
           paddingInline: { base: '4', medium: '6', expanded: '8' },
-          marginBlockEnd: { base: '4', medium: '6', expanded: '8' },
-          marginBlockStart: '20'
+          paddingBlockStart: { base: '8', medium: '12', expanded: '16' },
+          paddingBlockEnd: { base: '4', medium: '6', expanded: '8' }
         })}
       >
         <div className={css({ position: 'relative' })}>
@@ -393,15 +400,7 @@ export default async function Home() {
         </div>
       </div>
 
-      <div
-        className={css({
-          position: 'relative',
-          width: '100%',
-          marginBlockStart: '20'
-        })}
-      >
-        <Footer />
-      </div>
+      <Footer />
 
       <Help />
     </div>

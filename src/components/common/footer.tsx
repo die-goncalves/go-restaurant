@@ -10,7 +10,6 @@ export function Footer() {
     <footer
       className={css({
         maxWidth: 'breakpoint-xlarge',
-        marginInline: 'auto',
         position: 'relative',
         display: 'grid',
         gridTemplateColumns: 'repeat(1, minmax(0, 1fr))',
@@ -18,6 +17,8 @@ export function Footer() {
         rowGap: '6',
         color: 'surface.on',
         background: 'surface.container',
+        marginBlockStart: { base: '8', medium: '12', expanded: '16' },
+        marginInline: 'auto',
         padding: { base: '4', medium: '6', expanded: '8' }
       })}
     >
@@ -29,7 +30,7 @@ export function Footer() {
             medium: 'min-content minmax(0, 1fr)'
           },
           gridTemplateRows: {
-            base: 'repeat(2, minmax(0, 1fr))',
+            base: 'min-content minmax(0, 1fr)',
             medium: 'repeat(1, minmax(0, 1fr))'
           },
           rowGap: '4'
