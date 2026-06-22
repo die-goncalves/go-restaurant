@@ -5,15 +5,16 @@ import { HeaderAuth } from '../components/common/header-auth'
 import { Logo } from '../components/common/logo'
 import { DirectionsBikeIcon } from '../components/icons/directions-bike'
 import { HandshakeIcon } from '../components/icons/handshake'
-import { PartnerStores } from './_components/partner-stores'
 import { Button } from '../components/ui/button'
 import { AddressSelector } from './_components/address-selector'
 import { BackgroundAnimation } from './_components/background-animation'
 import { Help } from './_components/help'
 import { HowItWorks } from './_components/how-it-works'
+import { PartnerStores } from './_components/partner-stores'
 import { Searchbox } from './_components/searchbox'
 import { CustomerTestimonial } from './_components/testimonial/customer-testimonial'
 import { OwnerTestimonial } from './_components/testimonial/owner-testimonial'
+import { Tour } from './_components/tour'
 import { Welcome } from './_components/welcome'
 
 export const metadata: Metadata = {
@@ -44,8 +45,10 @@ export default async function Home() {
 
         <div
           suppressHydrationWarning
-          className={css({ display: 'flex', gap: '4' })}
+          className={css({ display: 'flex', gap: { base: '2', medium: '4' } })}
         >
+          <Tour />
+
           <Welcome />
 
           <HeaderAuth />

@@ -10,7 +10,7 @@ export function HeaderAuth() {
   const { session } = useAuth()
 
   return session ? (
-    <div className={css({ display: 'flex', gap: '4' })}>
+    <div className={css({ display: 'flex', gap: { base: '2', medium: '4' } })}>
       <Account />
       <SignOut />
     </div>

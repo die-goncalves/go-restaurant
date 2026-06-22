@@ -19,13 +19,14 @@ export function Help() {
     <Dialog.Root>
       <Dialog.Trigger asChild>
         <Button
+          id="help"
           variant="solid"
           aria-label="Instruções de uso"
           className={css({
             padding: 0,
             position: 'fixed',
-            bottom: '4',
-            right: '4',
+            bottom: { base: '4', medium: '6', expanded: '8' },
+            right: { base: '4', medium: '6', expanded: '8' },
             height: '14',
             width: '14',
             _icon: {

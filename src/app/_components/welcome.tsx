@@ -25,6 +25,7 @@ export function Welcome() {
     <Dialog.Root>
       <Dialog.Trigger asChild>
         <Button
+          id="welcome"
           aria-label="Apresentação do projeto"
           className={css({ padding: 0 })}
         >
