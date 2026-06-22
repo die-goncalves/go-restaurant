@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useAuth } from '@/src/contexts/auth-context'
 import { css } from '@/styled-system/css'
 import { Account } from './account'
@@ -15,6 +16,8 @@ export function HeaderAuth() {
       <SignOut />
     </div>
   ) : (
-    <SignIn />
+    <Suspense fallback={null}>
+      <SignIn />
+    </Suspense>
   )
 }
