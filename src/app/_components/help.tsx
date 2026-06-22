@@ -26,7 +26,7 @@ export function Help() {
             padding: 0,
             position: 'fixed',
             bottom: { base: '4', medium: '6', expanded: '8' },
-            right: { base: '4', medium: '6', expanded: '8' },
+            right: isCompact ? '-4' : { base: '4', medium: '6', expanded: '8' },
             height: '14',
             width: '14',
             _icon: {
@@ -38,7 +38,6 @@ export function Help() {
             ...(isCompact
               ? {
                   paddingInlineEnd: '4',
-                  right: '-4',
                   transitionDuration: '350ms',
                   transitionTimingFunction: 'expressive-fast-spatial'
                 }
