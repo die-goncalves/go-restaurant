@@ -15,8 +15,6 @@ export function Footer() {
         gridTemplateColumns: 'repeat(1, minmax(0, 1fr))',
         gridTemplateRows: 'repeat(5, minmax(0, min-content))',
         rowGap: '6',
-        color: 'surface.on',
-        background: 'surface.container',
         marginBlockStart: { base: '8', medium: '12', expanded: '16' },
         marginInline: 'auto',
         padding: { base: '4', medium: '6', expanded: '8' }
@@ -124,16 +122,24 @@ export function Footer() {
             })}
           >
             <li>
-              <Link href="#">Cadastre sua loja</Link>
+              <Link href="#" underline>
+                Cadastre sua loja
+              </Link>
             </li>
             <li>
-              <Link href="#">Portal do parceiro</Link>
+              <Link href="#" underline>
+                Portal do parceiro
+              </Link>
             </li>
             <li>
-              <Link href="#">Seja entregador</Link>
+              <Link href="#" underline>
+                Seja entregador
+              </Link>
             </li>
             <li>
-              <Link href="#">Anuncie</Link>
+              <Link href="#" underline>
+                Anuncie
+              </Link>
             </li>
           </ul>
         </div>
@@ -155,13 +161,19 @@ export function Footer() {
             })}
           >
             <li>
-              <Link href="#">Sobre</Link>
+              <Link href="#" underline>
+                Sobre
+              </Link>
             </li>
             <li>
-              <Link href="#">Carreiras</Link>
+              <Link href="#" underline>
+                Carreiras
+              </Link>
             </li>
             <li>
-              <Link href="#">Marca</Link>
+              <Link href="#" underline>
+                Marca
+              </Link>
             </li>
           </ul>
         </div>
@@ -183,13 +195,19 @@ export function Footer() {
             })}
           >
             <li>
-              <Link href="#">Termos de uso</Link>
+              <Link href="#" underline>
+                Termos de uso
+              </Link>
             </li>
             <li>
-              <Link href="#">Política de Privacidade</Link>
+              <Link href="#" underline>
+                Política de Privacidade
+              </Link>
             </li>
             <li>
-              <Link href="#">Política de Cookies</Link>
+              <Link href="#" underline>
+                Política de Cookies
+              </Link>
             </li>
           </ul>
         </div>
@@ -211,7 +229,9 @@ export function Footer() {
             })}
           >
             <li>
-              <Link href="#">Central de ajuda</Link>
+              <Link href="#" underline>
+                Central de ajuda
+              </Link>
             </li>
           </ul>
         </div>
@@ -349,7 +369,33 @@ export function Footer() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     height: '10',
-                    width: '10'
+                    width: '10',
+                    color: 'primary.surface.on.variant',
+                    _icon: { fill: 'primary.surface.on.variant' },
+                    _hover: {
+                      _after: {
+                        background: 'primary.surface.on.variant/8'
+                      }
+                    },
+                    _focusVisible: {
+                      _after: {
+                        background: 'primary.surface.on.variant/10'
+                      }
+                    },
+                    isolation: 'isolate',
+                    _after: {
+                      content: '""',
+                      position: 'absolute',
+                      inset: 0,
+                      zIndex: -1,
+                      background: 'transparent',
+                      borderRadius: 'inherit',
+                      pointerEvents: 'none',
+                      transitionProperty: 'background',
+                      transitionDuration: '150ms',
+                      transitionTimingFunction:
+                        'token(easings.expressive-fast-effects)'
+                    }
                   })}
                   external
                   hideIcon
@@ -390,7 +436,7 @@ export function Footer() {
       >
         <span className={css({ display: 'inline-flex' })}>
           Criado por&nbsp;
-          <Link href="https://github.com/die-goncalves" external>
+          <Link href="https://github.com/die-goncalves" external underline>
             Diego Gonçalves
           </Link>
         </span>

@@ -94,15 +94,15 @@ export function Welcome() {
                         >
                           <Dialog.Description>
                             <p>
-                              Sou Diego Gonçalves e este é o{' '}
+                              Sou Diego Gonçalves e este é o &nbsp;
                               <Link
                                 href="https://github.com/die-goncalves/go-restaurant"
                                 external
-                                className={css({ display: 'inline' })}
+                                underline
                               >
                                 GoRestaurant
-                              </Link>{' '}
-                              — um{' '}
+                              </Link>
+                              &nbsp;— um&nbsp;
                               <strong
                                 className={css({ fontWeight: 'semibold' })}
                               >
@@ -188,6 +188,7 @@ export function Welcome() {
                             <Link
                               href="https://github.com/die-goncalves/go-restaurant"
                               external
+                              underline
                             >
                               <div
                                 className={css({
@@ -237,6 +238,7 @@ export function Welcome() {
                               <Link
                                 href="https://www.linkedin.com/in/diego-goncalves1990"
                                 external
+                                underline
                               >
                                 <div
                                   className={css({
@@ -267,6 +269,7 @@ export function Welcome() {
                               <Link
                                 href="mailto:die.goncalves1990@gmail.com"
                                 external
+                                underline
                               >
                                 <div
                                   className={css({
@@ -321,7 +324,7 @@ export function Welcome() {
                             >
                               {inspirations.map(({ label, href }) => (
                                 <li key={href}>
-                                  <Link href={href} external>
+                                  <Link href={href} external underline>
                                     {label}
                                   </Link>
                                 </li>
