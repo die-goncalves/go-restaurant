@@ -21,7 +21,21 @@ const steps: tour.StepDetails[] = [
   {
     id: 'step-2',
     type: 'tooltip',
-    title: 'Central de ajuda',
+    title: 'Conheça o projeto',
+    description: 'Aqui você pode saber mais sobre o projeto.',
+    target: () => document.querySelector<HTMLElement>('#welcome'),
+    actions: [
+      { label: 'Voltar', action: 'prev' },
+      { label: 'Avançar', action: 'next' }
+    ],
+    placement: 'bottom-start',
+    gutter: 16,
+    overflowPadding: 16
+  },
+  {
+    id: 'step-3',
+    type: 'tooltip',
+    title: 'Coloque em prática',
     description:
       'Aqui você encontra formas de testar nosso projeto na prática.',
     target: () => document.querySelector<HTMLElement>('#help'),
@@ -30,20 +44,6 @@ const steps: tour.StepDetails[] = [
       { label: 'Avançar', action: 'next' }
     ],
     placement: 'top-start',
-    gutter: 16,
-    overflowPadding: 16
-  },
-  {
-    id: 'step-3',
-    type: 'tooltip',
-    title: 'Sobre o projeto',
-    description: 'Aqui você pode saber mais sobre o projeto.',
-    target: () => document.querySelector<HTMLElement>('#welcome'),
-    actions: [
-      { label: 'Voltar', action: 'prev' },
-      { label: 'Avançar', action: 'next' }
-    ],
-    placement: 'bottom-start',
     gutter: 16,
     overflowPadding: 16
   },
