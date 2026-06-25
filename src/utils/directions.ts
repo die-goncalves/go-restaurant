@@ -11,9 +11,13 @@ async function getRoute(
   distance: number
 }> {
   const accessToken = process.env.NEXT_PUBLIC_MAPBOX_GL_PUBLISHABLE_KEY
+  const refererUrl = process.env.MAPBOX_REFERER_URL
 
   if (!accessToken) {
     throw new Error('Mapbox access token is not defined')
+  }
+  if (!refererUrl) {
+    throw new Error('Mapbox referer url is not defined')
   }
 
   const coords = `${startRoute.lng},${startRoute.lat};${endRoute.lng},${endRoute.lat}`
@@ -28,13 +32,13 @@ async function getRoute(
 
   const response = await fetch(`${baseUrl}?${params.toString()}`, {
     headers: {
-      Referer: process.env.APP_URL ?? 'http://localhost:3000'
+      Referer: refererUrl
     }
   })
 
   if (!response.ok) {
     throw new Error(
-      `Mapbox API error: ${response.status} ${response.statusText}`
+      `Mapbox API error: ${response.status} ${response.statusText} - referer: ${refererUrl}`
     )
   }
 
