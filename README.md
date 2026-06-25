@@ -200,15 +200,16 @@ $ npm install
 
 # MAPBOX
 NEXT_PUBLIC_MAPBOX_GL_PUBLISHABLE_KEY=
+MAPBOX_REFERER_URL=
 
 # STRIPE
-STRIPE_WEBHOOK_SECRET_KEY=
-STRIPE_SECRET_KEY=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET_KEY=
 
 # SUPABASE
-NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+NEXT_PUBLIC_SUPABASE_URL=
 SUPABASE_SECRET_KEY=
 ```
 
@@ -218,6 +219,8 @@ SUPABASE_SECRET_KEY=
 
 1. Cadastre-se no [Mapbox](https://www.mapbox.com/);
 2. Acesse [tokens](https://account.mapbox.com/access-tokens/) na sua conta, crie um novo _token_ ou utilize o _token_ padrão e copie o valor em `NEXT_PUBLIC_MAPBOX_GL_PUBLISHABLE_KEY`.
+3. Se o _token_ tiver restrição de URL configurada (`URL restrictions`), adicione a URL da sua aplicação (local e/ou de produção) à lista de permitidas;
+4. Defina `MAPBOX_REFERER_URL` com essa mesma URL — ela é enviada no header `Referer` das requisições ao Mapbox Directions API e precisa corresponder a uma das URLs permitidas pelo _token_, ou as requisições serão rejeitadas.
 
 #### Supabase
 
