@@ -1,8 +1,9 @@
-import Stripe from 'stripe'
-import { createClient } from '@/src/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-import { stripe } from '@/src/lib/stripe'
+import Stripe from 'stripe'
 import { logger } from '@/src/lib/logger'
+import { stripe } from '@/src/lib/stripe'
+import { Database } from '@/src/types/supabase'
 
 const log = logger.child({
   module: 'api',
@@ -16,8 +17,13 @@ type SplitItem = {
   amount: number
 }
 
+const admin = createAdminClient<Database>(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SECRET_KEY!
+)
+
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
+  const supabase = admin
   const reqLog = log.child({ id: crypto.randomUUID() })
 
   const body = await request.text()

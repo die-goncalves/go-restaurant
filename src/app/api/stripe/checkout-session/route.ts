@@ -1,14 +1,21 @@
-import { stripe } from '@/src/lib/stripe'
-import { createClient } from '@/src/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { logger } from '@/src/lib/logger'
+import { stripe } from '@/src/lib/stripe'
+import { createClient } from '@/src/lib/supabase/server'
+import { Database } from '@/src/types/supabase'
 
 const log = logger.child({
   module: 'api',
   route: '/api/stripe/checkout-session',
   method: 'POST'
 })
+
+const admin = createAdminClient<Database>(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SECRET_KEY!
+)
 
 export async function POST(request: NextRequest) {
   const reqLog = log.child({ id: crypto.randomUUID() })
@@ -138,7 +145,7 @@ export async function POST(request: NextRequest) {
           profileId: profile.id
         }
       })
-      await supabase.from('customers').insert([
+      await admin.from('customers').insert([
         {
           profile_id: profile.id,
           stripe_customer_id: stripeCustomer.id
@@ -177,7 +184,7 @@ export async function POST(request: NextRequest) {
       cancel_url: `${domainURL}/canceled`
     })
 
-    await supabase
+    await admin
       .from('session_splits')
       .insert({ session_id: session.id, splits: splits })
 

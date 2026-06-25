@@ -24,7 +24,7 @@ export async function deleteAccount() {
     return { error: 'Unauthenticated user' }
   }
 
-  const { data: profileData, error: profileError } = await supabase
+  const { data: profileData, error: profileError } = await admin
     .from('profiles')
     .update({
       is_deleted: true,
@@ -47,7 +47,7 @@ export async function deleteAccount() {
   if (deleteUserError) {
     reqLog.error({ error: deleteUserError }, 'Failed to delete auth user')
 
-    const { error: rollbackError } = await supabase
+    const { error: rollbackError } = await admin
       .from('profiles')
       .update({
         is_deleted: false,
