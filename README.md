@@ -198,6 +198,9 @@ $ npm install
 ```bash
 # .env.local
 
+# URL
+APP_URL=
+
 # MAPBOX
 NEXT_PUBLIC_MAPBOX_GL_PUBLISHABLE_KEY=
 MAPBOX_REFERER_URL=
@@ -214,6 +217,10 @@ SUPABASE_SECRET_KEY=
 ```
 
 ### Configuração
+
+#### URL
+
+1. Defina `APP_URL` como o endereço base onde sua aplicação está rodando. Em ambiente de desenvolvimento local, utilize `http://localhost:3000`. Em produção, altere para o domínio oficial da sua aplicação na web.
 
 #### Mapbox
 

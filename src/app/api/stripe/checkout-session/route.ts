@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
       stripeCustomerId = stripeCustomer.id
     }
 
-    const domainURL = process.env.DOMAIN || 'http://localhost:3000'
+    const baseUrl = process.env.APP_URL
 
     const session = await stripe.checkout.sessions.create({
       customer: stripeCustomerId,
@@ -180,8 +180,8 @@ export async function POST(request: NextRequest) {
         }
       ],
       allow_promotion_codes: true,
-      success_url: `${domainURL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${domainURL}/canceled`
+      success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/canceled`
     })
 
     await admin
