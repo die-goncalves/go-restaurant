@@ -71,17 +71,15 @@ export function SubmitButton() {
 
   return (
     <Button
-      variant={session?.user && !!cartCount ? 'solid' : 'ghost'}
+      variant="solid"
       aria-disabled={isDisabled || isPending}
       onClick={handleSubmit}
     >
       {isPending
         ? 'Processando...'
         : session?.user
-          ? !cartCount
-            ? 'Carrinho vazio'
-            : 'Confirmar'
-          : 'Entrar para finalizar'}
+          ? 'Finalizar compra'
+          : 'Entrar para continuar'}
     </Button>
   )
 }

@@ -101,20 +101,46 @@ export function Cart() {
                           >
                             <div
                               className={css({
+                                position: 'relative',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 margin: 'auto'
                               })}
                             >
-                              <SentimentDissatisfiedIcon
+                              <div
                                 className={css({
-                                  boxSize: '52',
-                                  fill: 'fg'
+                                  position: 'relative',
+                                  boxSizing: 'content-box',
+                                  display: 'flex',
+                                  marginInline: 'auto',
+                                  marginBlockEnd: '3'
                                 })}
-                              />
-                              <p className={css({ fontSize: 'lg' })}>
-                                Sem comida no carrinho
-                              </p>
+                              >
+                                <SentimentDissatisfiedIcon
+                                  className={css({
+                                    boxSize: '10',
+                                    fill: 'surface.on'
+                                  })}
+                                />
+                              </div>
+                              <div className={css({ textAlign: 'center' })}>
+                                <p
+                                  className={css({
+                                    fontWeight: 'medium',
+                                    marginBlockEnd: '1'
+                                  })}
+                                >
+                                  O carrinho está vazio
+                                </p>
+                                <p
+                                  className={css({
+                                    fontSize: 'sm',
+                                    color: 'surface.on.variant'
+                                  })}
+                                >
+                                  Adicione produtos para vê-los aqui.
+                                </p>
+                              </div>
                             </div>
                           </div>
                         ) : (
@@ -203,7 +229,10 @@ export function Cart() {
                                               base: '3',
                                               medium: '4'
                                             },
-                                            padding: { base: '3', medium: '4' }
+                                            padding: {
+                                              base: '3',
+                                              medium: '4'
+                                            }
                                           })}
                                         >
                                           <div
@@ -456,7 +485,7 @@ export function Cart() {
                         Cancelar
                       </Button>
 
-                      <SubmitButton />
+                      {!!cartCount && <SubmitButton />}
                     </div>
                   </div>
                 </footer>
