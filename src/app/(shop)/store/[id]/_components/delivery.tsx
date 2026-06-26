@@ -5,8 +5,8 @@ import { DirectionsCarIcon } from '@/src/components/icons/directions-car'
 import { DistanceIcon } from '@/src/components/icons/distance'
 import { usePosition } from '@/src/contexts/position-context'
 import { setCookie } from '@/src/utils/cookies'
-import { getRoute } from '@/src/utils/directions'
 import { css } from '@/styled-system/css'
+import { getDeliveryRoute } from '../_actions/get-delivery-route'
 
 type DeliveryProps = {
   coordinates: {
@@ -26,28 +26,31 @@ export function Delivery({ coordinates }: DeliveryProps) {
   useEffect(() => {
     async function deliveryInfo() {
       if (state?.currentPosition && coordinates) {
-        const result = await getRoute(
+        const result = await getDeliveryRoute(
           {
             lng: state.currentPosition.coordinates.longitude,
             lat: state.currentPosition.coordinates.latitude
           },
           { lng: coordinates.lng, lat: coordinates.lat }
         )
+        if (!result.success) {
+          return
+        }
 
-        const price = Math.round(result.distance / 1000) * 0.12
+        const price = Math.round(result.data.distance / 1000) * 0.12
 
         setPriceDistanceAndTime({
           price,
-          distance: result.distance,
-          time: result.duration
+          distance: result.data.distance,
+          time: result.data.duration
         })
 
         setCookie(
           '@gorestaurant-v0.1.0:shipping',
           JSON.stringify({
             price: price.toFixed(2),
-            distance: (result.distance / 1000).toFixed(2),
-            time: (result.duration / 60).toFixed(2),
+            distance: (result.data.distance / 1000).toFixed(2),
+            time: (result.data.duration / 60).toFixed(2),
             user_location: state.currentPosition
           }),
           { maxAge: 60 * 60 * 24 * 365, path: '/' }
