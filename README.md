@@ -315,7 +315,29 @@ Acesse a aplicação publicada clicando no badge abaixo.
 
 ## Demonstração
 
-Veja abaixo vídeos demonstrando as principais funcionalidades da aplicação.
+### Versão atual
+
+Veja abaixo vídeos demonstrando as principais funcionalidades da aplicação nas resoluções de 320px e 1440px.
+
+https://github.com/user-attachments/assets/c5f1b0dc-8b82-46e7-862c-d27c350df260
+
+https://github.com/user-attachments/assets/b33ea1a1-012d-4fd5-81ee-56a3586390ba
+
+
+### Versão anterior
+
+O projeto passou por uma reformulação completa de interface, fluxo e arquitetura. Confira a seguir os registros da versão anterior a essas mudanças.
+
+<table>
+  <tr>
+    <td align="center"><b>320px</b></td>
+    <td align="center"><b>1440px</b></td>
+  </tr>
+  <tr>
+    <td align="left" valign="top"><img src="assets/gifs/320px.gif"></td>
+    <td align="left" valign="top"><img src="assets/gifs/1440px.gif"></td>
+  </tr>
+</table>
 
 ## Agradecimento
 
